@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+
 export async function GET(req: NextRequest) {
   // 1. Get the search term from the query string (?query=banana)
   const { searchParams } = new URL(req.url);
