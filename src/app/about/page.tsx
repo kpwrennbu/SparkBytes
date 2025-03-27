@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { Button } from "antd";
+import {supabase } from "../lib/supabaseClient";
 
 export default function AboutPage() {
   const [query, setQuery] = useState("");
@@ -13,7 +15,7 @@ export default function AboutPage() {
     setLoading(true);
     setError("");
     setFoods([]);
-
+    
     try {
       const res = await fetch(`/api/fooddata?query=${query}`);
       if (!res.ok) {
@@ -24,6 +26,7 @@ export default function AboutPage() {
 
       if (data.foods && data.foods.length > 0) {
         setFoods(data.foods);
+        console.log(data.foods);
       } else {
         setError("No foods found");
       }
@@ -33,7 +36,21 @@ export default function AboutPage() {
       setLoading(false);
     }
   };
+  const addToFoodDB = async () => { 
+    console.log("Fortnite");
+    const { data, error } = await supabase
+    .from('Food')
+    .insert([
+      { name: foods[0]["description"], serving_size: foods[0]["servingSize"] + foods[0]["servingSizeUnit"], carbs: foods[0]["carbsPerServing"], proteins: foods[0]["proteinPerServing"], fats: foods[0]["fatsPerServing"], allergies: foods[0]["allergens"], quantity: 1}
+    ])
 
+  if (error) {
+    console.error('Insert error:', error)
+  } else {
+    console.log('Inserted data:', data)
+  }
+  setFoods([]);
+    }
   return (
     <div style={{ padding: "1em" }}>
       <h1>About Page</h1>
@@ -96,6 +113,14 @@ export default function AboutPage() {
           )}
         </div>
       ))}
+      {foods && ( 
+         <div> 
+         <Button onClick={addToFoodDB}> 
+             Add item to Food DB
+         </Button>
+       </div>
+      )}
+     
     </div>
   );
 }
