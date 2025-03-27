@@ -1,6 +1,5 @@
 "use client";
 import styles from "./page.module.css";
-import Navigation from "./components/Navigation";
 import FoodCard from "./components/FoodCard";
 import { Flex } from "antd";
 import { useState } from "react";
