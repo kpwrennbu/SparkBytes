@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Modal, Button, Form, Space, Input, Select, DatePicker, TimePicker } from "antd";
+import { Modal, Button, Form, Space, Input, Select, DatePicker, TimePicker, Flex, Image, Table } from "antd";
 import dayjs from 'dayjs';
 import { PlusCircleOutlined } from '@ant-design/icons';
 import SearchFood from "./SearchFood";
@@ -15,18 +15,86 @@ const layout = {
   };
 export default function CreateEvent() {
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isTableVisible, setIsTableVisible] = useState(false);
   const format = 'HH:mm a';
-
-//   const allergies: Record<string, string> = {
-//     "Dairy": "/allergyIcons/dairy-free.png",
-//     "Egg": "/allergyIcons/egg-free.png",
-//     "Fish": "/allergyIcons/fish-free.png",
-//     "Gluten": "/allergyIcons/gluten-free.png", 
-//     "Peanut": "/allergyIcons/peanut-free.png",
-//     "Seafood": "/allergyIcons/seafood-free.png",
-//     "Soy": "/allergyIcons/soy-free.png",
-//     "Tree Nut": "/allergyIcons/treeNut-free.png"
-//   }
+  const data = [
+        { 
+        key: 1,
+        food: "BLT",
+        quantity: 2,
+        calories: 540,
+        protein: 15,
+        fat: 20,
+        carbs: 5,
+        allergies: ["Gluten", "Tree Nut"]
+      }, 
+      {
+        key: 2, 
+        food: "Fortnite Sandwich",
+        quantity: 5,
+        calories: 540,
+        protein: 15,
+        fat: 20,
+        carbs: 5,
+        allergies: ["Gluten", "Tree Nut"]
+      }  
+      ]
+    const columms = [ 
+        {
+          title: 'Quantity',
+          dataIndex: 'quantity',
+          key: 'quantity',
+        },
+        {
+          title: 'Name',
+          dataIndex: 'food',
+          key: 'food',
+        },
+        {
+          title: 'Calories',
+          dataIndex: 'calories',
+          key: 'calories',
+        },
+        {
+          title: 'Protein',
+          dataIndex: 'protein',
+          key: 'protein',
+        },
+        {
+          title: 'Carbs',
+          dataIndex: 'carbs',
+          key: 'carbs',
+        },
+        {
+          title: 'Fat',
+          dataIndex: 'fat',
+          key: 'fat',
+        },
+        {
+          title: 'Allergies',
+          dataIndex: 'allergies',
+          key: 'allergies',
+          render: (allergy: string[]) => (
+            <div style={{ display: "flex", width: "100%", gap: "8px", alignItems: "center" }}>
+              {allergy.map((item, index) => (
+                <div key={index}>
+                  <Image width={16} height={16} src={allergies[item]} alt={item} />
+                </div>
+              ))}
+            </div>
+          )
+              }
+      ]
+  const allergies: Record<string, string> = {
+    "Dairy": "/allergyIcons/dairy-free.png",
+    "Egg": "/allergyIcons/egg-free.png",
+    "Fish": "/allergyIcons/fish-free.png",
+    "Gluten": "/allergyIcons/gluten-free.png", 
+    "Peanut": "/allergyIcons/peanut-free.png",
+    "Seafood": "/allergyIcons/seafood-free.png",
+    "Soy": "/allergyIcons/soy-free.png",
+    "Tree Nut": "/allergyIcons/treeNut-free.png"
+  }
 const [form] = Form.useForm();
 //   const onGenderChange = value => {
 //     switch (value) {
@@ -66,6 +134,8 @@ const [form] = Form.useForm();
           body: { height: "100vh", margin: 0, padding: 0 },
         }}
       >
+
+    <Flex justify="space-between" align="center">
         <Form
       {...layout}
       form={form}
@@ -105,7 +175,7 @@ const [form] = Form.useForm();
          <TimePicker.RangePicker use12Hours format={format} />     
         </Form.Item>
         <Form.Item label="Food Picker">
-            <SearchFood /> 
+            <SearchFood setIsTableVisible={setIsTableVisible}/> 
         </Form.Item>
       <Form.Item {...tailLayout}>
         <Space>
@@ -121,6 +191,10 @@ const [form] = Form.useForm();
         </Space>
       </Form.Item>
     </Form>
+    <Table dataSource={data} columns={columms}> 
+
+    </Table>
+    </Flex>
       </Modal>
     </>
   );
