@@ -4,9 +4,8 @@ import { useState } from "react";
 import { Button } from "antd";
 import {supabase } from "../lib/supabaseClient";
 
-export default function SearchFood({ setIsTableVisible }) {
+export default function SearchFood({ setIsTableVisible, foods, setFoods}) {
   const [query, setQuery] = useState("");
-  const [foods, setFoods] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -36,52 +35,7 @@ export default function SearchFood({ setIsTableVisible }) {
       setLoading(false);
     }
   };
-  const addToFoodDB = async () => { 
-    // Insert into Food table
-    const { data: foodData, error: foodError } = await supabase
-      .from('Food')
-      .insert([
-        {
-          name: foods[0]["description"],
-          serving_size: foods[0]["servingSize"] + foods[0]["servingSizeUnit"],
-          carbs: foods[0]["carbsPerServing"],
-          proteins: foods[0]["proteinPerServing"],
-          fats: foods[0]["fatsPerServing"],
-          allergies: foods[0]["allergens"],
-          quantity: 1
-        }
-      ])
-      .select(); // ensure it returns the inserted rows (incl. IDs)
-  
-    if (foodError) {
-      console.error('Insert error (Food):', foodError);
-      return;
-    } else {
-      console.log('Inserted food data:', foodData);
-    }
-  
-    // Assuming the 'id' of the inserted food is needed for EventsFood
-    const foodId = foodData[0]?.id;
-  
-    if (foodId) {
-      const { data: eventsFoodData, error: eventsFoodError } = await supabase
-        .from('EventsFood')
-        .insert([
-          {
-            event_id: 1, // replace with actual event ID
-            food_id: foodId
-          }
-        ]);
-  
-      if (eventsFoodError) {
-        console.error('Insert error (EventsFood):', eventsFoodError);
-      } else {
-        console.log('Inserted into EventsFood:', eventsFoodData);
-      }
-    }
-    setIsTableVisible(true);
-    setFoods([]);
-  }
+
   
   return (
     <div style={{ padding: "1em" }}>
@@ -145,13 +99,6 @@ export default function SearchFood({ setIsTableVisible }) {
           )}
         </div>
       ))}
-      {foods && ( 
-         <div> 
-         <Button onClick={addToFoodDB}> 
-             Add Food to Event
-         </Button>
-       </div>
-      )}
      
     </div>
   );
