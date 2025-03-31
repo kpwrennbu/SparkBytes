@@ -1,9 +1,9 @@
 "use client";
 import styles from "./page.module.css";
-import Navigation from "./components/Navigation";
 import FoodCard from "./components/FoodCard";
 import { Flex } from "antd";
 import { useState } from "react";
+import CreateEvent from "./components/CreateEvent";
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -110,10 +110,15 @@ export default function Home() {
     }
     return 0;
   });
+  console.log("sortedData: " + sortedData)
   
   return (
     <div className={styles.page}>
-      <h1>Welcome to the Home Page</h1>
+      <div>
+        <h1>Welcome to the Home Page</h1>
+        <CreateEvent /> 
+      </div>
+      
 
       <div style={{ marginBottom: "20px", textAlign: "center" }}>
         <input

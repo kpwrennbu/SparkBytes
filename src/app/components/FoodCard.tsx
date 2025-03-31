@@ -25,16 +25,7 @@ interface EventProps {
 export default function FoodCard({ location, description, time, img, food }: EventProps) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   console.log(food)
-  const allergies: Record<string, string> = {
-    "Dairy": "/allergyIcons/dairy-free.png",
-    "Egg": "/allergyIcons/egg-free.png",
-    "Fish": "/allergyIcons/fish-free.png",
-    "Gluten": "/allergyIcons/gluten-free.png", 
-    "Peanut": "/allergyIcons/peanut-free.png",
-    "Seafood": "/allergyIcons/seafood-free.png",
-    "Soy": "/allergyIcons/soy-free.png",
-    "Tree Nut": "/allergyIcons/treeNut-free.png"
-  }
+
 
   const columms = [ 
     {

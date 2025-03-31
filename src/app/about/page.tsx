@@ -1,5 +1,6 @@
 "use client";
 
+
 import { useState } from "react";
 
 export default function AboutPage() {
@@ -97,5 +98,10 @@ export default function AboutPage() {
         </div>
       ))}
     </div>
+
+export default function AboutPage() {
+  return (
+    <h1>About Page</h1>
+
   );
 }
