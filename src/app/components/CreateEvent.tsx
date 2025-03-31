@@ -1,20 +1,12 @@
 "use client";
 import { useState } from "react";
 import { Modal, Button, Form, Space, Input, Select, DatePicker, TimePicker, Flex, Image, Table, Typography } from "antd";
-import dayjs from 'dayjs';
 import { PlusCircleOutlined } from '@ant-design/icons';
+import { Food, TableRow, FormValues } from "@/types";
 import SearchFood from "./SearchFood";
+import supabase from "../api/supabaseClient";
 const { Option } = Select;
-type TableRow = {
-    key: number;
-    food: string;
-    quantity: number;
-    serving_size: string;
-    proteins: number;
-    fats: number;
-    carbs: number;
-    allergies: string[];
-  };
+
   
 const layout = {
     labelCol: { span: 8 },
@@ -26,10 +18,20 @@ const layout = {
 export default function CreateEvent() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isTableVisible, setIsTableVisible] = useState(false);
-  const [foods, setFoods] = useState<any[]>([]);
+  const [foods, setFoods] = useState<Food[]>([]);
   const [tableData, setTableData] = useState<TableRow[]>([]);
   const format = 'HH:mm a';
    
+  const all: Record<string, string> = {
+    "Dairy": "/allergyIcons/dairy-free.png",
+    "Egg": "/allergyIcons/egg-free.png",
+    "Fish": "/allergyIcons/fish-free.png",
+    "Gluten": "/allergyIcons/gluten-free.png", 
+    "Peanut": "/allergyIcons/peanut-free.png",
+    "Seafood": "/allergyIcons/seafood-free.png",
+    "Soy": "/allergyIcons/soy-free.png",
+    "Tree Nut": "/allergyIcons/treeNut-free.png"
+  }
     const columms = [ 
         {
           title: 'Quantity',
@@ -92,7 +94,7 @@ const [form] = Form.useForm();
 //       default:
 //     }
 //   };
-  const onFinish = values => {
+  const onFinish = (values: FormValues) => {
     console.log(values);
   };
   const onReset = () => {
@@ -108,11 +110,11 @@ const [form] = Form.useForm();
         quantity: 1,
         serving_size: foods[0]["servingSize"] + foods[0]["servingSizeUnit"],
         proteins: foods[0]["proteinPerServing"],
-        fats: foods[0]["fatsPerServing"],
+        fats: foods[0]["fatPerServing"],
         carbs: foods[0]["carbsPerServing"], 
         allergies: foods[0]["allergens"],
       };
-      
+    addToFoodDB(); // prob shouldnt be here
     setTableData([...tableData, newData])
     setFoods([])
   }
@@ -126,7 +128,7 @@ const [form] = Form.useForm();
           serving_size: foods[0]["servingSize"] + foods[0]["servingSizeUnit"],
           carbs: foods[0]["carbsPerServing"],
           proteins: foods[0]["proteinPerServing"],
-          fats: foods[0]["fatsPerServing"],
+          fats: foods[0]["fatPerServing"],
           allergies: foods[0]["allergens"],
           quantity: 1
         }
@@ -218,7 +220,7 @@ const [form] = Form.useForm();
          <TimePicker.RangePicker use12Hours format={format} />     
         </Form.Item>
         <Form.Item label="Food Picker">
-            <SearchFood setIsTableVisible={setIsTableVisible} foods={foods} setFoods={setFoods}/> 
+            <SearchFood isTableVisible={isTableVisible} setIsTableVisible={setIsTableVisible} foods={foods} setFoods={setFoods}/> 
         </Form.Item>
       <Form.Item {...tailLayout}>
       {foods && ( 

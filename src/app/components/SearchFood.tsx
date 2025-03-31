@@ -1,5 +1,5 @@
 "use client";
-
+import { SearchFoodProps } from "@/types";
 import { useState } from "react";
 import {
   Input,
@@ -15,7 +15,7 @@ import Image from "next/image";
 
 const { Title, Text } = Typography;
 
-export default function SearchFood({ setIsTableVisible, foods, setFoods}) {
+export default function SearchFood({ isTableVisible, setIsTableVisible, foods, setFoods}: SearchFoodProps) {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -25,7 +25,8 @@ export default function SearchFood({ setIsTableVisible, foods, setFoods}) {
     setLoading(true);
     setError("");
     setFoods([]);
-
+    console.log(isTableVisible); 
+    console.log(setIsTableVisible);
     try {
       const res = await fetch(`/api/fooddata?query=${query}`);
       if (!res.ok) throw new Error("API call failed");
@@ -33,11 +34,18 @@ export default function SearchFood({ setIsTableVisible, foods, setFoods}) {
 
       if (data.foods && data.foods.length > 0) {
         setFoods(data.foods);
+        console.log(data.foods);
       } else {
         setError("No foods found.");
       }
-    } catch (err: any) {
-      setError(err.message || "Something went wrong.");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+        console.error("Error:", err);
+      } else {
+        setError("An unexpected error occurred.");
+        console.error("Unknown error:", err);
+      }
     } finally {
       setLoading(false);
     }
@@ -63,6 +71,7 @@ export default function SearchFood({ setIsTableVisible, foods, setFoods}) {
       console.error("Insert error:", error);
     } else {
       message.success("Item added to Food DB!");
+      console.log(data)
     }
 
     setFoods([]);
@@ -81,7 +90,8 @@ export default function SearchFood({ setIsTableVisible, foods, setFoods}) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
-        <Button type="primary" onClick={handleSearch} loading={loading}>
+        <Button type="primary" onClick={handleSearch} loading={loading} style={{
+              background: "#52c41a" }} >
           Search
         </Button>
       </Space.Compact>
@@ -100,7 +110,7 @@ export default function SearchFood({ setIsTableVisible, foods, setFoods}) {
           <Title
             level={3}
             style={{
-              color: "#389e0d",
+              color: "#52c41a",
               marginBottom: "0.25em",
               fontWeight: 600,
             }}

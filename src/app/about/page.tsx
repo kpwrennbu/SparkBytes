@@ -1,11 +1,11 @@
 "use client";
 
-
+import { Food } from "@/types";
 import { useState } from "react";
 
-export default function AboutPage() {
+export default function AboutPage(){ 
   const [query, setQuery] = useState("");
-  const [foods, setFoods] = useState<any[]>([]);
+  const [foods, setFoods] = useState<Food[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -28,8 +28,14 @@ export default function AboutPage() {
       } else {
         setError("No foods found");
       }
-    } catch (err: any) {
-      setError(err.message || "Something went wrong");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+        console.error("Error:", err);
+      } else {
+        setError("An unexpected error occurred.");
+        console.error("Unknown error:", err);
+      }
     } finally {
       setLoading(false);
     }
@@ -98,10 +104,5 @@ export default function AboutPage() {
         </div>
       ))}
     </div>
-
-export default function AboutPage() {
-  return (
-    <h1>About Page</h1>
-
-  );
+  )
 }
