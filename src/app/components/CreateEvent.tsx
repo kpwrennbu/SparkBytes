@@ -1,11 +1,21 @@
 "use client";
 import { useState } from "react";
-import { Modal, Button, Form, Space, Input, Select, DatePicker, TimePicker } from "antd";
+import { Modal, Button, Form, Space, Input, Select, DatePicker, TimePicker, Flex, Image, Table, Typography } from "antd";
 import dayjs from 'dayjs';
 import { PlusCircleOutlined } from '@ant-design/icons';
 import SearchFood from "./SearchFood";
 const { Option } = Select;
-
+type TableRow = {
+    key: number;
+    food: string;
+    quantity: number;
+    serving_size: string;
+    proteins: number;
+    fats: number;
+    carbs: number;
+    allergies: string[];
+  };
+  
 const layout = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
@@ -15,18 +25,58 @@ const layout = {
   };
 export default function CreateEvent() {
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isTableVisible, setIsTableVisible] = useState(false);
+  const [foods, setFoods] = useState<any[]>([]);
+  const [tableData, setTableData] = useState<TableRow[]>([]);
   const format = 'HH:mm a';
+   
+    const columms = [ 
+        {
+          title: 'Quantity',
+          dataIndex: 'quantity',
+          key: 'quantity',
+        },
+        {
+          title: 'Name',
+          dataIndex: 'food',
+          key: 'food',
+        },
+        {
+          title: 'Calories',
+          dataIndex: 'calories',
+          key: 'calories',
+        },
+        {
+          title: 'Protein',
+          dataIndex: 'protein',
+          key: 'protein',
+        },
+        {
+          title: 'Carbs',
+          dataIndex: 'carbs',
+          key: 'carbs',
+        },
+        {
+          title: 'Fat',
+          dataIndex: 'fat',
+          key: 'fat',
+        },
+        {
+          title: 'Allergies',
+          dataIndex: 'allergies',
+          key: 'allergies',
+          render: (allergy: string[]) => (
+            <div style={{ display: "flex", width: "100%", gap: "8px", alignItems: "center" }}>
+              {allergy.map((item, index) => (
+                <div key={index}>
+                  <Image width={16} height={16} src={all[item]} alt={item} />
+                </div>
+              ))}
+            </div>
+          )
+              }
+      ]
 
-//   const allergies: Record<string, string> = {
-//     "Dairy": "/allergyIcons/dairy-free.png",
-//     "Egg": "/allergyIcons/egg-free.png",
-//     "Fish": "/allergyIcons/fish-free.png",
-//     "Gluten": "/allergyIcons/gluten-free.png", 
-//     "Peanut": "/allergyIcons/peanut-free.png",
-//     "Seafood": "/allergyIcons/seafood-free.png",
-//     "Soy": "/allergyIcons/soy-free.png",
-//     "Tree Nut": "/allergyIcons/treeNut-free.png"
-//   }
 const [form] = Form.useForm();
 //   const onGenderChange = value => {
 //     switch (value) {
@@ -51,6 +101,67 @@ const [form] = Form.useForm();
   const onFill = () => {
     form.setFieldsValue({ note: 'Hello world!', gender: 'male' });
   };
+  const addFoodToEventsTable = () => { 
+    const newData: TableRow = { 
+        key: tableData.length + 1, // or use a UUID if preferred
+        food: foods[0]["description"],
+        quantity: 1,
+        serving_size: foods[0]["servingSize"] + foods[0]["servingSizeUnit"],
+        proteins: foods[0]["proteinPerServing"],
+        fats: foods[0]["fatsPerServing"],
+        carbs: foods[0]["carbsPerServing"], 
+        allergies: foods[0]["allergens"],
+      };
+      
+    setTableData([...tableData, newData])
+    setFoods([])
+  }
+  const addToFoodDB = async () => { 
+    // Insert into Food table
+    const { data: foodData, error: foodError } = await supabase
+      .from('Food')
+      .insert([
+        {
+          name: foods[0]["description"],
+          serving_size: foods[0]["servingSize"] + foods[0]["servingSizeUnit"],
+          carbs: foods[0]["carbsPerServing"],
+          proteins: foods[0]["proteinPerServing"],
+          fats: foods[0]["fatsPerServing"],
+          allergies: foods[0]["allergens"],
+          quantity: 1
+        }
+      ])
+      .select(); // ensure it returns the inserted rows (incl. IDs)
+  
+    if (foodError) {
+      console.error('Insert error (Food):', foodError);
+      return;
+    } else {
+      console.log('Inserted food data:', foodData);
+    }
+  
+    // Assuming the 'id' of the inserted food is needed for EventsFood
+    const foodId = foodData[0]?.id;
+  
+    if (foodId) {
+      const { data: eventsFoodData, error: eventsFoodError } = await supabase
+        .from('EventsFood')
+        .insert([
+          {
+            event_id: 1, // replace with actual event ID
+            food_id: foodId
+          }
+        ]);
+  
+      if (eventsFoodError) {
+        console.error('Insert error (EventsFood):', eventsFoodError);
+      } else {
+        console.log('Inserted into EventsFood:', eventsFoodData);
+      }
+    }
+    setIsTableVisible(true);
+    setFoods([]);
+  }
   return (
     <>
     <Button icon={<PlusCircleOutlined />} onClick={() => setIsModalVisible(true)} />
@@ -66,12 +177,14 @@ const [form] = Form.useForm();
           body: { height: "100vh", margin: 0, padding: 0 },
         }}
       >
+    <Typography.Text>Create an Event </Typography.Text>
+    <Flex justify="space-between" align="center" style={{padding: "2em"}} gap="2em">
         <Form
       {...layout}
       form={form}
       name="control-hooks"
       onFinish={onFinish}
-      style={{ maxWidth: 600 }}
+
     >
       <Form.Item name="eventName" label="Event Name" rules={[{ required: true }]}>
         <Input />
@@ -105,9 +218,16 @@ const [form] = Form.useForm();
          <TimePicker.RangePicker use12Hours format={format} />     
         </Form.Item>
         <Form.Item label="Food Picker">
-            <SearchFood /> 
+            <SearchFood setIsTableVisible={setIsTableVisible} foods={foods} setFoods={setFoods}/> 
         </Form.Item>
       <Form.Item {...tailLayout}>
+      {foods && ( 
+         <div> 
+         <Button onClick={addFoodToEventsTable}> 
+             Add Food to Event
+         </Button>
+       </div>
+      )}
         <Space>
           <Button type="primary" htmlType="submit">
             Submit
@@ -121,6 +241,10 @@ const [form] = Form.useForm();
         </Space>
       </Form.Item>
     </Form>
+    <Table dataSource={tableData} columns={columms} style={{alignSelf: "flex-start"}}> 
+
+    </Table>
+    </Flex>
       </Modal>
     </>
   );

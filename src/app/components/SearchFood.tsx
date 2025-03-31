@@ -15,9 +15,8 @@ import Image from "next/image";
 
 const { Title, Text } = Typography;
 
-export default function SearchFood() {
+export default function SearchFood({ setIsTableVisible, foods, setFoods}) {
   const [query, setQuery] = useState("");
-  const [foods, setFoods] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -44,6 +43,7 @@ export default function SearchFood() {
     }
   };
 
+
   const addToFoodDB = async () => {
     const food = foods[0];
     const { data, error } = await supabase.from("Food").insert([
@@ -67,6 +67,7 @@ export default function SearchFood() {
 
     setFoods([]);
   };
+
 
   return (
     <div style={{ padding: "1em", maxWidth: 720, margin: "0 auto" }}>
@@ -164,6 +165,7 @@ export default function SearchFood() {
           </Button>
         </Card>
       ))}
+
     </div>
   );
 }
