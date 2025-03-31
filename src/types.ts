@@ -34,6 +34,8 @@ export type Food = {
     setIsTableVisible: React.Dispatch<React.SetStateAction<boolean>>;
     foods: Food[];
     setFoods: React.Dispatch<React.SetStateAction<Food[]>>;
+    quantity: number, 
+    setQuantity: React.Dispatch<React.SetStateAction<number>>;
   };
 
 //props passed to the Form of the CreateEvent component

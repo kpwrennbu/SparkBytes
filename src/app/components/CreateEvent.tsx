@@ -18,6 +18,7 @@ const layout = {
 export default function CreateEvent() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isTableVisible, setIsTableVisible] = useState(false);
+  const [quantity, setQuantity] = useState(1);
   const [foods, setFoods] = useState<Food[]>([]);
   const [tableData, setTableData] = useState<TableRow[]>([]);
   const format = 'HH:mm a';
@@ -220,7 +221,7 @@ const [form] = Form.useForm();
          <TimePicker.RangePicker use12Hours format={format} />     
         </Form.Item>
         <Form.Item label="Food Picker">
-            <SearchFood isTableVisible={isTableVisible} setIsTableVisible={setIsTableVisible} foods={foods} setFoods={setFoods}/> 
+            <SearchFood isTableVisible={isTableVisible} setIsTableVisible={setIsTableVisible} foods={foods} setFoods={setFoods} quantity={quantity} setQuantity={setQuantity}/> 
         </Form.Item>
       <Form.Item {...tailLayout}>
       {foods && ( 

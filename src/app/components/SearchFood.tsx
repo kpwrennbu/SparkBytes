@@ -15,7 +15,7 @@ import Image from "next/image";
 
 const { Title, Text } = Typography;
 
-export default function SearchFood({ isTableVisible, setIsTableVisible, foods, setFoods}: SearchFoodProps) {
+export default function SearchFood({ isTableVisible, setIsTableVisible, foods, setFoods, quantity, setQuantity}: SearchFoodProps) {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -76,7 +76,6 @@ export default function SearchFood({ isTableVisible, setIsTableVisible, foods, s
 
     setFoods([]);
   };
-
 
   return (
     <div style={{ padding: "1em", maxWidth: 720, margin: "0 auto" }}>
@@ -164,6 +163,21 @@ export default function SearchFood({ isTableVisible, setIsTableVisible, foods, s
               <Text type="secondary">No common allergens detected.</Text>
             )}
           </div>
+          <Title level={5} style={{ marginBottom: 4 }}>
+              Please enter your quantity below: 
+            </Title>
+            <Input
+              placeholder="e.g. banana"
+              type="number"
+              min={1}
+              step={1}
+              value={quantity === 0 ? "" : quantity}
+              onChange={(e) => {
+                const val = e.target.value;
+                const num = Number(val);
+                setQuantity(num === 0 ? 1 : num);
+              }}
+                          />
 
           <Button
             type="primary"
