@@ -22,6 +22,7 @@ export default function CreateEvent() {
   const [quantityError, setQuantityError] = useState(false);
   const [foods, setFoods] = useState<Food[]>([]);
   const [tableData, setTableData] = useState<TableRow[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const format = 'HH:mm a';
    
   const all: Record<string, string> = {
@@ -258,7 +259,15 @@ const [form] = Form.useForm();
         </Space>
       </Form.Item>
     </Form>
-    <Table dataSource={tableData} columns={columms} style={{alignSelf: "flex-start"}}> 
+    <Table dataSource={tableData} columns={columms} style={{alignSelf: "flex-start"}} 
+        pagination={{
+          current: currentPage,
+          pageSize: 5,
+          onChange: (page) => {
+            setCurrentPage(page); 
+          },
+        }}
+    > 
 
     </Table>
     </Flex>
