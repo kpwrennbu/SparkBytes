@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
-import { Modal, Button, Form, Space, Input, Select, DatePicker, TimePicker, Flex, Image, Table, Typography } from "antd";
+import { Modal, Button, Form, Input, Select, DatePicker, TimePicker, Flex, Image, Table, Typography } from "antd";
+import type { TableRowSelection } from 'antd/es/table/interface';
 import { PlusCircleOutlined } from '@ant-design/icons';
 import { Food, TableRow, FormValues } from "@/types";
 import SearchFood from "./SearchFood";
@@ -100,12 +101,17 @@ const [form] = Form.useForm();
   const onFinish = (values: FormValues) => {
     console.log(values);
   };
-  const onReset = () => {
-    form.resetFields();
-  };
-  const onFill = () => {
-    form.setFieldsValue({ note: 'Hello world!', gender: 'male' });
-  };
+  // const onReset = () => {
+  //   form.resetFields();
+  // };
+  // const onFill = () => {
+  //   form.setFieldsValue({ note: 'Hello world!', gender: 'male' });
+  // };
+  const deleteRowsFromFoodTable = () => { 
+    const selectedRows = tableData.filter(row => !selectedRowKeys.includes(row.key));
+    setTableData(selectedRows)
+    setSelectedRowKeys([]);
+  }
   const addFoodToEventsTable = () => { 
     console.log(quantity);
     if (quantity === 0) { 
@@ -178,6 +184,14 @@ const [form] = Form.useForm();
   //   setFoods([]);
   // }
 
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+
+const rowSelection: TableRowSelection<TableRow> = {
+  selectedRowKeys,
+  onChange: (newSelectedRowKeys) => {
+    setSelectedRowKeys(newSelectedRowKeys);
+  },
+};
   const addEventToDB = async () => {
     const values = form.getFieldsValue();
   
@@ -268,15 +282,12 @@ const [form] = Form.useForm();
       <Form.Item {...tailLayout}>
       {foods && ( 
          <div> 
-         <Button onClick={addFoodToEventsTable}> 
-             Add Food to Event
-         </Button>
          {quantityError && ( 
             <Typography.Text type="danger">Error: Quantity cannot be zero or null</Typography.Text>
          )}
        </div>
       )}
-        <Space>
+        {/* <Space>
           <Button type="primary" htmlType="submit">
             Submit
           </Button>
@@ -286,7 +297,7 @@ const [form] = Form.useForm();
           <Button type="link" htmlType="button" onClick={onFill}>
             Fill form
           </Button>
-        </Space>
+        </Space> */}
       </Form.Item>
     </Form>
     <div>
@@ -298,8 +309,12 @@ const [form] = Form.useForm();
               setCurrentPage(page); 
             },
           }}
+          rowSelection={rowSelection}
+
       > 
       </Table>
+      {(selectedRowKeys.length !== 0)  && <Button onClick={deleteRowsFromFoodTable}>Delete Selected Rows</Button> }
+
     </div>
     </Flex>
         <div style={{ 
