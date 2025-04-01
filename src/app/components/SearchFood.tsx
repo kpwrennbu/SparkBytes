@@ -175,6 +175,7 @@ export default function SearchFood({ isTableVisible, setIsTableVisible, foods, s
               onChange={(e) => {
                 const val = e.target.value;
                 const num = Number(val);
+                console.log("num is: " + num);
                 setQuantity(num);
               }}
                           />

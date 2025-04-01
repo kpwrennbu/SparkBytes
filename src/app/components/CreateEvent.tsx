@@ -117,7 +117,7 @@ const [form] = Form.useForm();
     const newData: TableRow = { 
         key: tableData.length + 1, // or use a UUID if preferred
         food: foods[0]["description"],
-        quantity: 1,
+        quantity: quantity,
         serving_size: foods[0]["servingSize"] + foods[0]["servingSizeUnit"],
         proteins: foods[0]["proteinPerServing"],
         fats: foods[0]["fatPerServing"],
@@ -128,6 +128,7 @@ const [form] = Form.useForm();
     setTableData([...tableData, newData])
     setIsTableVisible(true);
     setFoods([])
+    setQuantity(1);
   }
   const addToFoodDB = async () => { 
     // Insert into Food table
