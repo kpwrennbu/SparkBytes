@@ -125,58 +125,100 @@ const [form] = Form.useForm();
         carbs: foods[0]["carbsPerServing"], 
         allergies: foods[0]["allergens"],
       };
-    addToFoodDB(); // prob shouldnt be here
+    // addToFoodDB(); // prob shouldnt be here
     setTableData([...tableData, newData])
     setIsTableVisible(true);
     setFoods([])
     setQuantity(1);
   }
-  const addToFoodDB = async () => { 
-    // Insert into Food table
-    const { data: foodData, error: foodError } = await supabase
-      .from('Food')
+  // const addToFoodDB = async () => { 
+  //   // Insert into Food table
+  //   const { data: foodData, error: foodError } = await supabase
+  //     .from('Food')
+  //     .insert([
+  //       {
+  //         name: foods[0]["description"],
+  //         serving_size: foods[0]["servingSize"] + foods[0]["servingSizeUnit"],
+  //         carbs: foods[0]["carbsPerServing"],
+  //         proteins: foods[0]["proteinPerServing"],
+  //         fats: foods[0]["fatPerServing"],
+  //         allergies: foods[0]["allergens"],
+  //         quantity: 1
+  //       }
+  //     ])
+  //     .select(); // ensure it returns the inserted rows (incl. IDs)
+  
+  //   if (foodError) {
+  //     console.error('Insert error (Food):', foodError);
+  //     return;
+  //   } else {
+  //     console.log('Inserted food data:', foodData);
+  //   }
+  
+  //   // Assuming the 'id' of the inserted food is needed for EventsFood
+  //   const foodId = foodData[0]?.id;
+  
+  //   if (foodId) {
+  //     const { data: eventsFoodData, error: eventsFoodError } = await supabase
+  //       .from('EventsFood')
+  //       .insert([
+  //         {
+  //           event_id: 1, // replace with actual event ID
+  //           food_id: foodId
+  //         }
+  //       ]);
+  
+  //     if (eventsFoodError) {
+  //       console.error('Insert error (EventsFood):', eventsFoodError);
+  //     } else {
+  //       console.log('Inserted into EventsFood:', eventsFoodData);
+  //     }
+  //   }
+  //   setIsTableVisible(true);
+  //   setFoods([]);
+  // }
+
+  const addEventToDB = async () => {
+    const values = form.getFieldsValue();
+  
+    const date = values.eventDate; // Moment object
+    const [startTime, endTime] = values.timeRange; // Moment objects
+  
+    // Combine date with start and end times
+    const time_start = date
+      .clone()
+      .hour(startTime.hour())
+      .minute(startTime.minute())
+      .second(0)
+      .toISOString();
+  
+    const time_end = date
+      .clone()
+      .hour(endTime.hour())
+      .minute(endTime.minute())
+      .second(0)
+      .toISOString();
+  
+    const { data, error } = await supabase
+      .from('Events')
       .insert([
         {
-          name: foods[0]["description"],
-          serving_size: foods[0]["servingSize"] + foods[0]["servingSizeUnit"],
-          carbs: foods[0]["carbsPerServing"],
-          proteins: foods[0]["proteinPerServing"],
-          fats: foods[0]["fatPerServing"],
-          allergies: foods[0]["allergens"],
-          quantity: 1
+          name: values.eventName,
+          location: values.location,
+          time_start: time_start,
+          time_end: time_end,
+          creator_id: 1
         }
-      ])
-      .select(); // ensure it returns the inserted rows (incl. IDs)
+      ]);
   
-    if (foodError) {
-      console.error('Insert error (Food):', foodError);
-      return;
+    if (error) {
+      console.error('Insert error (Events):', error);
     } else {
-      console.log('Inserted food data:', foodData);
+      console.log('Inserted event:', data);
     }
+  };
   
-    // Assuming the 'id' of the inserted food is needed for EventsFood
-    const foodId = foodData[0]?.id;
   
-    if (foodId) {
-      const { data: eventsFoodData, error: eventsFoodError } = await supabase
-        .from('EventsFood')
-        .insert([
-          {
-            event_id: 1, // replace with actual event ID
-            food_id: foodId
-          }
-        ]);
-  
-      if (eventsFoodError) {
-        console.error('Insert error (EventsFood):', eventsFoodError);
-      } else {
-        console.log('Inserted into EventsFood:', eventsFoodData);
-      }
-    }
-    setIsTableVisible(true);
-    setFoods([]);
-  }
   return (
     <>
     <Button icon={<PlusCircleOutlined />} onClick={() => setIsModalVisible(true)} />
@@ -209,27 +251,15 @@ const [form] = Form.useForm();
           placeholder="Select a option and change input text above"
           allowClear
         >
-          <Option value="male">Warren Towers</Option>
-          <Option value="female">Center for Computer and Data Science</Option>
-          <Option value="other">George Sherman Union</Option>
+          <Option value="warren">Warren Towers</Option>
+          <Option value="cds">Center for Computer and Data Science</Option>
+          <Option value="gsu">George Sherman Union</Option>
         </Select>
       </Form.Item>
-      <Form.Item
-        noStyle
-        shouldUpdate={(prevValues, currentValues) => prevValues.gender !== currentValues.gender}
-      >
-        {({ getFieldValue }) =>
-          getFieldValue('gender') === 'other' ? (
-            <Form.Item name="customizeGender" label="Customize Gender" rules={[{ required: true }]}>
-              <Input />
-            </Form.Item>
-          ) : null
-        }
-      </Form.Item>
-      <Form.Item label="RangePicker">
+      <Form.Item name="eventDate" label="Date" rules={[{ required: true }]}>
           <DatePicker />
         </Form.Item>
-        <Form.Item label="TimePicker">
+        <Form.Item name="timeRange" label="Time Range" rules={[{ required: true }]}>
          <TimePicker.RangePicker use12Hours format={format} />     
         </Form.Item>
         <Form.Item label="Food Picker">
@@ -259,18 +289,26 @@ const [form] = Form.useForm();
         </Space>
       </Form.Item>
     </Form>
-    <Table dataSource={tableData} columns={columms} style={{alignSelf: "flex-start"}} 
-        pagination={{
-          current: currentPage,
-          pageSize: 5,
-          onChange: (page) => {
-            setCurrentPage(page); 
-          },
-        }}
-    > 
-
-    </Table>
+    <div>
+      <Table dataSource={tableData} columns={columms} style={{alignSelf: "flex-start"}} 
+          pagination={{
+            current: currentPage,
+            pageSize: 5,
+            onChange: (page) => {
+              setCurrentPage(page); 
+            },
+          }}
+      > 
+      </Table>
+    </div>
     </Flex>
+        <div style={{ 
+          display: "flex", 
+          alignItems: "center", 
+          justifyContent: "center"
+        }}>
+          <Button onClick={addEventToDB}>Add Event</Button>
+        </div>
       </Modal>
     </>
   );

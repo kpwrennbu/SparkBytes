@@ -77,6 +77,11 @@ export default function SearchFood({ isTableVisible, setIsTableVisible, foods, s
     setFoods([]);
   };
 
+
+
+  // console.log(addToFoodDB()) //stupid call 
+
+
   return (
     <div style={{ padding: "1em", maxWidth: 720, margin: "0 auto" }}>
       <Text strong>Food Picker :</Text>
