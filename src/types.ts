@@ -1,6 +1,7 @@
 // src/types.ts
 
 // A food item returned from API or used in event creation
+
 export type Food = {
     allergens: string[];
     brandOwner: string;
@@ -29,6 +30,8 @@ export type Food = {
   };
   
   // Props passed to SearchFood component
+  export type AddFoodToEventsTable = (food: Food) => void;
+
   export type SearchFoodProps = {
     isTableVisible: boolean;
     setIsTableVisible: React.Dispatch<React.SetStateAction<boolean>>;
@@ -36,6 +39,7 @@ export type Food = {
     setFoods: React.Dispatch<React.SetStateAction<Food[]>>;
     quantity: number, 
     setQuantity: React.Dispatch<React.SetStateAction<number>>;
+    addFoodToEventsTable: AddFoodToEventsTable;
   };
 
 //props passed to the Form of the CreateEvent component

@@ -15,7 +15,7 @@ import Image from "next/image";
 
 const { Title, Text } = Typography;
 
-export default function SearchFood({ isTableVisible, setIsTableVisible, foods, setFoods, quantity, setQuantity}: SearchFoodProps) {
+export default function SearchFood({ isTableVisible, setIsTableVisible, foods, setFoods, quantity, setQuantity, addFoodToEventsTable}: SearchFoodProps) {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -62,7 +62,7 @@ export default function SearchFood({ isTableVisible, setIsTableVisible, foods, s
         proteins: food.proteinPerServing,
         fats: food.fatPerServing,
         allergies: food.allergens,
-        quantity: 1,
+        quantity: quantity,
       },
     ]);
 
@@ -175,7 +175,7 @@ export default function SearchFood({ isTableVisible, setIsTableVisible, foods, s
               onChange={(e) => {
                 const val = e.target.value;
                 const num = Number(val);
-                setQuantity(num === 0 ? 1 : num);
+                setQuantity(num);
               }}
                           />
 
@@ -183,7 +183,7 @@ export default function SearchFood({ isTableVisible, setIsTableVisible, foods, s
             type="primary"
             block
             style={{ marginTop: "1em", backgroundColor: "#52c41a" }}
-            onClick={addToFoodDB}
+            onClick={() => addFoodToEventsTable(foods[0])}
           >
             Add item to Food DB
           </Button>

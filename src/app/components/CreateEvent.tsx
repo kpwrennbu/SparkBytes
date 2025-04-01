@@ -19,6 +19,7 @@ export default function CreateEvent() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isTableVisible, setIsTableVisible] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [quantityError, setQuantityError] = useState(false);
   const [foods, setFoods] = useState<Food[]>([]);
   const [tableData, setTableData] = useState<TableRow[]>([]);
   const format = 'HH:mm a';
@@ -105,6 +106,14 @@ const [form] = Form.useForm();
     form.setFieldsValue({ note: 'Hello world!', gender: 'male' });
   };
   const addFoodToEventsTable = () => { 
+    console.log(quantity);
+    if (quantity === 0) { 
+      setQuantityError(true);
+      return;
+    }
+    else { 
+      setQuantityError(false);
+    }
     const newData: TableRow = { 
         key: tableData.length + 1, // or use a UUID if preferred
         food: foods[0]["description"],
@@ -117,6 +126,7 @@ const [form] = Form.useForm();
       };
     addToFoodDB(); // prob shouldnt be here
     setTableData([...tableData, newData])
+    setIsTableVisible(true);
     setFoods([])
   }
   const addToFoodDB = async () => { 
@@ -221,7 +231,7 @@ const [form] = Form.useForm();
          <TimePicker.RangePicker use12Hours format={format} />     
         </Form.Item>
         <Form.Item label="Food Picker">
-            <SearchFood isTableVisible={isTableVisible} setIsTableVisible={setIsTableVisible} foods={foods} setFoods={setFoods} quantity={quantity} setQuantity={setQuantity}/> 
+            <SearchFood isTableVisible={isTableVisible} setIsTableVisible={setIsTableVisible} foods={foods} setFoods={setFoods} quantity={quantity} setQuantity={setQuantity} addFoodToEventsTable={addFoodToEventsTable}/> 
         </Form.Item>
       <Form.Item {...tailLayout}>
       {foods && ( 
@@ -229,6 +239,9 @@ const [form] = Form.useForm();
          <Button onClick={addFoodToEventsTable}> 
              Add Food to Event
          </Button>
+         {quantityError && ( 
+            <Typography.Text type="danger">Error: Quantity cannot be zero or null</Typography.Text>
+         )}
        </div>
       )}
         <Space>
@@ -252,18 +265,3 @@ const [form] = Form.useForm();
     </>
   );
 }
-
-
-// const cardStyles = { //had to put it in these cus for some reason the styling wouldn't work
-//   borderRadius: "10px",
-//   boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-//   width: "25%",
-//   padding: "0.5em"
-// };
-// // const buttonStyle = { 
-// //   width: "25px"
-// // }
-// const timeStyle = {
-//   fontWeight: "bold",
-//   color: "#555",
-// };
