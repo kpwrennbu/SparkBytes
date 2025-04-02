@@ -131,6 +131,7 @@ export default function SearchFood({ isTableVisible, setIsTableVisible, foods, s
               Macros <Text type="secondary">(per serving)</Text>:
             </Title>
             <ul style={{ marginTop: 4 }}>
+              <li><strong>Calories:</strong> {food.caloriesPerServing.toFixed(0)} kcal</li>
               <li>Carbs: {food.carbsPerServing.toFixed(2)} g</li>
               <li>Protein: {food.proteinPerServing.toFixed(2)} g</li>
               <li>Fat: {food.fatPerServing.toFixed(2)} g</li>

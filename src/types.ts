@@ -13,6 +13,7 @@ export type Food = {
     fdcId: number;
     proteinPer100: number;
     proteinPerServing: number;
+    caloriesPerServing: number; 
     servingSize: number;
     servingSizeUnit: string;
   };

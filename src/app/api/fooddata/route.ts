@@ -38,6 +38,7 @@ export async function GET(req: NextRequest) {
     const carbsPer100 = getNutrientValue('Carbohydrate, by difference');
     const proteinPer100 = getNutrientValue('Protein');
     const fatPer100 = getNutrientValue('Total lipid (fat)');
+    const caloriesPer100 = getNutrientValue('Energy'); 
 
     // 5. Get serving size (default to 100 g if not provided)
     const servingSize = topResult.servingSize || 100;
@@ -46,6 +47,8 @@ export async function GET(req: NextRequest) {
     const carbsPerServing = (carbsPer100 * servingSize) / 100;
     const proteinPerServing = (proteinPer100 * servingSize) / 100;
     const fatPerServing = (fatPer100 * servingSize) / 100;
+    const caloriesPerServing = (caloriesPer100 * servingSize) / 100;
+    
 
     // 7. Parse ingredients to check for common allergens
     // Define a list of allergen keywords
@@ -67,10 +70,12 @@ export async function GET(req: NextRequest) {
       carbsPer100,
       proteinPer100,
       fatPer100,
+      caloriesPer100, 
       // Macros per serving
       carbsPerServing,
       proteinPerServing,
       fatPerServing,
+      caloriesPerServing, 
       // Common allergens detected
       allergens: foundAllergens,
     };

@@ -79,6 +79,7 @@ export default function AboutPage(){
 
           <h3>Macros (per 100 g):</h3>
           <ul>
+            <li><strong>Calories:</strong> {food.caloriesPerServing.toFixed(0)} kcal</li>
             <li>Carbs: {food.carbsPer100} g</li>
             <li>Protein: {food.proteinPer100} g</li>
             <li>Fat: {food.fatPer100} g</li>
