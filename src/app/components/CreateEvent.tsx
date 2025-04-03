@@ -29,17 +29,18 @@ export default function CreateEvent() {
   const [tableForm] = Form.useForm();
   const [editingKey, setEditingKey] = useState('');
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [unit, setUnit] = useState("");
   const format = 'HH:mm a';
 
   const all: Record<string, string> = {
-    "Dairy": "/allergyIcons/dairy-free.png",
-    "Egg": "/allergyIcons/egg-free.png",
-    "Fish": "/allergyIcons/fish-free.png",
-    "Gluten": "/allergyIcons/gluten-free.png", 
-    "Peanut": "/allergyIcons/peanut-free.png",
-    "Seafood": "/allergyIcons/seafood-free.png",
-    "Soy": "/allergyIcons/soy-free.png",
-    "Tree Nut": "/allergyIcons/treeNut-free.png"
+    "dairy": "/allergyIcons/dairy-free.png",
+    "egg": "/allergyIcons/egg-free.png",
+    "fish": "/allergyIcons/fish-free.png",
+    "gluten": "/allergyIcons/gluten-free.png", 
+    "peanut": "/allergyIcons/peanut-free.png",
+    "seafood": "/allergyIcons/seafood-free.png",
+    "soy": "/allergyIcons/soy-free.png",
+    "tree nut": "/allergyIcons/treeNut-free.png"
   };
 
   const isEditing = (record: any) => record.key === editingKey;
@@ -91,19 +92,24 @@ export default function CreateEvent() {
     } else { 
       setQuantityError(false);
     }
-
+    console.log("foods[0]: ")
+    console.log(foods[0]);
     const newData: TableRow = { 
       key: tableData.length + 1,
       food: foods[0]["description"],
       quantity: quantity,
-      serving_size: foods[0]["servingSize"] + foods[0]["servingSizeUnit"],
+      servingSizeUnit: foods[0]["servingSizeUnit"],
+      calories: foods[0]["caloriesPerServing"],
       proteins: foods[0]["proteinPerServing"],
       fats: foods[0]["fatPerServing"],
       carbs: foods[0]["carbsPerServing"], 
       allergies: foods[0]["allergens"],
     };
+    console.log("new data: ");
+    console.log(newData);
     setTableData([...tableData, newData]);
     setIsTableVisible(true);
+    setUnit(foods[0]["servingSizeUnit"])
     setFoods([]);
     setQuantity(1);
   };
@@ -146,35 +152,61 @@ export default function CreateEvent() {
       title: 'Name',
       dataIndex: 'food',
       key: 'food',
+      render: (name: string) => (
+        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+            {name[0].toUpperCase() + name.substring(1).toLowerCase()}
+        </div>
+      ),
     },
     {
       title: 'Calories',
       dataIndex: 'calories',
       key: 'calories',
+      ey: 'food',
+      render: (calories: number) => (
+        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+            {Math.round(calories) + "kcal"}
+        </div>
+      ),
     },
     {
       title: 'Protein',
-      dataIndex: 'protein',
-      key: 'protein',
+      dataIndex: 'proteins',
+      key: 'proteins',
+      render: (protein: number) => (
+        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+            {Math.round(protein) + unit}
+        </div>
+      ),
     },
     {
       title: 'Carbs',
       dataIndex: 'carbs',
       key: 'carbs',
+      render: (carbs: number) => (
+        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+            {Math.round(carbs) + unit}
+        </div>
+      ),
     },
     {
       title: 'Fat',
-      dataIndex: 'fat',
-      key: 'fat',
+      dataIndex: 'fats',
+      key: 'fats',
+      render: (fats: number) => (
+        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+            {Math.round(fats) + unit}
+        </div>
+      ),
     },
     {
       title: 'Allergies',
       dataIndex: 'allergies',
       key: 'allergies',
       render: (allergy: string[]) => (
-        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+        <div style={{ display: "flex", gap: "8px", justifyContent: "center"}}>
           {allergy.map((item, index) => (
-            <Image key={index} width={16} height={16} src={all[item]} alt={item} />
+            <Image key={index} width={16} height={16} style={{position: "relative", bottom: "4px"}} src={all[item]} alt={item} />
           ))}
         </div>
       ),
@@ -195,7 +227,6 @@ export default function CreateEvent() {
       },
     },
   ];
-
   const mergedColumns = columns.map(col => {
     if (!col.editable) return col;
     return {

@@ -23,7 +23,8 @@ export type Food = {
     key: number;
     food: string;
     quantity: number;
-    serving_size: string;
+    servingSizeUnit: string;
+    calories: number;
     proteins: number;
     fats: number;
     carbs: number;

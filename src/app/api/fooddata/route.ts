@@ -22,6 +22,8 @@ export async function GET(req: NextRequest) {
     }
 
     const data = await apiRes.json();
+    console.log("data from api: "); 
+    console.log(data);
     const topResult = data.foods?.[0] || null;
     if (!topResult) {
       return NextResponse.json({ foods: [] });
