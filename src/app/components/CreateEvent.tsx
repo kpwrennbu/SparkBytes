@@ -204,12 +204,26 @@ export default function CreateEvent() {
       dataIndex: 'allergies',
       key: 'allergies',
       render: (allergy: string[]) => (
-        <div style={{ display: "flex", gap: "8px", justifyContent: "center"}}>
-          {allergy.map((item, index) => (
-            <Image key={index} width={16} height={16} style={{position: "relative", bottom: "4px"}} src={all[item]} alt={item} />
-          ))}
-        </div>
-      ),
+        allergy.length === 0 ? (
+          <div style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
+            <span>N/A</span>
+          </div>
+          
+        ) : (
+          <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
+            {allergy.map((item, index) => (
+              <Image
+                key={index}
+                width={16}
+                height={16}
+                style={{ position: "relative", bottom: "4px" }}
+                src={all[item]}
+                alt={item}
+              />
+            ))}
+          </div>
+        )
+      )      
     },
     {
       title: 'Action',
