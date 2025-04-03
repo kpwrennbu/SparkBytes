@@ -3,10 +3,11 @@ import { useState } from "react";
 import { Modal, Button, Form, Input, Select, DatePicker, TimePicker, Flex, Image, Table, Typography } from "antd";
 import type { TableRowSelection } from 'antd/es/table/interface';
 import { PlusCircleOutlined } from '@ant-design/icons';
-import { Food, TableRow, FormValues } from "@/types";
+import { Food, TableRow, FormValues, EventRow } from "@/types";
 import SearchFood from "./SearchFood";
 import supabase from "../api/supabaseClient";
 import { EditableCell } from "./EditableCell";
+import { table } from "console";
 
 const { Option } = Select;
 const layout = {
@@ -115,25 +116,50 @@ export default function CreateEvent() {
   };
 
   const addEventToDB = async () => {
-    const values = form.getFieldsValue();
+    console.log("Form values:", await form.getFieldsValue(true)); // true gets all values
+    const values = await form.getFieldsValue();
     const date = values.eventDate;
+    console.log("values.eventDate" + date)
     const [startTime, endTime] = values.timeRange;
-
     const time_start = date.clone().hour(startTime.hour()).minute(startTime.minute()).second(0).toISOString();
     const time_end = date.clone().hour(endTime.hour()).minute(endTime.minute()).second(0).toISOString();
-
     const { data, error } = await supabase.from('Events').insert([
       {
         name: values.eventName,
         location: values.location,
         time_start,
         time_end,
-        creator_id: 1,
+        creator_id: 1, // should be user id
       },
-    ]);
+    ]).select() // <- Important: ensures `data` comes back with the inserted rows  ;
+
 
     if (error) console.error('Insert error (Events):', error);
     else console.log('Inserted event:', data);
+
+
+    for (const row of tableData) {
+      const { data: rowData, error: rowError } = await supabase
+        .from('Food')
+        .insert([
+          {
+            event_id: 1, // assuming the insert returns the new event
+            quantity: quantity,
+            name: row.food,
+            calories: row.calories,
+            carbs: row.carbs, 
+            proteins: row.proteins,
+            fats: row.fats,
+            allergies: row.allergies,
+            serving_size_unit: unit
+          },
+        ]);
+        if (rowError) console.error('Insert error (Events):', rowError);
+        else console.log('Inserted event:', rowData);
+    }
+    
+    
+  
   };
 
   const rowSelection: TableRowSelection<TableRow> = {

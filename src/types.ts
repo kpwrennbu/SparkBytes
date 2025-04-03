@@ -50,3 +50,13 @@ export type Food = {
     location: string;
     customizeGender?: string; // optional if conditional
   };
+
+  export type EventRow = {
+    id: number;
+    name: string;
+    location: string;
+    time_start: string;
+    time_end: string;
+    creator_id: number;
+  };
+  
