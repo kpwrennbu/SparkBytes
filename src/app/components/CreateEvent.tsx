@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
 import {
-  Modal, Button, Input, Select, DatePicker, TimePicker, Flex, Image, Table, Typography, Form
+  Modal, Button, Input, Select, DatePicker, TimePicker, Flex, Image, Table, Typography, Form,
+  Tooltip
 } from "antd";
 import type { TableRowSelection } from 'antd/es/table/interface';
 import { PlusCircleOutlined } from '@ant-design/icons';
@@ -50,7 +51,7 @@ export default function CreateEvent() {
     setQuantityError(false);
 
     const newData: TableRow = {
-      key: tableData.length + 1,
+      key: Date.now() + Math.random(),
       food: foods[0]["description"],
       quantity: quantity,
       servingSizeUnit: foods[0]["servingSizeUnit"],
@@ -60,9 +61,11 @@ export default function CreateEvent() {
       carbs: foods[0]["carbsPerServing"],
       allergies: foods[0]["allergens"],
     };
-    setTableData([...tableData, newData]);
+    setTableData(tableData => [...tableData, newData]);
     setIsTableVisible(true);
-    setUnit(foods[0]["servingSizeUnit"]);
+    if (unit !== 'g') { 
+      setUnit(foods[0]["servingSizeUnit"]);
+    }   
     setFoods([]);
     setQuantity(1);
   };
@@ -213,7 +216,9 @@ export default function CreateEvent() {
         ) : (
           <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
             {allergy.map((item, index) => (
-              <Image key={index} width={16} height={16} style={{ position: "relative", bottom: "4px" }} src={all[item]} alt={item} />
+              <Tooltip key={index} title={`${item} allergy`} > 
+                <Image key={index} width={16} height={16} style={{ position: "relative", bottom: "4px" }} src={all[item]} alt={item} />
+              </Tooltip>
             ))}
           </div>
         ),
