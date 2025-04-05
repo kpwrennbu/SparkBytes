@@ -86,6 +86,9 @@ export default function CreateEvent() {
     const time_start = eventDate.clone().hour(startTime.hour()).minute(startTime.minute()).second(0).toISOString();
     const time_end = eventDate.clone().hour(endTime.hour()).minute(endTime.minute()).second(0).toISOString();
 
+
+
+
     const { data, error } = await supabase
       .from('Events')
       .insert([

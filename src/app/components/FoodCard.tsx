@@ -1,31 +1,27 @@
 "use client";
-import { useState } from "react";
-import { Card, Modal, Flex, Table, Button} from "antd";
+import { useState, useEffect } from "react";
+import { Card, Modal, Flex, Table, Button, Tooltip} from "antd";
 import Image from "next/image";
+import { EventRow, TableRow } from "@/types";
+import supabase from "../api/supabaseClient";
+// interface FoodItem {
+//   key: number;
+//   food: string;
+//   quantity: number;
+//   calories: number;
+//   protein: number;
+//   fat: number;
+//   carbs: number;
+//   allergies: string[];
+// }
 
-interface FoodItem {
-  key: number;
-  food: string;
-  quantity: number;
-  calories: number;
-  protein: number;
-  fat: number;
-  carbs: number;
-  allergies: string[];
-}
 
-interface EventProps {
-  location: string;
-  description: string;
-  time: string;
-  img: string;
-  food: FoodItem[];
-}
-
-export default function FoodCard({ location, description, time, img, food }: EventProps) {
+export default function FoodCard({ id, name, location, time_start, time_end, creator_id }: EventRow) {
   const [isModalVisible, setIsModalVisible] = useState(false);
-  console.log(food)
-
+  const [loading, setLoading] = useState(false);
+  const [food, setFood] = useState<TableRow[]>([]);
+  const [unit, setUnit] = useState("g");
+  // setUnit("g");
   const allergies: Record<string, string> = {
     "Dairy": "/allergyIcons/dairy-free.png",
     "Egg": "/allergyIcons/egg-free.png",
@@ -36,63 +32,98 @@ export default function FoodCard({ location, description, time, img, food }: Eve
     "Soy": "/allergyIcons/soy-free.png",
     "Tree Nut": "/allergyIcons/treeNut-free.png"
   }
-  const columms = [ 
+  const imgs: Record<string, string> = {
+    "cds": "/CDS.jpg",
+    "warren": "/WarrenTowers.jpg",
+    "gsu": "/GSU.JPEG",
+  }
+  const columns = [
     {
       title: 'Quantity',
       dataIndex: 'quantity',
       key: 'quantity',
+      editable: true,
     },
     {
       title: 'Name',
-      dataIndex: 'food',
-      key: 'food',
+      dataIndex: 'name',
+      key: 'name',
+      render: (name: string) => <div>{name[0].toUpperCase() + name.substring(1).toLowerCase()}</div>,
     },
     {
       title: 'Calories',
       dataIndex: 'calories',
       key: 'calories',
+      render: (cal: number) => <div>{Math.round(cal)} kcal</div>,
     },
     {
       title: 'Protein',
-      dataIndex: 'protein',
-      key: 'protein',
+      dataIndex: 'proteins',
+      key: 'proteins',
+      render: (val: number) => <div>{Math.round(val) + unit}</div>,
     },
     {
       title: 'Carbs',
       dataIndex: 'carbs',
       key: 'carbs',
+      render: (val: number) => <div>{Math.round(val) + unit}</div>,
     },
     {
       title: 'Fat',
-      dataIndex: 'fat',
-      key: 'fat',
+      dataIndex: 'fats',
+      key: 'fats',
+      render: (val: number) => <div>{Math.round(val) + unit}</div>,
     },
     {
       title: 'Allergies',
       dataIndex: 'allergies',
       key: 'allergies',
-      render: (allergy: string[]) => (
-        <div style={{ display: "flex", width: "100%", gap: "8px", alignItems: "center" }}>
-          {allergy.map((item, index) => (
-            <div key={index}>
-              <Image width={16} height={16} src={allergies[item]} alt={item} />
-            </div>
-          ))}
-        </div>
-      )
-          }
-  ]
+      render: (allergy: string[]) =>
+        allergy.length === 0 ? (
+          <div style={{ textAlign: "center" }}>N/A</div>
+        ) : (
+          <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
+            {allergy.map((item, index) => (
+              <Tooltip key={index} title={`${item} allergy`} > 
+                <Image key={index} width={16} height={16} style={{ position: "relative", bottom: "4px" }} src={allergies[item]} alt={item} />
+              </Tooltip>
+            ))}
+          </div>
+        ),
+    },
+  ];
+  useEffect(() => {
+    const fetchFoods = async () => {
+      const { data, error } = await supabase
+        .from('Food')
+        .select('*')
+        .eq('event_id', id);
 
+      if (error) {
+        console.error('Error fetching food:', error.message);
+      } else {
+        setFood(data);
+      }
+
+      setLoading(false);
+    };
+
+    if (id) {
+      fetchFoods();
+    }
+  }, [id]); // re-run if creatorId changes
   return (
     <>
     <Card
       hoverable
       style={cardStyles}
-      onClick={() => setIsModalVisible(true)} 
+      onClick={() => {
+        setIsModalVisible(true)
+      }} 
       cover={
         <div style={{ width: "100%", height: "200px", position: "relative" }}>
           <Image
-            src={img}
+            src={imgs[location]}
             alt={location}
             fill
             style={{ objectFit: "cover", borderRadius: "10px" }}
@@ -101,8 +132,8 @@ export default function FoodCard({ location, description, time, img, food }: Eve
       }
     >
       <h3 style={{ marginBottom: "5px", fontWeight: "bold" }}>{location}</h3>
-      <p style={{ color: "#666", marginBottom: "8px" }}>{description}</p>
-      <p style={timeStyle}>{time}</p>
+      <p style={{ color: "#666", marginBottom: "8px" }}>{name + "Need Description in form"}</p>
+      <p style={timeStyle}>{time_start} - {time_end}</p>
     </Card>
     <Modal
         open={isModalVisible}
@@ -124,7 +155,7 @@ export default function FoodCard({ location, description, time, img, food }: Eve
             style={{ width: "30%", height: "500px", position: "relative" }}
             >
                 <Image
-                  src={img}
+                  src={imgs[location]}
                   alt={location}
                   fill
                   style={{ objectFit: "cover", borderRadius: "10px" }}
@@ -139,11 +170,18 @@ export default function FoodCard({ location, description, time, img, food }: Eve
                   alignItems: "center"
 
                 }}>
-                  <Table dataSource={food} columns={columms} style={{width: "75%"}}/>
-                  <div style={{gap: "8px"}}>
-                    <Button>Reserve Item</Button>
-                    <Button>Clear All</Button>
-                  </div>
+                  {
+                    loading ? <p>loading...</p> : ( 
+                      <>
+                        <Table dataSource={food} columns={columns} style={{width: "75%"}} rowKey="id" />
+                        <div style={{gap: "8px"}}>
+                          <Button>Reserve Item</Button>
+                          <Button>Clear All</Button>
+                        </div>
+                      </>
+                    )
+                  }
+                  
                 </div>
                 
               </div>
