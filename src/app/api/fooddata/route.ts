@@ -11,81 +11,91 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Missing Food Data Central API key' }, { status: 500 });
   }
 
-  // 3. Construct the USDA API URL (limit to 1 result)
-  const url = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${apiKey}&query=${searchTerm}&pageSize=1`;
+  // 3. Construct the USDA API URL (limit to 50 results)
+  const url = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${apiKey}&query=${searchTerm}&pageSize=50`;
 
   try {
     const apiRes = await fetch(url);
+
+
     if (!apiRes.ok) {
       const errorText = await apiRes.text();
       return NextResponse.json({ error: errorText }, { status: apiRes.status });
     }
 
     const data = await apiRes.json();
-    console.log("data from api: "); 
-    console.log(data);
-    const topResult = data.foods?.[0] || null;
-    if (!topResult) {
+    const foods = data.foods || [];
+
+    console.log("🔍 Raw USDA API results:");
+    console.log(data.foods?.map((food: any) => ({
+      description: food.description,
+      servingSize: food.servingSize,
+      servingSizeUnit: food.servingSizeUnit,
+      fdcId: food.fdcId
+    })));
+
+    // 4. Find the first item with serving size >= 100g
+    const food = foods.find((item: any) => item.servingSize && item.servingSize >= 5);
+
+    // 5. Return early if no valid results found
+    if (!food) {
       return NextResponse.json({ foods: [] });
     }
 
-    // 4. Extract macronutrients from the foodNutrients array
-    const nutrients = topResult.foodNutrients || [];
-    function getNutrientValue(nutrientName: string): number {
-      const found = nutrients.find((n: any) => n.nutrientName === nutrientName);
+    const nutrients = food.foodNutrients || [];
+
+    // 6. Helper to extract nutrient value by name
+    function getNutrient(name: string): number {
+      const found = nutrients.find((n: any) => n.nutrientName === name);
       return found ? found.value : 0;
     }
 
-    // Values (assumed to be per 100 g)
-    const carbsPer100 = getNutrientValue('Carbohydrate, by difference');
-    const proteinPer100 = getNutrientValue('Protein');
-    const fatPer100 = getNutrientValue('Total lipid (fat)');
-    const caloriesPer100 = getNutrientValue('Energy'); 
+    // 7. Get nutrient values (assumed to be per 100g)
+    const carbsPer100 = getNutrient("Carbohydrate, by difference");
+    const proteinPer100 = getNutrient("Protein");
+    const fatPer100 = getNutrient("Total lipid (fat)");
+    const caloriesPer100 = getNutrient("Energy");
 
-    // 5. Get serving size (default to 100 g if not provided)
-    const servingSize = topResult.servingSize || 100;
+    const servingSize = food.servingSize || 100;
 
-    // 6. Calculate macros per serving
+    // 8. Compute nutrient values per serving
     const carbsPerServing = (carbsPer100 * servingSize) / 100;
     const proteinPerServing = (proteinPer100 * servingSize) / 100;
     const fatPerServing = (fatPer100 * servingSize) / 100;
     const caloriesPerServing = (caloriesPer100 * servingSize) / 100;
-    
 
-    // 7. Parse ingredients to check for common allergens
-    // Define a list of allergen keywords
+    // 9. Check for allergens in the ingredients string
     const allergenKeywords = ["milk", "egg", "peanut", "shellfish", "wheat", "soy", "sesame", "pork"];
     let foundAllergens: string[] = [];
-    if (topResult.ingredients) {
-      const ingredientsStr = topResult.ingredients.toLowerCase();
-      foundAllergens = allergenKeywords.filter(keyword => ingredientsStr.includes(keyword));
+    if (food.ingredients) {
+      const ingredients = food.ingredients.toLowerCase();
+      foundAllergens = allergenKeywords.filter((keyword) => ingredients.includes(keyword));
     }
 
-    // 8. Build the result object including nutritional facts and allergens
-    const topResultWithMacros = {
-      fdcId: topResult.fdcId,
-      description: topResult.description,
+    // 10. Build result object with all the information
+    const result = {
+      fdcId: food.fdcId,
+      description: food.description,
       servingSize,
-      servingSizeUnit: topResult.servingSizeUnit,
-      brandOwner: topResult.brandOwner || null,
+      servingSizeUnit: food.servingSizeUnit || "g",
+      brandOwner: food.brandOwner || null,
       // Macros per 100 g
       carbsPer100,
       proteinPer100,
       fatPer100,
-      caloriesPer100, 
+      caloriesPer100,
       // Macros per serving
       carbsPerServing,
       proteinPerServing,
       fatPerServing,
-      caloriesPerServing, 
-      // Common allergens detected
+      caloriesPerServing,
+      // Detected allergens
       allergens: foundAllergens,
     };
 
-    // 9. Return the data in an object (wrapped in an array for easier mapping on the frontend)
-    return NextResponse.json({
-      foods: [topResultWithMacros],
-    });
+    // 11. Return the wrapped response
+    return NextResponse.json({ foods: [result] });
+
   } catch (err) {
     console.error('FDC API fetch error:', err);
     return NextResponse.json({ error: 'Unexpected error' }, { status: 500 });
