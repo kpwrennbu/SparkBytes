@@ -288,6 +288,7 @@ export default function CreateEvent() {
               quantity={quantity}
               setQuantity={setQuantity}
               addFoodToEventsTable={addFoodToEventsTable}
+              tableData={tableData}
             />
             {foods && quantityError && <Typography.Text type="danger">Please enter a quantity greater than 0</Typography.Text>}
             {selectedRowKeys.length !== 0 && (

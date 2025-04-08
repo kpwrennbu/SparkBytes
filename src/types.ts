@@ -43,6 +43,7 @@ export type Food = {
     quantity: number, 
     setQuantity: React.Dispatch<React.SetStateAction<number>>;
     addFoodToEventsTable: AddFoodToEventsTable;
+    tableData: TableRow[]
   };
 
 //props passed to the Form of the CreateEvent component
