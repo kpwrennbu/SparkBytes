@@ -31,7 +31,16 @@ export type Food = {
     carbs: number;
     allergies: string[];
   };
-  
+  export type ManuallyInputFormValues = {
+    food: string;
+    quantity: number;
+    servingSizeUnit: string;
+    calories: number;
+    proteins: number;
+    fats: number;
+    carbs: number;
+    allergies: string[];
+  };
   // Props passed to SearchFood component
   export type AddFoodToEventsTable = (food: Food) => void;
 
@@ -43,7 +52,7 @@ export type Food = {
     quantity: number, 
     setQuantity: React.Dispatch<React.SetStateAction<number>>;
     addFoodToEventsTable: AddFoodToEventsTable;
-    tableData: TableRow[]
+    tableData: TableRow[];
   };
 
 //props passed to the Form of the CreateEvent component
@@ -52,6 +61,11 @@ export type Food = {
     location: string;
     customizeGender?: string; // optional if conditional
   };
+  export type ManuallyInputFoodProps = { 
+    tableData: TableRow[];
+    setTableData: React.Dispatch<React.SetStateAction<TableRow[]>>;
+
+  }
 
   export type EventRow = {
     id: number;

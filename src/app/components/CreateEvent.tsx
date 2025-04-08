@@ -2,7 +2,7 @@
 import { useState } from "react";
 import {
   Modal, Button, Input, Select, DatePicker, TimePicker, Flex, Image, Table, Typography, Form,
-  Tooltip
+  Tooltip, Switch
 } from "antd";
 import type { TableRowSelection } from 'antd/es/table/interface';
 import { PlusCircleOutlined } from '@ant-design/icons';
@@ -10,7 +10,7 @@ import { Food, TableRow } from "@/types";
 import SearchFood from "./SearchFood";
 import supabase from "../api/supabaseClient";
 import { EditableCell } from "./EditableCell";
-
+import ManuallyInputFood from "./ManuallyInputFood";
 const { Option } = Select;
 const format = 'HH:mm a';
 
@@ -31,6 +31,7 @@ export default function CreateEvent() {
   const [location, setLocation] = useState("");
   const [eventDate, setEventDate] = useState(null);
   const [timeRange, setTimeRange] = useState(null);
+  const [isChecked, setIsChecked] = useState(false);
 
   const all: Record<string, string> = {
     "dairy": "/allergyIcons/dairy-free.png",
@@ -130,7 +131,11 @@ export default function CreateEvent() {
       setIsModalVisible(false);
     }
   };
-
+  const handleSwitchChange = (checked: boolean) => {
+    setIsChecked(checked);
+    console.log("Switch is now:", checked);
+  };
+  
   const isEditing = (record: any) => record.key === editingKey;
 
   const edit = (record: any) => {
@@ -280,7 +285,14 @@ export default function CreateEvent() {
             </Select>
             <DatePicker value={eventDate} onChange={setEventDate} />
             <TimePicker.RangePicker use12Hours format={format} value={timeRange} onChange={(val) => setTimeRange(val)} />
-            <SearchFood
+            <Switch checked={isChecked} onChange={handleSwitchChange} />
+            {isChecked ? ( 
+              <ManuallyInputFood 
+                tableData={tableData}
+                setTableData={setTableData}
+              />
+            ) : ( 
+              <SearchFood
               isTableVisible={isTableVisible}
               setIsTableVisible={setIsTableVisible}
               foods={foods}
@@ -290,6 +302,8 @@ export default function CreateEvent() {
               addFoodToEventsTable={addFoodToEventsTable}
               tableData={tableData}
             />
+            )}
+            
             {foods && quantityError && <Typography.Text type="danger">Please enter a quantity greater than 0</Typography.Text>}
             {selectedRowKeys.length !== 0 && (
               <Button danger onClick={deleteRowsFromFoodTable}>Delete Selected Rows</Button>
