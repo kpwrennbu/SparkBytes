@@ -31,6 +31,18 @@ export type Food = {
     carbs: number;
     allergies: string[];
   };
+  export type FoodCardRow = { 
+    id: number,
+    key: number;
+    food: string;
+    quantity: number;
+    servingSizeUnit: string;
+    calories: number;
+    proteins: number;
+    fats: number;
+    carbs: number;
+    allergies: string[];
+  }
   export type ManuallyInputFormValues = {
     food: string;
     quantity: number;

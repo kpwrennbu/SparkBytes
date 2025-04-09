@@ -145,7 +145,7 @@ export default function Home() {
     );
   } else {
     content = (
-      <Flex justify="space-around" align="center" wrap="wrap">
+      <Flex justify="space-around" align="center" wrap="wrap" gap="4px">
         {filteredData.map((event, index) => (
           <FoodCard {...event} key={index} />
         ))}

@@ -53,7 +53,7 @@ export default function CreateEvent() {
 
     const newData: TableRow = {
       key: Date.now() + Math.random(),
-      food: foods[0]["description"],
+      food: foods[0]["description"][0].toUpperCase() + foods[0]["description"].substring(1).toLowerCase(),
       quantity: quantity,
       servingSizeUnit: foods[0]["servingSizeUnit"],
       calories: foods[0]["caloriesPerServing"],
