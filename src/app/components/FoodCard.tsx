@@ -21,62 +21,17 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
   const [loading, setLoading] = useState(false);
   const [food, setFood] = useState<TableRow[]>([]);
   const [unit, setUnit] = useState("g");
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  const rowSelection = {
-    selectedRowKeys,
-    onChange: (newSelectedRowKeys: React.Key[]) => {
-      setSelectedRowKeys(newSelectedRowKeys);
-    },
-  };
-  
-  const onReservation = async () => { 
-    console.log("SelectedRowKeys: ", selectedRowKeys);
-    const selectedRows = food.filter(row => selectedRowKeys.includes(row.id)); //says it doesn't have any id but it does
-    console.log("Selected rows:", selectedRows);
-
-
-    for (const row of selectedRows) {
-      const newQuantity = row.quantity - 1;
-    
-      if (newQuantity <= 0) {
-        // Delete the row if quantity is 0 or less
-        const { error } = await supabase
-          .from("Food")
-          .delete()
-          .eq("id", row.id);
-    
-        if (error) {
-          console.error(`Error deleting food with id ${row.id}:`, error);
-        } else {
-          console.log(`Deleted food with id ${row.id}`);
-        }
-      } else {
-        // Otherwise, just update the quantity
-        const { error } = await supabase
-          .from("Food")
-          .update({ quantity: newQuantity })
-          .eq("id", row.id);
-    
-        if (error) {
-          console.error(`Error updating food with id ${row.id}:`, error);
-        } else {
-          console.log(`Updated food with id ${row.id} to quantity ${newQuantity}`);
-        }
-      }
-    }
-    await fetchFoods(); // refresh the data
-  }
   // setUnit("g");
   const allergies: Record<string, string> = {
-    "dairy": "/allergyIcons/dairy-free.png",
-    "egg": "/allergyIcons/egg-free.png",
-    "fish": "/allergyIcons/fish-free.png",
-    "gluten": "/alslergyIcons/gluten-free.png",
-    "peanut": "/allergyIcons/peanut-free.png",
-    "seafood": "/allergyIcons/seafood-free.png",
-    "soy": "/allergyIcons/soy-free.png",
-    "tree nut": "/allergyIcons/treeNut-free.png"
-  };
+    "Dairy": "/allergyIcons/dairy-free.png",
+    "Egg": "/allergyIcons/egg-free.png",
+    "Fish": "/allergyIcons/fish-free.png",
+    "Gluten": "/allergyIcons/gluten-free.png", 
+    "Peanut": "/allergyIcons/peanut-free.png",
+    "Seafood": "/allergyIcons/seafood-free.png",
+    "Soy": "/allergyIcons/soy-free.png",
+    "Tree Nut": "/allergyIcons/treeNut-free.png"
+  }
   const imgs: Record<string, string> = {
     "cds": "/CDS.jpg",
     "warren": "/WarrenTowers.jpg",
@@ -137,27 +92,26 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
         ),
     },
   ];
-  const fetchFoods = async () => {
-    const { data, error } = await supabase
-      .from('Food')
-      .select('*')
-      .eq('event_id', id);
-  
-    if (error) {
-      console.error('Error fetching food:', error.message);
-    } else {
-      setFood(data);
-    }
-  
-    setLoading(false);
-  };
-  
   useEffect(() => {
+    const fetchFoods = async () => {
+      const { data, error } = await supabase
+        .from('Food')
+        .select('*')
+        .eq('event_id', id);
+
+      if (error) {
+        console.error('Error fetching food:', error.message);
+      } else {
+        setFood(data);
+      }
+
+      setLoading(false);
+    };
+
     if (id) {
       fetchFoods();
     }
-  }, [id]);
-  // re-run if creatorId changes
+  }, [id]); // re-run if creatorId changes
   return (
     <>
     <Card
@@ -219,17 +173,10 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
                   {
                     loading ? <p>loading...</p> : ( 
                       <>
-                        <Table
-                          dataSource={food}
-                          columns={columns}
-                          style={{ width: "75%" }}
-                          rowKey="id"
-                          rowSelection={rowSelection} 
-                        />
+                        <Table dataSource={food} columns={columns} style={{width: "75%"}} rowKey="id" />
                         <div style={{gap: "8px"}}>
-                          <Button disabled={selectedRowKeys.length === 0} onClick={() => onReservation()}>Reserve Item</Button>
-                          <Button disabled={selectedRowKeys.length === 0} onClick={() => setSelectedRowKeys([])}>Clear All</Button>
-
+                          <Button>Reserve Item</Button>
+                          <Button>Clear All</Button>
                         </div>
                       </>
                     )
