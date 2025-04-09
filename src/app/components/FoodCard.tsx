@@ -65,6 +65,7 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
         .from("Orders")
         .insert([
           {
+            event_id: id,
             student_id: 1,       // You can replace with actual user if you have one
             food_id: row.id,
           },
