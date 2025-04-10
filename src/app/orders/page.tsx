@@ -26,7 +26,8 @@ export default function ContactsPage() {
           carbs,
           proteins,
           fats,
-          quantity,
+          quantity_left,
+          total_quantity,
           allergies,
           serving_size_unit,
           event_id,
@@ -87,7 +88,7 @@ export default function ContactsPage() {
             <strong>Allergies:</strong> {order.food.allergies || "None"}
           </Typography.Paragraph>
           <Typography.Paragraph>
-            <strong>Quantity Left:</strong> {order.food.quantity}
+            <strong>Quantity Left:</strong> {order.food.quantity_left}
           </Typography.Paragraph>
           <Typography.Paragraph>
             <strong>User ID:</strong> {order.user_id}

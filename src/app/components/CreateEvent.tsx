@@ -2,7 +2,7 @@
 import { useState } from "react";
 import {
   Modal, Button, Input, Select, DatePicker, TimePicker, Flex, Image, Table, Typography, Form,
-  Tooltip
+  Tooltip, Switch
 } from "antd";
 import type { TableRowSelection } from 'antd/es/table/interface';
 import { PlusCircleOutlined } from '@ant-design/icons';
@@ -10,7 +10,7 @@ import { Food, TableRow } from "@/types";
 import SearchFood from "./SearchFood";
 import supabase from "../api/supabaseClient";
 import { EditableCell } from "./EditableCell";
-
+import ManuallyInputFood from "./ManuallyInputFood";
 const { Option } = Select;
 const format = 'HH:mm a';
 
@@ -26,7 +26,7 @@ export default function CreateEvent() {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [unit, setUnit] = useState("");
   const [tableForm] = Form.useForm();
-
+  const [isChecked, setIsChecked] = useState(false);
   const [eventName, setEventName] = useState("");
   const [location, setLocation] = useState("");
   const [eventDate, setEventDate] = useState(null);
@@ -36,13 +36,19 @@ export default function CreateEvent() {
     "dairy": "/allergyIcons/dairy-free.png",
     "egg": "/allergyIcons/egg-free.png",
     "fish": "/allergyIcons/fish-free.png",
-    "gluten": "/allergyIcons/gluten-free.png",
+    "gluten": "/allergyIcons/gluten-free.png", 
     "peanut": "/allergyIcons/peanut-free.png",
     "seafood": "/allergyIcons/seafood-free.png",
     "soy": "/allergyIcons/soy-free.png",
-    "tree nut": "/allergyIcons/treeNut-free.png"
+    "tree Nut": "/allergyIcons/treeNut-free.png"
+  }
+  const handleSwitchChange = (checked: boolean) => {
+    setIsChecked(checked);
+    console.log("Switch is now:", checked);
   };
-
+  const addInputtedToEventsTable = (newData: TableRow) => { 
+    setTableData(tableData => [...tableData, newData])
+  }
   const addFoodToEventsTable = () => {
     if (quantity <= 0) {
       setQuantityError(true);
@@ -113,7 +119,8 @@ export default function CreateEvent() {
       const { error: rowError } = await supabase.from('Food').insert([
         {
           event_id: eventId,
-          quantity: row.quantity,
+          total_quantity: row.quantity,
+          quantity_left: row.quantity,
           name: row.food,
           calories: row.calories,
           carbs: row.carbs,
@@ -280,7 +287,14 @@ export default function CreateEvent() {
             </Select>
             <DatePicker value={eventDate} onChange={setEventDate} />
             <TimePicker.RangePicker use12Hours format={format} value={timeRange} onChange={(val) => setTimeRange(val)} />
-            <SearchFood
+             <Switch checked={isChecked} onChange={handleSwitchChange} />
+            {isChecked ? ( 
+              <ManuallyInputFood 
+                tableData={tableData}
+                addInputtedToEventsTable={addInputtedToEventsTable}
+              />
+            ) : ( 
+              <SearchFood
               isTableVisible={isTableVisible}
               setIsTableVisible={setIsTableVisible}
               foods={foods}
@@ -288,7 +302,9 @@ export default function CreateEvent() {
               quantity={quantity}
               setQuantity={setQuantity}
               addFoodToEventsTable={addFoodToEventsTable}
+              tableData={tableData}
             />
+            )}
             {foods && quantityError && <Typography.Text type="danger">Please enter a quantity greater than 0</Typography.Text>}
             {selectedRowKeys.length !== 0 && (
               <Button danger onClick={deleteRowsFromFoodTable}>Delete Selected Rows</Button>
