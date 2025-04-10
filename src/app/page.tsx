@@ -1,103 +1,22 @@
 "use client";
 import styles from "./page.module.css";
 import FoodCard from "./components/FoodCard";
-import { Flex } from "antd";
+import { Flex, Alert, Input, Select } from "antd";
 import { useState } from "react";
 import CreateEvent from "./components/CreateEvent";
 import supabase from "./api/supabaseClient";
 import { useEffect } from "react";
 import { EventRow } from "@/types";
+
+
+const { Option } = Select;
+
+
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("time");
   const [events, setEvents] = useState<EventRow[]>([]);
   const [loading, setLoading] = useState(true);
-  // const data = [
-  //   {
-  //     location: "Warren Towers",
-  //     description: "Freshmen CGS Orientation",
-  //     time: "Thursday, May 4th, 12PM", 
-  //     img: "/WarrenTowers.jpg", 
-  //     food: [
-  //       { 
-  //       key: 1,
-  //       food: "BLT",
-  //       quantity: 2,
-  //       calories: 540,
-  //       protein: 15,
-  //       fat: 20,
-  //       carbs: 5,
-  //       allergies: ["Gluten", "Tree Nut"]
-  //     }, 
-  //     {
-  //       key: 2, 
-  //       food: "Fortnite Sandwich",
-  //       quantity: 5,
-  //       calories: 540,
-  //       protein: 15,
-  //       fat: 20,
-  //       carbs: 5,
-  //       allergies: ["Gluten", "Tree Nut"]
-  //     }
-  //     ]
-  //   },
-  //   {
-  //     location: "CDS",
-  //     description: "Freshmen CGS Orientation",
-  //     time: "Thursday, May 4th, 12PM",
-  //     img: "/CDS.jpg", 
-  //     food: [
-  //       { 
-  //       key: 1,
-  //       food: "BLT",
-  //       quantity: 2,
-  //       calories: 540,
-  //       protein: 15,
-  //       fat: 20,
-  //       carbs: 5,
-  //       allergies: ["Gluten", "Tree Nut"]
-  //     }, 
-  //     {
-  //       key: 2, 
-  //       food: "Fortnite Sandwich",
-  //       quantity: 5,
-  //       calories: 540,
-  //       protein: 15,
-  //       fat: 20,
-  //       carbs: 5,
-  //       allergies: ["Gluten", "Tree Nut"]
-  //     }
-  //     ]
-  //   },
-  //   {
-  //     location: "GSU",
-  //     description: "Freshmen CGS Orientation",
-  //     time: "Thursday, May 4th, 12PM",
-  //     img: "/GSU.jpeg", 
-  //     food: [
-  //       { 
-  //       key: 1,
-  //       food: "BLT",
-  //       quantity: 2,
-  //       calories: 540,
-  //       protein: 15,
-  //       fat: 20,
-  //       carbs: 5,
-  //       allergies: ["Gluten", "Tree Nut"]
-  //     }, 
-  //     {
-  //       key: 2, 
-  //       food: "Fortnite Sandwich",
-  //       quantity: 5,
-  //       calories: 540,
-  //       protein: 15,
-  //       fat: 20,
-  //       carbs: 5,
-  //       allergies: ["Gluten", "Tree Nut"]
-  //     }
-  //     ]
-  //   },
-  // ];
  
 
   useEffect(() => {
@@ -145,6 +64,7 @@ export default function Home() {
       
 
       <div style={{ marginBottom: "20px", textAlign: "center" }}>
+
         <input
           type="text"
           placeholder="Search by location..."
@@ -158,7 +78,21 @@ export default function Home() {
             fontSize: "16px"
           }}
         />
+
+        <Input
+            placeholder="Search by location..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              padding: "10px",
+              width: "300px",
+              borderRadius: "8px",
+              fontSize: "16px",
+            }}
+          />
+
       </div>
+
 
       <div
         style={{
@@ -173,13 +107,14 @@ export default function Home() {
         <label htmlFor="sortSelect" style={{ fontWeight: 500, whiteSpace: "nowrap" }}>
           Sort by:
         </label>
-        <select
+        <Select
           id="sortSelect"
           value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
+          onChange={(value) => setSortBy(value)}
           style={{
             padding: "8px",
             borderRadius: "6px",
+
             border: "1px solid #ccc",
             fontSize: "16px"
           }}
@@ -187,7 +122,16 @@ export default function Home() {
           <option value="time">Time</option>
           <option value="distance">Distance </option>
         </select>
+
+            fontSize: "16px",
+            width: 150,
+          }}
+        >
+          <Option value="time">Time</Option>
+          <Option value="distance">Distance</Option>
+        </Select>
       </div>
+
 
       <div style={{ padding: "20px" }}>
         <Flex justify="space-around" align="center" wrap="wrap">
