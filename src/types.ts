@@ -65,7 +65,12 @@ export type Food = {
     time_end: string;
     creator_id: number;
   };
-  
+  export type Order = { 
+    food: TableRow[]; 
+    id: number;
+    student_id: number;
+  }
+
   export type ManuallyInputFoodProps = {
    tableData: TableRow[];
     addInputtedToEventsTable: (newData: TableRow) => void;

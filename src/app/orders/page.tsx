@@ -3,11 +3,26 @@
 import { useEffect, useState } from "react";
 import { Card, Flex, Spin, Typography } from "antd";
 import supabase from "../api/supabaseClient";
+import OrderCard from "../components/OrderCard";
 
 export default function ContactsPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  
+  const deleteOrder = async (id: number) => {
+    const { error } = await supabase
+      .from("Orders")
+      .delete()
+      .eq("id", id);
+  
+    if (error) {
+      console.error(`Error deleting order with id ${id}:`, error);
+    } else {
+      console.log(`Successfully deleted order with id ${id}`);
+    }
+    fetchOrders();
+  };
+  
   const fetchOrders = async () => {
     const { data, error } = await supabase
       .from("Orders")
@@ -45,7 +60,6 @@ export default function ContactsPage() {
     fetchOrders();
     console.log("orders: ", orders)
   }, []);
-
   if (loading) {
     return (
       <Flex align="center" justify="center" style={{ height: "100vh" }}>
@@ -57,40 +71,7 @@ export default function ContactsPage() {
   return (
     <Flex wrap="wrap" gap="large" justify="center">
       {orders.map((order) => (
-        <Card
-          key={order.id}
-          title={order.food.name}
-          style={{ width: 300 }}
-        >
-          <Typography.Paragraph>
-            <strong>Event:</strong> {order.food.event?.name || "Unknown"}
-          </Typography.Paragraph>
-          <Typography.Paragraph>
-            <strong>Location:</strong> {order.food.event?.location || "Unknown"}
-          </Typography.Paragraph>
-          <Typography.Paragraph>
-            <strong>Calories:</strong> {order.food.calories}
-          </Typography.Paragraph>
-          <Typography.Paragraph>
-            <strong>Carbs:</strong> {order.food.carbs}g
-          </Typography.Paragraph>
-          <Typography.Paragraph>
-            <strong>Proteins:</strong> {order.food.proteins}g
-          </Typography.Paragraph>
-          <Typography.Paragraph>
-            <strong>Fats:</strong> {order.food.fats}g
-          </Typography.Paragraph>
-          
-          <Typography.Paragraph>
-            <strong>Allergies:</strong> {order.food.allergies || "None"}
-          </Typography.Paragraph>
-          <Typography.Paragraph>
-            <strong>Quantity Left:</strong> {order.food.quantity_left}
-          </Typography.Paragraph>
-          <Typography.Paragraph>
-            <strong>User ID:</strong> {order.student_id}
-          </Typography.Paragraph>
-        </Card>
+        <OrderCard order={order} deleteOrder={deleteOrder} />
       ))}
     </Flex>
   );

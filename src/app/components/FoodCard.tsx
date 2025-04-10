@@ -52,6 +52,7 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
 
     await fetchFoods();
     setSelectedRowKeys([]);
+    console.log("foods is ", food);
   };
 
   const allergies: Record<string, string> = {
@@ -131,7 +132,7 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
       .from("Food")
       .select("*")
       .eq("event_id", id)
-      .gt("quantity_left", 0); // ✅ Only fetch items with quantity left
+      .gt("quantity_left", 0); // Only fetch items with quantity left
 
     if (error) {
       console.error("Error fetching food:", error.message);
@@ -205,7 +206,8 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
                     />
                     <div style={{ gap: "8px" }}>
                       <Button onClick={onReservation}>Reserve Item</Button>
-                      <Button onClick={() => setSelectedRowKeys([])}>Clear All</Button>
+                      <Button onClick={() => 
+                        setSelectedRowKeys([])}>Clear All</Button>
                     </div>
                   </>
                 )}
