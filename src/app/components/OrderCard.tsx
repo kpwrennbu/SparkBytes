@@ -1,9 +1,12 @@
 "use client";
 import {Card, Typography, Button, Flex} from "antd";
 
-export default function OrderCard({ order, deleteOrder }) {
+export default function OrderCard({ order, deleteOrder, cancelOrder}) {
     const onPickup = () => { 
         deleteOrder(order.id)
+    }
+    const onCancellation = () => { 
+        cancelOrder(order.id, order.food.id);
     }
     return (
     <Card
@@ -39,7 +42,7 @@ export default function OrderCard({ order, deleteOrder }) {
             <Button onClick={() => onPickup()}>
                 Picked Up!
             </Button>
-            <Button>
+            <Button onClick={() => onCancellation()}>
                 Cancel Order
             </Button>
           </Flex>

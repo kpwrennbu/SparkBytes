@@ -22,6 +22,45 @@ export default function ContactsPage() {
     }
     fetchOrders();
   };
+  const cancelOrder = async (orderId: number, foodId: number) => {
+    // 1. Delete the order
+    const { error: deleteError } = await supabase
+      .from("Orders")
+      .delete()
+      .eq("id", orderId);
+  
+    if (deleteError) {
+      console.error("Error deleting order:", deleteError);
+      return;
+    }
+  
+    // 2. Get current quantity_left
+    const { data, error: fetchError } = await supabase
+      .from("Food")
+      .select("quantity_left")
+      .eq("id", foodId)
+      .single();
+  
+    if (fetchError) {
+      console.error("Error fetching food:", fetchError);
+      return;
+    }
+  
+    const updatedQuantity = data.quantity_left + 1;
+  
+    // 3. Update the quantity_left
+    const { error: updateError } = await supabase
+      .from("Food")
+      .update({ quantity_left: updatedQuantity })
+      .eq("id", foodId);
+  
+    if (updateError) {
+      console.error("Error updating food quantity:", updateError);
+    } else {
+      console.log(`Successfully incremented quantity_left to ${updatedQuantity}`);
+    }
+    fetchOrders();
+  };
   
   const fetchOrders = async () => {
     const { data, error } = await supabase
@@ -71,7 +110,7 @@ export default function ContactsPage() {
   return (
     <Flex wrap="wrap" gap="large" justify="center">
       {orders.map((order) => (
-        <OrderCard order={order} deleteOrder={deleteOrder} />
+        <OrderCard order={order} deleteOrder={deleteOrder} cancelOrder={cancelOrder} />
       ))}
     </Flex>
   );
