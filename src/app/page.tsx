@@ -8,7 +8,9 @@ import supabase from "./api/supabaseClient";
 import { useEffect } from "react";
 import { EventRow } from "@/types";
 
+
 const { Option } = Select;
+
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -16,67 +18,67 @@ export default function Home() {
   const [events, setEvents] = useState<EventRow[]>([]);
   const [loading, setLoading] = useState(true);
  
+
   useEffect(() => {
     const fetchEvents = async () => {
-      const { data, error } = await supabase.from("Events").select("*");
+      const { data, error } = await supabase
+        .from('Events')
+        .select('*');
 
       if (error) {
-        console.error("Error fetching events:", error.message);
+        console.error('Error fetching events:', error.message);
       } else {
-        console.log("got events, they are: ", data);
+        console.log("got events, they are: ", data)
         setEvents(data);
       }
 
       setLoading(false);
     };
     fetchEvents();
+
   }, []);
 
-  const isValidSearchTerm = (term: string) => {
-    return /^[a-zA-Z0-9\s]*$/.test(term);
-  };
-
+ 
   const filteredData = events.filter((event) =>
     event.location.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  let content;
-  if (searchTerm !== "" && !isValidSearchTerm(searchTerm)) {
-    content = (
-      <Alert
-        message="Invalid search input. Please enter valid characters."
-        type="error"
-        showIcon
-        style={{ margin: "20px" }}
-      />
-    );
-  } else if (searchTerm !== "" && filteredData.length === 0) {
-    content = (
-      <Alert
-        message="No events found. Please try a different search term."
-        type="error"
-        showIcon
-        style={{ margin: "20px" }}
-      />
-    );
-  } else {
-    content = (
-      <Flex justify="space-around" align="center" wrap="wrap" gap="4px">
-        {filteredData.map((event, index) => (
-          <FoodCard {...event} key={index} />
-        ))}
-      </Flex>
-    );
-  }
-
+  // const sortedData = [...filteredData].sort((a, b) => {
+  //   if (sortBy === "time") {
+  //     // assuming event times are sortable strings for now
+  //     return a.time.localeCompare(b.time);
+  //   } else if (sortBy === "distance") {
+  //     // sort by location name as a proxy
+  //     return a.location.localeCompare(b.location);
+  //   }
+  //   return 0;
+  // });
+  // console.log("sortedData: " + sortedData)
+  
   return (
     <div className={styles.page}>
       <div>
         <h1>Welcome to the Home Page</h1>
-        <CreateEvent />
+        <CreateEvent /> 
       </div>
+      
 
       <div style={{ marginBottom: "20px", textAlign: "center" }}>
+
+        <input
+          type="text"
+          placeholder="Search by location..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{
+            padding: "10px",
+            width: "300px",
+            borderRadius: "8px",
+            border: "1px solid #ccc",
+            fontSize: "16px"
+          }}
+        />
+
         <Input
             placeholder="Search by location..."
             value={searchTerm}
@@ -88,6 +90,7 @@ export default function Home() {
               fontSize: "16px",
             }}
           />
+
       </div>
 
 
@@ -98,7 +101,7 @@ export default function Home() {
           alignItems: "center",
           paddingRight: "40px",
           gap: "10px",
-          marginBottom: "20px",
+          marginBottom: "20px"
         }}
       >
         <label htmlFor="sortSelect" style={{ fontWeight: 500, whiteSpace: "nowrap" }}>
@@ -111,6 +114,15 @@ export default function Home() {
           style={{
             padding: "8px",
             borderRadius: "6px",
+
+            border: "1px solid #ccc",
+            fontSize: "16px"
+          }}
+        >
+          <option value="time">Time</option>
+          <option value="distance">Distance </option>
+        </select>
+
             fontSize: "16px",
             width: 150,
           }}
@@ -122,7 +134,11 @@ export default function Home() {
 
 
       <div style={{ padding: "20px" }}>
-        {content}
+        <Flex justify="space-around" align="center" wrap="wrap">
+          {filteredData.map((event, index) => (
+            <FoodCard {...event} key={index} />
+          ))}
+        </Flex>
       </div>
     </div>
   );

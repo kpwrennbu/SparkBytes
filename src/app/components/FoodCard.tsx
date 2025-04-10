@@ -21,6 +21,7 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
   const [loading, setLoading] = useState(false);
   const [food, setFood] = useState<TableRow[]>([]);
   const [unit, setUnit] = useState("g");
+
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const rowSelection = {
     selectedRowKeys,
@@ -81,17 +82,18 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
     await fetchFoods(); // refresh the data
   };
   
+
   // setUnit("g");
   const allergies: Record<string, string> = {
-    "dairy": "/allergyIcons/dairy-free.png",
-    "egg": "/allergyIcons/egg-free.png",
-    "fish": "/allergyIcons/fish-free.png",
-    "gluten": "/alslergyIcons/gluten-free.png",
-    "peanut": "/allergyIcons/peanut-free.png",
-    "seafood": "/allergyIcons/seafood-free.png",
-    "soy": "/allergyIcons/soy-free.png",
-    "tree nut": "/allergyIcons/treeNut-free.png"
-  };
+    "Dairy": "/allergyIcons/dairy-free.png",
+    "Egg": "/allergyIcons/egg-free.png",
+    "Fish": "/allergyIcons/fish-free.png",
+    "Gluten": "/allergyIcons/gluten-free.png", 
+    "Peanut": "/allergyIcons/peanut-free.png",
+    "Seafood": "/allergyIcons/seafood-free.png",
+    "Soy": "/allergyIcons/soy-free.png",
+    "Tree Nut": "/allergyIcons/treeNut-free.png"
+  }
   const imgs: Record<string, string> = {
     "cds": "/CDS.jpg",
     "warren": "/WarrenTowers.jpg",
@@ -152,27 +154,26 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
         ),
     },
   ];
-  const fetchFoods = async () => {
-    const { data, error } = await supabase
-      .from('Food')
-      .select('*')
-      .eq('event_id', id);
-  
-    if (error) {
-      console.error('Error fetching food:', error.message);
-    } else {
-      setFood(data);
-    }
-  
-    setLoading(false);
-  };
-  
   useEffect(() => {
+    const fetchFoods = async () => {
+      const { data, error } = await supabase
+        .from('Food')
+        .select('*')
+        .eq('event_id', id);
+
+      if (error) {
+        console.error('Error fetching food:', error.message);
+      } else {
+        setFood(data);
+      }
+
+      setLoading(false);
+    };
+
     if (id) {
       fetchFoods();
     }
-  }, [id]);
-  // re-run if creatorId changes
+  }, [id]); // re-run if creatorId changes
   return (
     <>
     <Card
@@ -234,17 +235,10 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
                   {
                     loading ? <p>loading...</p> : ( 
                       <>
-                        <Table
-                          dataSource={food}
-                          columns={columns}
-                          style={{ width: "75%" }}
-                          rowKey="id"
-                          rowSelection={rowSelection} 
-                        />
+                        <Table dataSource={food} columns={columns} style={{width: "75%"}} rowKey="id" />
                         <div style={{gap: "8px"}}>
-                          <Button disabled={selectedRowKeys.length === 0} onClick={() => onReservation()}>Reserve Item</Button>
-                          <Button disabled={selectedRowKeys.length === 0} onClick={() => setSelectedRowKeys([])}>Clear All</Button>
-
+                          <Button>Reserve Item</Button>
+                          <Button>Clear All</Button>
                         </div>
                       </>
                     )

@@ -2,13 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import supabase from '../api/supabaseClient';
-import { HomeOutlined, InfoCircleOutlined, MailOutlined, ShoppingCartOutlined, LoginOutlined, UserAddOutlined } from "@ant-design/icons";
+import { HomeOutlined, InfoCircleOutlined, MailOutlined, ShoppingCartOutlined, LoginOutlined, UserAddOutlined, EditOutlined, LogoutOutlined } from "@ant-design/icons";
+import Image from "next/image";
 
 export default function Navigation() {
     const pathname = usePathname();
     const [userEmail, setUserEmail] = useState<string | null>(null);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -25,6 +28,27 @@ export default function Navigation() {
             authListener.subscription.unsubscribe();
         };
     }, []);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setDropdownOpen(false);
+            }
+        };
+
+        if (dropdownOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [dropdownOpen]);
+
+    const handleLogout = async () => {
+        await supabase.auth.signOut();
+        setDropdownOpen(false);
+    };
 
     return (
         <div style={headerStyles}>
@@ -49,8 +73,27 @@ export default function Navigation() {
                 </Link>
             </div>
             {userEmail && (
-                <div style={welcomeStyles}>
-                    Welcome, {userEmail}
+                <div style={userDropdownContainerStyles} ref={dropdownRef}>
+                    <div
+                        style={welcomeStyles}
+                        onClick={() => setDropdownOpen(!dropdownOpen)}
+                    >
+                        Welcome, {userEmail}
+                        <Image src="/dropdown.png" alt="Dropdown icon" width={12} height={12} style={{marginLeft: '5px'}} />
+                    </div>
+                    {dropdownOpen && (
+                        <div style={dropdownMenuStyles}>
+                            <Link href="/editaccount" style={dropdownItemStyles}>
+                                <EditOutlined /> Edit Account
+                            </Link>
+                            <div
+                                style={dropdownItemStyles}
+                                onClick={handleLogout}
+                            >
+                                <LogoutOutlined /> Log Out
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
         </div>
@@ -72,10 +115,43 @@ const divStyles = {
     alignItems: "center"
 };
 
+const userDropdownContainerStyles = {
+    position: "relative" as const,
+    marginRight: "70px",
+};
+
 const welcomeStyles = {
     color: "#091E31FF",
     fontSize: "18px",
-    marginRight: "70px",
+    cursor: "pointer",
+};
+
+const dropdownMenuStyles = {
+    position: "absolute" as const,
+    top: "100%",
+    right: "0",
+    backgroundColor: "white",
+    border: "1px solid #e8e8e8",
+    borderRadius: "4px",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+    padding: "8px 0",
+    zIndex: 1000,
+    minWidth: "160px",
+};
+
+const dropdownItemStyles = {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    padding: "10px 20px",
+    color: "#091E31FF",
+    textDecoration: "none",
+    fontSize: "16px",
+    cursor: "pointer",
+    transition: "background-color 0.3s",
+    ":hover": {
+        backgroundColor: "#f5f5f5",
+    },
 };
 
 const getLinkStyle = (pathname: string, href: string) => ({

@@ -1,75 +1,103 @@
 "use client";
 
-import React, { useState, useEffect } from 'react'
-import Link from 'next/link'
+import React, { useState } from 'react'
 import supabase from '../api/supabaseClient'
 
-export default function LoginPage() {
-    const [email, setEmail] = useState('')
+export default function EditAccountPage() {
+    const [firstName, setFirstName] = useState('John')
+    const [lastName, setLastName] = useState('Doe')
+    const [email, setEmail] = useState('john@example.com')
     const [password, setPassword] = useState('')
-    const [error, setError] = useState('')
+    const [clickedField, setClickedField] = useState<'firstName' | 'lastName' | 'email' | 'password' | null>(null)
     const [isHovered, setIsHovered] = useState(false)
-    const [isLinkHovered, setIsLinkHovered] = useState(false)
-    const [clickedField, setClickedField] = useState<'email' | 'password' | null>(null)
+    const [success, setSuccess] = useState('')
 
-    useEffect(() => {
-        const { data: authListener } = supabase.auth.onAuthStateChange(
-            (event, session) => {
-                if (event === 'SIGNED_IN') {
-                    window.location.href = '/'
-                }
-            }
-        )
-        return () => {
-            authListener.subscription.unsubscribe()
-        }
-    }, [])
-
-    const handleLogin = async (e: React.FormEvent) => {
+    const handleSave = (e: React.FormEvent) => {
         e.preventDefault()
-        setError('')
-        try {
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email,
-                password,
-            })
-
-            if (error) throw error
-
-            console.log('Login successful', data)
-        } catch (error: any) {
-            setError(error.message)
-        }
+        setSuccess('Account information updated successfully.')
     }
 
     return (
         <div style={{
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '50vh',
+            alignItems: 'flex-start',
+            padding: '40px',
+            fontFamily: 'Arial, sans-serif',
             width: '100%',
-            fontFamily: 'Arial, sans-serif'
+            maxWidth: '400px',
         }}>
-            <h2 style={{ textAlign: 'center', marginBottom: '30px' }}>Login</h2>
-            {error && <p style={{color: 'red', marginBottom: '20px'}}>{error}</p>}
+            <h2 style={{ marginBottom: '30px' }}>Edit Account Info</h2>
+            {success && <p style={{ color: 'green', marginBottom: '30px' }}>{success}</p>}
             <form
-                onSubmit={handleLogin}
+                onSubmit={handleSave}
                 style={{
                     display: 'flex',
                     flexDirection: 'column',
                     width: '100%',
-                    maxWidth: '300px',
-                    alignItems: 'center',
-                    position: 'relative'
                 }}
             >
-                <div style={{
-                    width: '100%',
-                    position: 'relative',
-                    marginBottom: '20px'
-                }}>
+                <div style={{ width: '100%', position: 'relative', marginBottom: '20px' }}>
+                    <div style={{
+                        position: 'absolute',
+                        top: clickedField === 'firstName' || firstName ? '-20px' : '10px',
+                        left: '0',
+                        fontSize: clickedField === 'firstName' || firstName ? '12px' : '16px',
+                        color: clickedField === 'firstName' ? '#52c41a' : 'rgba(0,0,0,0.6)',
+                        transition: 'all 0.3s ease',
+                        pointerEvents: 'none'
+                    }}>
+                        First Name
+                    </div>
+                    <input
+                        type="text"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        onFocus={() => setClickedField('firstName')}
+                        onBlur={() => setClickedField(null)}
+                        style={{
+                            width: '100%',
+                            border: 'none',
+                            borderBottom: `1px solid ${clickedField === 'firstName' ? '#52c41a' : 'rgba(0,0,0,0.1)'}`,
+                            padding: '10px 0',
+                            fontSize: '16px',
+                            outline: 'none',
+                            backgroundColor: 'transparent'
+                        }}
+                    />
+                </div>
+
+                <div style={{ width: '100%', position: 'relative', marginBottom: '20px' }}>
+                    <div style={{
+                        position: 'absolute',
+                        top: clickedField === 'lastName' || lastName ? '-20px' : '10px',
+                        left: '0',
+                        fontSize: clickedField === 'lastName' || lastName ? '12px' : '16px',
+                        color: clickedField === 'lastName' ? '#52c41a' : 'rgba(0,0,0,0.6)',
+                        transition: 'all 0.3s ease',
+                        pointerEvents: 'none'
+                    }}>
+                        Last Name
+                    </div>
+                    <input
+                        type="text"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        onFocus={() => setClickedField('lastName')}
+                        onBlur={() => setClickedField(null)}
+                        style={{
+                            width: '100%',
+                            border: 'none',
+                            borderBottom: `1px solid ${clickedField === 'lastName' ? '#52c41a' : 'rgba(0,0,0,0.1)'}`,
+                            padding: '10px 0',
+                            fontSize: '16px',
+                            outline: 'none',
+                            backgroundColor: 'transparent'
+                        }}
+                    />
+                </div>
+
+                <div style={{ width: '100%', position: 'relative', marginBottom: '20px' }}>
                     <div style={{
                         position: 'absolute',
                         top: clickedField === 'email' || email ? '-20px' : '10px',
@@ -87,7 +115,6 @@ export default function LoginPage() {
                         onChange={(e) => setEmail(e.target.value)}
                         onFocus={() => setClickedField('email')}
                         onBlur={() => setClickedField(null)}
-                        required
                         style={{
                             width: '100%',
                             border: 'none',
@@ -100,11 +127,7 @@ export default function LoginPage() {
                     />
                 </div>
 
-                <div style={{
-                    width: '100%',
-                    position: 'relative',
-                    marginBottom: '30px'
-                }}>
+                <div style={{ width: '100%', position: 'relative', marginBottom: '30px' }}>
                     <div style={{
                         position: 'absolute',
                         top: clickedField === 'password' || password ? '-20px' : '10px',
@@ -122,7 +145,6 @@ export default function LoginPage() {
                         onChange={(e) => setPassword(e.target.value)}
                         onFocus={() => setClickedField('password')}
                         onBlur={() => setClickedField(null)}
-                        required
                         style={{
                             width: '100%',
                             border: 'none',
@@ -159,25 +181,9 @@ export default function LoginPage() {
                         transform: isHovered ? 'translateY(-7px)' : 'translateY(0)',
                     }}
                 >
-                    Login
+                    Save
                 </button>
             </form>
-            <p style={{ marginTop: '20px' }}>
-                Don't have an account? <Link
-                href="/signup"
-                onMouseEnter={() => setIsLinkHovered(true)}
-                onMouseLeave={() => setIsLinkHovered(false)}
-                style={{
-                    color: isLinkHovered ? '#52c41a' : 'inherit',
-                    textDecoration: 'underline',
-                    transition: 'color 0.3s ease',
-                    fontSize: '18px',
-                    fontWeight: 'bold'
-                }}
-            >
-                Sign Up
-            </Link>
-            </p>
         </div>
     )
 }
