@@ -154,22 +154,23 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
         ),
     },
   ];
+  const fetchFoods = async () => {
+    const { data, error } = await supabase
+      .from('Food')
+      .select('*')
+      .eq('event_id', id);
+
+    if (error) {
+      console.error('Error fetching food:', error.message);
+    } else {
+      setFood(data);
+    }
+
+    setLoading(false);
+  };
+
+
   useEffect(() => {
-    const fetchFoods = async () => {
-      const { data, error } = await supabase
-        .from('Food')
-        .select('*')
-        .eq('event_id', id);
-
-      if (error) {
-        console.error('Error fetching food:', error.message);
-      } else {
-        setFood(data);
-      }
-
-      setLoading(false);
-    };
-
     if (id) {
       fetchFoods();
     }
@@ -235,10 +236,11 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
                   {
                     loading ? <p>loading...</p> : ( 
                       <>
-                        <Table dataSource={food} columns={columns} style={{width: "75%"}} rowKey="id" />
+                        <Table dataSource={food} columns={columns} style={{width: "75%"}} rowKey="id"    rowSelection={rowSelection}
+                        />
                         <div style={{gap: "8px"}}>
-                          <Button>Reserve Item</Button>
-                          <Button>Clear All</Button>
+                          <Button onClick={() => onReservation()}>Reserve Item</Button>
+                          <Button onClick={() => setSelectedRowKeys([])}>Clear All</Button>
                         </div>
                       </>
                     )
