@@ -2,12 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Card, Flex, Spin, Typography } from "antd";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import supabase from "../api/supabaseClient";
 
 export default function ContactsPage() {
   const [orders, setOrders] = useState([]);
@@ -32,7 +27,8 @@ export default function ContactsPage() {
           serving_size_unit,
           event_id,
           event:event_id (
-            name
+            name, 
+            location
           )
         )
       `);
@@ -47,6 +43,7 @@ export default function ContactsPage() {
 
   useEffect(() => {
     fetchOrders();
+    console.log("orders: ", orders)
   }, []);
 
   if (loading) {
@@ -56,7 +53,7 @@ export default function ContactsPage() {
       </Flex>
     );
   }
-
+  console.log("orders are:", orders)
   return (
     <Flex wrap="wrap" gap="large" justify="center">
       {orders.map((order) => (
@@ -64,10 +61,12 @@ export default function ContactsPage() {
           key={order.id}
           title={order.food.name}
           style={{ width: 300 }}
-          bordered
         >
           <Typography.Paragraph>
             <strong>Event:</strong> {order.food.event?.name || "Unknown"}
+          </Typography.Paragraph>
+          <Typography.Paragraph>
+            <strong>Location:</strong> {order.food.event?.location || "Unknown"}
           </Typography.Paragraph>
           <Typography.Paragraph>
             <strong>Calories:</strong> {order.food.calories}
@@ -81,9 +80,7 @@ export default function ContactsPage() {
           <Typography.Paragraph>
             <strong>Fats:</strong> {order.food.fats}g
           </Typography.Paragraph>
-          <Typography.Paragraph>
-            <strong>Serving Size:</strong> {order.food.serving_size_u}
-          </Typography.Paragraph>
+          
           <Typography.Paragraph>
             <strong>Allergies:</strong> {order.food.allergies || "None"}
           </Typography.Paragraph>
@@ -91,7 +88,7 @@ export default function ContactsPage() {
             <strong>Quantity Left:</strong> {order.food.quantity_left}
           </Typography.Paragraph>
           <Typography.Paragraph>
-            <strong>User ID:</strong> {order.user_id}
+            <strong>User ID:</strong> {order.student_id}
           </Typography.Paragraph>
         </Card>
       ))}

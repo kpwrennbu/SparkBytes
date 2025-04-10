@@ -121,7 +121,7 @@ export default function CreateEvent() {
           event_id: eventId,
           total_quantity: row.quantity,
           quantity_left: row.quantity,
-          name: row.food,
+          name: row.food.charAt(0).toUpperCase() + row.food.slice(1).toLowerCase(),
           calories: row.calories,
           carbs: row.carbs,
           proteins: row.proteins,

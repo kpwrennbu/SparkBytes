@@ -6,14 +6,14 @@ import { ManuallyInputFoodProps, ManuallyInputFormValues } from "@/types";
 const { Option } = Select;
 
 const allergiesOptions = [
-  "Dairy",
-  "Egg",
-  "Gluten",
-  "Fish",
-  "Peanut",
-  "Seafood",
-  "Soy",
-  "Tree Nut",
+  "dairy",
+  "egg",
+  "gluten",
+  "fish",
+  "peanut",
+  "seafood",
+  "soy",
+  "tree Nut",
 ];
 
 export default function ManuallyInputFood({tableData, addInputtedToEventsTable}: ManuallyInputFoodProps) {
