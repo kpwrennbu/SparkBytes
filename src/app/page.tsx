@@ -42,20 +42,8 @@ export default function Home() {
   const filteredData = events.filter((event) =>
     event.location.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  // const sortedData = [...filteredData].sort((a, b) => {
-  //   if (sortBy === "time") {
-  //     // assuming event times are sortable strings for now
-  //     return a.time.localeCompare(b.time);
-  //   } else if (sortBy === "distance") {
-  //     // sort by location name as a proxy
-  //     return a.location.localeCompare(b.location);
-  //   }
-  //   return 0;
-  // });
-  // console.log("sortedData: " + sortedData)
-  
   return (
+    <>
     <div className={styles.page}>
       <div>
         <h1>Welcome to the Home Page</h1>
@@ -78,19 +66,6 @@ export default function Home() {
             fontSize: "16px"
           }}
         />
-
-        <Input
-            placeholder="Search by location..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              padding: "10px",
-              width: "300px",
-              borderRadius: "8px",
-              fontSize: "16px",
-            }}
-          />
-
       </div>
 
 
@@ -119,19 +94,11 @@ export default function Home() {
             fontSize: "16px"
           }}
         >
-          <option value="time">Time</option>
-          <option value="distance">Distance </option>
-        </select>
 
-            fontSize: "16px",
-            width: 150,
-          }}
-        >
           <Option value="time">Time</Option>
           <Option value="distance">Distance</Option>
         </Select>
       </div>
-
 
       <div style={{ padding: "20px" }}>
         <Flex justify="space-around" align="center" wrap="wrap">
@@ -141,5 +108,6 @@ export default function Home() {
         </Flex>
       </div>
     </div>
+    </>
   );
 }
