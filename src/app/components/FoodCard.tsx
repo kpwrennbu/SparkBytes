@@ -21,17 +21,77 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
   const [loading, setLoading] = useState(false);
   const [food, setFood] = useState<TableRow[]>([]);
   const [unit, setUnit] = useState("g");
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (newSelectedRowKeys: React.Key[]) => {
+      setSelectedRowKeys(newSelectedRowKeys);
+    },
+  };
+  
+  const onReservation = async () => { 
+  console.log("SelectedRowKeys: ", selectedRowKeys);
+  const selectedRows = food.filter(row => selectedRowKeys.includes(row.id));
+  console.log("Selected rows:", selectedRows);
+  for (const row of selectedRows) {
+    const newQuantity = row.quantity - 1;
+    // Insert into Orders table
+  
+      if (newQuantity <= 0) {
+        // Delete the row if quantity is 0 or less
+        const { error } = await supabase
+          .from("Food")
+          .delete()
+          .eq("id", row.id);
+  
+        if (error) {
+          console.error(`Error deleting food with id ${row.id}:`, error);
+        } else {
+          console.log(`Deleted food with id ${row.id}`);
+        }
+      } else {
+        // Otherwise, just update the quantity
+        const { error } = await supabase
+          .from("Food")
+          .update({ quantity: newQuantity })
+          .eq("id", row.id);
+  
+        if (error) {
+          console.error(`Error updating food with id ${row.id} to quantity ${newQuantity}:`, error);
+        } else {
+          console.log(`Updated food with id ${row.id} to quantity ${newQuantity}`);
+        }
+        const { error: orderError } = await supabase
+        .from("Orders")
+        .insert([
+          {
+            event_id: id,
+            student_id: 1,       // You can replace with actual user if you have one
+            food_id: row.id,
+          },
+        ]);
+  
+      if (orderError) {
+        console.error(`Error creating order for food id ${row.id}:`, orderError);
+        continue; // skip update/delete if order creation fails
+      }
+      }
+    }
+  
+    await fetchFoods(); // refresh the data
+  };
+  
   // setUnit("g");
   const allergies: Record<string, string> = {
-    "Dairy": "/allergyIcons/dairy-free.png",
-    "Egg": "/allergyIcons/egg-free.png",
-    "Fish": "/allergyIcons/fish-free.png",
-    "Gluten": "/allergyIcons/gluten-free.png", 
-    "Peanut": "/allergyIcons/peanut-free.png",
-    "Seafood": "/allergyIcons/seafood-free.png",
-    "Soy": "/allergyIcons/soy-free.png",
-    "Tree Nut": "/allergyIcons/treeNut-free.png"
-  }
+    "dairy": "/allergyIcons/dairy-free.png",
+    "egg": "/allergyIcons/egg-free.png",
+    "fish": "/allergyIcons/fish-free.png",
+    "gluten": "/alslergyIcons/gluten-free.png",
+    "peanut": "/allergyIcons/peanut-free.png",
+    "seafood": "/allergyIcons/seafood-free.png",
+    "soy": "/allergyIcons/soy-free.png",
+    "tree nut": "/allergyIcons/treeNut-free.png"
+  };
   const imgs: Record<string, string> = {
     "cds": "/CDS.jpg",
     "warren": "/WarrenTowers.jpg",
@@ -92,26 +152,27 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
         ),
     },
   ];
+  const fetchFoods = async () => {
+    const { data, error } = await supabase
+      .from('Food')
+      .select('*')
+      .eq('event_id', id);
+  
+    if (error) {
+      console.error('Error fetching food:', error.message);
+    } else {
+      setFood(data);
+    }
+  
+    setLoading(false);
+  };
+  
   useEffect(() => {
-    const fetchFoods = async () => {
-      const { data, error } = await supabase
-        .from('Food')
-        .select('*')
-        .eq('event_id', id);
-
-      if (error) {
-        console.error('Error fetching food:', error.message);
-      } else {
-        setFood(data);
-      }
-
-      setLoading(false);
-    };
-
     if (id) {
       fetchFoods();
     }
-  }, [id]); // re-run if creatorId changes
+  }, [id]);
+  // re-run if creatorId changes
   return (
     <>
     <Card
@@ -173,10 +234,17 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
                   {
                     loading ? <p>loading...</p> : ( 
                       <>
-                        <Table dataSource={food} columns={columns} style={{width: "75%"}} rowKey="id" />
+                        <Table
+                          dataSource={food}
+                          columns={columns}
+                          style={{ width: "75%" }}
+                          rowKey="id"
+                          rowSelection={rowSelection} 
+                        />
                         <div style={{gap: "8px"}}>
-                          <Button>Reserve Item</Button>
-                          <Button>Clear All</Button>
+                          <Button disabled={selectedRowKeys.length === 0} onClick={() => onReservation()}>Reserve Item</Button>
+                          <Button disabled={selectedRowKeys.length === 0} onClick={() => setSelectedRowKeys([])}>Clear All</Button>
+
                         </div>
                       </>
                     )

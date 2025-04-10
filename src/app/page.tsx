@@ -15,92 +15,6 @@ export default function Home() {
   const [sortBy, setSortBy] = useState("time");
   const [events, setEvents] = useState<EventRow[]>([]);
   const [loading, setLoading] = useState(true);
-  // const data = [
-  //   {
-  //     location: "Warren Towers",
-  //     description: "Freshmen CGS Orientation",
-  //     time: "Thursday, May 4th, 12PM", 
-  //     img: "/WarrenTowers.jpg", 
-  //     food: [
-  //       { 
-  //       key: 1,
-  //       food: "BLT",
-  //       quantity: 2,
-  //       calories: 540,
-  //       protein: 15,
-  //       fat: 20,
-  //       carbs: 5,
-  //       allergies: ["Gluten", "Tree Nut"]
-  //     }, 
-  //     {
-  //       key: 2, 
-  //       food: "Fortnite Sandwich",
-  //       quantity: 5,
-  //       calories: 540,
-  //       protein: 15,
-  //       fat: 20,
-  //       carbs: 5,
-  //       allergies: ["Gluten", "Tree Nut"]
-  //     }
-  //     ]
-  //   },
-  //   {
-  //     location: "CDS",
-  //     description: "Freshmen CGS Orientation",
-  //     time: "Thursday, May 4th, 12PM",
-  //     img: "/CDS.jpg", 
-  //     food: [
-  //       { 
-  //       key: 1,
-  //       food: "BLT",
-  //       quantity: 2,
-  //       calories: 540,
-  //       protein: 15,
-  //       fat: 20,
-  //       carbs: 5,
-  //       allergies: ["Gluten", "Tree Nut"]
-  //     }, 
-  //     {
-  //       key: 2, 
-  //       food: "Fortnite Sandwich",
-  //       quantity: 5,
-  //       calories: 540,
-  //       protein: 15,
-  //       fat: 20,
-  //       carbs: 5,
-  //       allergies: ["Gluten", "Tree Nut"]
-  //     }
-  //     ]
-  //   },
-  //   {
-  //     location: "GSU",
-  //     description: "Freshmen CGS Orientation",
-  //     time: "Thursday, May 4th, 12PM",
-  //     img: "/GSU.jpeg", 
-  //     food: [
-  //       { 
-  //       key: 1,
-  //       food: "BLT",
-  //       quantity: 2,
-  //       calories: 540,
-  //       protein: 15,
-  //       fat: 20,
-  //       carbs: 5,
-  //       allergies: ["Gluten", "Tree Nut"]
-  //     }, 
-  //     {
-  //       key: 2, 
-  //       food: "Fortnite Sandwich",
-  //       quantity: 5,
-  //       calories: 540,
-  //       protein: 15,
-  //       fat: 20,
-  //       carbs: 5,
-  //       allergies: ["Gluten", "Tree Nut"]
-  //     }
-  //     ]
-  //   },
-  // ];
  
   useEffect(() => {
     const fetchEvents = async () => {
@@ -147,7 +61,7 @@ export default function Home() {
     );
   } else {
     content = (
-      <Flex justify="space-around" align="center" wrap="wrap">
+      <Flex justify="space-around" align="center" wrap="wrap" gap="4px">
         {filteredData.map((event, index) => (
           <FoodCard {...event} key={index} />
         ))}
