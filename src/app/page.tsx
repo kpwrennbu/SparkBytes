@@ -1,13 +1,15 @@
 "use client";
 import styles from "./page.module.css";
 import FoodCard from "./components/FoodCard";
-import { Flex } from "antd";
+import { Flex, Alert, Input, Select } from "antd";
 import { useState } from "react";
 import CreateEvent from "./components/CreateEvent";
 import supabase from "./api/supabaseClient";
 import { useEffect } from "react";
 import { EventRow } from "@/types";
-import { Alert } from "antd";
+
+const { Option } = Select;
+
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("time");
@@ -161,20 +163,19 @@ export default function Home() {
       </div>
 
       <div style={{ marginBottom: "20px", textAlign: "center" }}>
-        <input
-          type="text"
-          placeholder="Search by location..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{
-            padding: "10px",
-            width: "300px",
-            borderRadius: "8px",
-            border: "1px solid #ccc",
-            fontSize: "16px",
-          }}
-        />
+        <Input
+            placeholder="Search by location..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              padding: "10px",
+              width: "300px",
+              borderRadius: "8px",
+              fontSize: "16px",
+            }}
+          />
       </div>
+
 
       <div
         style={{
@@ -189,21 +190,22 @@ export default function Home() {
         <label htmlFor="sortSelect" style={{ fontWeight: 500, whiteSpace: "nowrap" }}>
           Sort by:
         </label>
-        <select
+        <Select
           id="sortSelect"
           value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
+          onChange={(value) => setSortBy(value)}
           style={{
             padding: "8px",
             borderRadius: "6px",
-            border: "1px solid #ccc",
             fontSize: "16px",
+            width: 150,
           }}
         >
-          <option value="time">Time</option>
-          <option value="distance">Distance</option>
-        </select>
+          <Option value="time">Time</Option>
+          <Option value="distance">Distance</Option>
+        </Select>
       </div>
+
 
       <div style={{ padding: "20px" }}>
         {content}
