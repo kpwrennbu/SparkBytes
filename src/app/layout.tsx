@@ -1,6 +1,7 @@
 // src/app/layout.tsx
 // import "antd/dist/reset.css";
 import Navigation from './components/Navigation';
+import './global.css';
 
 export const metadata = {
   title: 'Next.js',
