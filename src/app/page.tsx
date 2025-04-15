@@ -9,24 +9,65 @@ import styles from "./page.module.css";
 
 const { Option } = Select;
 
+// Helper function: calculate distance using the Haversine formula (in kilometers)
+function calculateDistance(
+  origin: { lat: number; lng: number },
+  destination: { lat: number; lng: number }
+): number {
+  const R = 6371; // Radius of the Earth in kilometers
+  const dLat = ((destination.lat - origin.lat) * Math.PI) / 180;
+  const dLng = ((destination.lng - origin.lng) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((origin.lat * Math.PI) / 180) *
+      Math.cos((destination.lat * Math.PI) / 180) *
+      Math.sin(dLng / 2) *
+      Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState("time"); // Field to sort by: "time" or "distance"
-  const [sortOrder, setSortOrder] = useState("asc"); // Order: "asc" (ascending) or "desc" (descending)
+  // Two sort criteria: "time" and "distance"
+  const [sortBy, setSortBy] = useState("time");
+  // Sort order: "asc" for ascending, "desc" for descending
+  const [sortOrder, setSortOrder] = useState("asc");
   const [events, setEvents] = useState<EventRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
+  // State to store the user's current coordinates
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+
+  // Ask for the user's location when the component mounts
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+        },
+        (error) => {
+          console.error("Error fetching user location:", error);
+        }
+      );
+    } else {
+      console.error("Geolocation is not supported by your browser.");
+    }
+  }, []);
+
   useEffect(() => {
     const fetchEvents = async () => {
       const { data, error } = await supabase.from("Events").select("*");
-
       if (error) {
         console.error("Error fetching events:", error.message);
         setFetchError(error.message);
       } else {
         console.log("Got events:", data);
-        setEvents(data);
+        setEvents(data as EventRow[]);
         setFetchError(null);
       }
       setLoading(false);
@@ -34,33 +75,43 @@ export default function Home() {
     fetchEvents();
   }, []);
 
+  // Validate the search input from user
   const isValidSearchTerm = (term: string) => /^[a-zA-Z0-9\s]*$/.test(term);
 
-  // 1) Filter events based on search term
+  // 1) Filter events based on the search term
   const filteredData = events.filter((event) =>
     event.location.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // 2) Create a copy of filtered events for sorting
+  // 2) Create a copy of the filtered events for sorting
   const sortedData = [...filteredData];
 
-  // 3) Sort the data according to 'sortBy' and 'sortOrder'
+  // 3) Sort the data according to the chosen field & order
   if (sortBy === "time") {
-    // Sort by time_start (assumed to be in ISO format)
+    // Sorting by time_start (as an ISO string)
     sortedData.sort((a, b) => {
       const dateA = new Date(a.time_start).getTime();
       const dateB = new Date(b.time_start).getTime();
-      // For ascending order, subtract dateA - dateB; for descending, swap
       return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
     });
   } else if (sortBy === "distance") {
-    // Uncomment and update if you have a distance field in your event data
-    // sortedData.sort((a, b) => {
-    //   return sortOrder === "asc" ? a.distance - b.distance : b.distance - a.distance;
-    // });
+    // Sorting by distance (requires the user's location and event coordinates)
+    if (userLocation) {
+      sortedData.sort((a, b) => {
+        const distanceA = calculateDistance(userLocation, {
+          lat: Number(a.latitude),
+          lng: Number(a.longitude),
+        });
+        const distanceB = calculateDistance(userLocation, {
+          lat: Number(b.latitude),
+          lng: Number(b.longitude),
+        });
+        return sortOrder === "asc" ? distanceA - distanceB : distanceB - distanceA;
+      });
+    }
   }
 
-  // 4) Conditionally render content
+  // 4) Render content based on the filtered/sorted data
   let content;
   if (searchTerm !== "" && !isValidSearchTerm(searchTerm)) {
     content = (
@@ -83,8 +134,8 @@ export default function Home() {
   } else {
     content = (
       <Flex justify="space-around" align="center" wrap="wrap">
-        {sortedData.map((event, index) => (
-          <FoodCard {...event} key={index} />
+        {sortedData.map((event) => (
+          <FoodCard key={event.id} {...event} />
         ))}
       </Flex>
     );
@@ -122,6 +173,7 @@ export default function Home() {
         />
       </div>
 
+      {/* Sorting controls: Time + Distance  */}
       <div
         style={{
           display: "flex",
