@@ -13,7 +13,9 @@ import {
     LoginOutlined,
     UserAddOutlined,
     EditOutlined,
-    LogoutOutlined
+    LogoutOutlined,
+    UserOutlined,
+    DownOutlined
 } from "@ant-design/icons";
 import Image from "next/image";
 
@@ -169,9 +171,12 @@ export default function Navigation() {
                     <div
                         style={welcomeStyles}
                         onClick={() => setDropdownOpen(!dropdownOpen)}
+
                     >
-                        Welcome, {userEmail}
-                        <Image src="/dropdown.png" alt="Dropdown icon" width={12} height={12} style={{ marginLeft: '5px' }} />
+                        {/* Welcome, {userEmail}
+                        <Image src="/dropdown.png" alt="Dropdown icon" width={12} height={12} style={{ marginLeft: '5px' }} /> */}
+                        <UserOutlined />
+                        <DownOutlined style={{fontSize: "8px"}}/>
                     </div>
                     {dropdownOpen && (
                         <div style={dropdownMenuStyles}>
@@ -201,6 +206,8 @@ const headerStyles = {
     position: "sticky" as const,
     top: 0,
     zIndex: 999,
+    minWidth: "1000px", 
+
 };
 
 const navLinksStyles = {
@@ -213,6 +220,9 @@ const navLinksStyles = {
 
 const userDropdownContainerStyles = {
     position: "relative" as const,
+    flexShrink: 0, // ✅ prevents it from shrinking when container gets tight
+    minWidth: "fit-content", // ✅ keeps it visible
+    marginLeft: "auto", // ✅ pushes it to the right nicely
 };
 
 const welcomeStyles = {
@@ -222,6 +232,7 @@ const welcomeStyles = {
     fontWeight: 500,
     display: "flex",
     alignItems: "center",
+    gap: "8px"
 };
 
 const dropdownMenuStyles = {
@@ -235,8 +246,11 @@ const dropdownMenuStyles = {
     padding: "8px 0",
     zIndex: 1000,
     minWidth: "180px",
+    maxWidth: "calc(100vw - 20px)", // ✅ prevent overflow
+    overflowX: "auto",               // ✅ if needed
     animation: "fadeIn 0.3s ease-in-out",
 };
+
 
 const dropdownItemStyles = {
     display: "flex",
