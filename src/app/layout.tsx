@@ -1,5 +1,6 @@
 // src/app/layout.tsx
 import Navigation from './components/Navigation';
+import 'leaflet/dist/leaflet.css';
 
 export const metadata = {
   title: 'Next.js',
