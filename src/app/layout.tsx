@@ -1,4 +1,5 @@
 // src/app/layout.tsx
+// import "antd/dist/reset.css";
 import Navigation from './components/Navigation';
 
 export const metadata = {
