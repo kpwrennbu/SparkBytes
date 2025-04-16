@@ -68,7 +68,7 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
   const imgs: Record<string, string> = {
     cds: "/CDS.jpg",
     warren: "/WarrenTowers.jpg",
-    gsu: "/GSU.JPEG",
+    gsu: "/GSU.jpg",
   };
 
   const columns = [
