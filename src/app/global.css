@@ -1,0 +1,11 @@
+/* Show hamburger + user icon on small screens */
+@media (max-width: 768px) {
+    .mobile-toggle {
+      display: flex !important;
+    }
+  
+    .desktop-nav {
+      display: none !important;
+    }
+  }
+  

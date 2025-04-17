@@ -64,6 +64,8 @@ export type Food = {
     time_start: string;
     time_end: string;
     creator_id: number;
+    latitude: number;
+    longitude: number;
   };
   export type Order = { 
     food: TableRow[]; 

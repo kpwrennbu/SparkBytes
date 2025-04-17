@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { Card, Flex, Spin, Typography } from "antd";
 import supabase from "../api/supabaseClient";
@@ -82,7 +81,8 @@ export default function ContactsPage() {
           event_id,
           event:event_id (
             name, 
-            location
+            location, 
+            time_end
           )
         )
       `);
@@ -110,7 +110,7 @@ export default function ContactsPage() {
   return (
     <Flex wrap="wrap" gap="large" justify="center">
       {orders.map((order) => (
-        <OrderCard order={order} deleteOrder={deleteOrder} cancelOrder={cancelOrder} />
+        <OrderCard key={order.id} order={order} deleteOrder={deleteOrder} cancelOrder={cancelOrder} />
       ))}
     </Flex>
   );

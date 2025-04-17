@@ -89,8 +89,20 @@ export default function CreateEvent() {
     }
 
     const [startTime, endTime] = timeRange;
-    const time_start = eventDate.clone().hour(startTime.hour()).minute(startTime.minute()).second(0).toISOString();
-    const time_end = eventDate.clone().hour(endTime.hour()).minute(endTime.minute()).second(0).toISOString();
+    const time_start = eventDate
+  .clone()
+  .hour(startTime.hour())
+  .minute(startTime.minute())
+  .second(0)
+  .format(); // keeps local time
+
+const time_end = eventDate
+  .clone()
+  .hour(endTime.hour())
+  .minute(endTime.minute())
+  .second(0)
+  .format();
+
 
 
 

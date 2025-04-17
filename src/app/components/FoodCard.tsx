@@ -52,7 +52,6 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
 
     await fetchFoods();
     setSelectedRowKeys([]);
-    console.log("foods is ", food);
   };
 
   const allergies: Record<string, string> = {
@@ -69,7 +68,7 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
   const imgs: Record<string, string> = {
     cds: "/CDS.jpg",
     warren: "/WarrenTowers.jpg",
-    gsu: "/GSU.JPEG",
+    gsu: "/GSU.jpg",
   };
 
   const columns = [
@@ -132,7 +131,7 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
       .from("Food")
       .select("*")
       .eq("event_id", id)
-      .gt("quantity_left", 0); // Only fetch items with quantity left
+      .gt("quantity_left", 0);
 
     if (error) {
       console.error("Error fetching food:", error.message);
@@ -148,6 +147,30 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
       fetchFoods();
     }
   }, [id]);
+
+  const formatTimeRange = (start: string, end: string) => {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const sameDay = startDate.toDateString() === endDate.toDateString();
+
+    const dateOptions: Intl.DateTimeFormatOptions = {
+      month: "short",
+      day: "numeric",
+    };
+
+    const timeOptions: Intl.DateTimeFormatOptions = {
+      hour: "numeric",
+      minute: "2-digit",
+    };
+
+    const formattedDate = startDate.toLocaleDateString(undefined, dateOptions);
+    const startTime = startDate.toLocaleTimeString(undefined, timeOptions);
+    const endTime = endDate.toLocaleTimeString(undefined, timeOptions);
+
+    return sameDay
+      ? `${formattedDate}, ${startTime} - ${endTime}`
+      : `${formattedDate} ${startTime} - ${endDate.toLocaleDateString(undefined, dateOptions)} ${endTime}`;
+  };
 
   return (
     <>
@@ -168,7 +191,7 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
       >
         <h3 style={{ marginBottom: "5px", fontWeight: "bold" }}>{location}</h3>
         <p style={{ color: "#666", marginBottom: "8px" }}>{name + "Need Description in form"}</p>
-        <p style={timeStyle}>{time_start} - {time_end}</p>
+        <p style={timeStyle}>{formatTimeRange(time_start, time_end)}</p>
       </Card>
 
       <Modal
@@ -206,8 +229,7 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
                     />
                     <div style={{ gap: "8px" }}>
                       <Button onClick={onReservation}>Reserve Item</Button>
-                      <Button onClick={() => 
-                        setSelectedRowKeys([])}>Clear All</Button>
+                      <Button onClick={() => setSelectedRowKeys([])}>Clear All</Button>
                     </div>
                   </>
                 )}
@@ -223,11 +245,14 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
 const cardStyles = {
   borderRadius: "10px",
   boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-  width: "25%",
+  width: "100%",
+  maxWidth: "350px",
   padding: "0.5em",
 };
 
 const timeStyle = {
-  fontWeight: "bold",
-  color: "#555",
+  fontWeight: "500",
+  fontSize: "14px",
+  color: "#444",
+  marginTop: "10px",
 };
