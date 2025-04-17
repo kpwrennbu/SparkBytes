@@ -1,6 +1,5 @@
 import React from "react";
 import { Typography } from "antd";
-import Image from "next/image";
 
 const { Title, Paragraph } = Typography;
 
