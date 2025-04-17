@@ -2,7 +2,7 @@
 import { useState } from "react";
 import {
   Modal, Button, Input, Select, DatePicker, TimePicker, Flex, Image, Table, Typography, Form,
-  Tooltip, Switch
+  Tooltip
 } from "antd";
 import type { TableRowSelection } from 'antd/es/table/interface';
 import { PlusCircleOutlined } from '@ant-design/icons';
@@ -10,7 +10,7 @@ import { Food, TableRow } from "@/types";
 import SearchFood from "./SearchFood";
 import supabase from "../api/supabaseClient";
 import { EditableCell } from "./EditableCell";
-import ManuallyInputFood from "./ManuallyInputFood";
+
 const { Option } = Select;
 const format = 'HH:mm a';
 
@@ -26,7 +26,7 @@ export default function CreateEvent() {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [unit, setUnit] = useState("");
   const [tableForm] = Form.useForm();
-  const [isChecked, setIsChecked] = useState(false);
+
   const [eventName, setEventName] = useState("");
   const [location, setLocation] = useState("");
   const [eventDate, setEventDate] = useState(null);
@@ -36,19 +36,13 @@ export default function CreateEvent() {
     "dairy": "/allergyIcons/dairy-free.png",
     "egg": "/allergyIcons/egg-free.png",
     "fish": "/allergyIcons/fish-free.png",
-    "gluten": "/allergyIcons/gluten-free.png", 
+    "gluten": "/allergyIcons/gluten-free.png",
     "peanut": "/allergyIcons/peanut-free.png",
     "seafood": "/allergyIcons/seafood-free.png",
     "soy": "/allergyIcons/soy-free.png",
-    "tree Nut": "/allergyIcons/treeNut-free.png"
-  }
-  const handleSwitchChange = (checked: boolean) => {
-    setIsChecked(checked);
-    console.log("Switch is now:", checked);
+    "tree nut": "/allergyIcons/treeNut-free.png"
   };
-  const addInputtedToEventsTable = (newData: TableRow) => { 
-    setTableData(tableData => [...tableData, newData])
-  }
+
   const addFoodToEventsTable = () => {
     if (quantity <= 0) {
       setQuantityError(true);
@@ -89,20 +83,8 @@ export default function CreateEvent() {
     }
 
     const [startTime, endTime] = timeRange;
-    const time_start = eventDate
-  .clone()
-  .hour(startTime.hour())
-  .minute(startTime.minute())
-  .second(0)
-  .format(); // keeps local time
-
-const time_end = eventDate
-  .clone()
-  .hour(endTime.hour())
-  .minute(endTime.minute())
-  .second(0)
-  .format();
-
+    const time_start = eventDate.clone().hour(startTime.hour()).minute(startTime.minute()).second(0).toISOString();
+    const time_end = eventDate.clone().hour(endTime.hour()).minute(endTime.minute()).second(0).toISOString();
 
 
 
@@ -131,13 +113,12 @@ const time_end = eventDate
       const { error: rowError } = await supabase.from('Food').insert([
         {
           event_id: eventId,
-          total_quantity: row.quantity,
-          quantity_left: row.quantity,
-          name: row.food.charAt(0).toUpperCase() + row.food.slice(1).toLowerCase(),
-          calories: Math.round(row.calories),
-          carbs: Math.round(row.carbs),
-          proteins: Math.round(row.proteins),
-          fats: Math.round(row.fats),
+          quantity: row.quantity,
+          name: row.food,
+          calories: row.calories,
+          carbs: row.carbs,
+          proteins: row.proteins,
+          fats: row.fats,
           allergies: row.allergies,
           serving_size_unit: unit,
         },
@@ -299,14 +280,7 @@ const time_end = eventDate
             </Select>
             <DatePicker value={eventDate} onChange={setEventDate} />
             <TimePicker.RangePicker use12Hours format={format} value={timeRange} onChange={(val) => setTimeRange(val)} />
-             <Switch checked={isChecked} onChange={handleSwitchChange} />
-            {isChecked ? ( 
-              <ManuallyInputFood 
-                tableData={tableData}
-                addInputtedToEventsTable={addInputtedToEventsTable}
-              />
-            ) : ( 
-              <SearchFood
+            <SearchFood
               isTableVisible={isTableVisible}
               setIsTableVisible={setIsTableVisible}
               foods={foods}
@@ -314,9 +288,7 @@ const time_end = eventDate
               quantity={quantity}
               setQuantity={setQuantity}
               addFoodToEventsTable={addFoodToEventsTable}
-              tableData={tableData}
             />
-            )}
             {foods && quantityError && <Typography.Text type="danger">Please enter a quantity greater than 0</Typography.Text>}
             {selectedRowKeys.length !== 0 && (
               <Button danger onClick={deleteRowsFromFoodTable}>Delete Selected Rows</Button>
