@@ -18,7 +18,6 @@ import {
     DownOutlined,
     PushpinOutlined
 } from "@ant-design/icons";
-import Image from "next/image";
 
 export default function Navigation() {
     const pathname = usePathname();

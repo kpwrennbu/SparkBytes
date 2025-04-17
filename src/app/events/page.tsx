@@ -5,9 +5,6 @@ import supabase from "../api/supabaseClient";
 import FoodCard from "../components/FoodCard";
 import CreateEvent from "../components/CreateEvent";
 import { EventRow } from "@/types";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-
 
 
 const { Option } = Select;
