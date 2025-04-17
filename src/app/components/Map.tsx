@@ -50,11 +50,17 @@ export default function InteractiveMap() {
   };
 
   return (
-    <LeafletMap center={[42.35, -71.1]} zoom={14} style={{ height: "500px", width: "100%" }}>
-      <LeafletTileLayer
-        url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> & contributors, &copy; <a href="https://carto.com/">CARTO</a>'
-      />
+    <LeafletMap center={[42.35, -71.1]} zoom={14} style={{
+      height: "600px",
+      width: "calc(100vw - 40px)",
+      margin: "2rem auto",
+      borderRadius: "12px",
+      boxShadow: "0 2px 10px rgba(0,0,0,0.1)"
+    }}>
+        <LeafletTileLayer
+        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/">CARTO</a>'
+        />
       <LocationMarker onAdd={handleAddMarker} />
       {markers.map((marker) => (
         <Marker key={marker.id} position={[marker.lat, marker.lng]}>
