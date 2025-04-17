@@ -15,20 +15,12 @@ import Image from "next/image";
 
 const { Title, Text } = Typography;
 
-export default function SearchFood({ isTableVisible, setIsTableVisible, foods, setFoods, quantity, setQuantity, addFoodToEventsTable, tableData}: SearchFoodProps) {
+export default function SearchFood({ isTableVisible, setIsTableVisible, foods, setFoods, quantity, setQuantity, addFoodToEventsTable}: SearchFoodProps) {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [duplicationError, setDuplicationError] = useState("");
+
   const handleSearch = async () => {
-    if (tableData?.some(data => data["food"].toLowerCase() === query.toLowerCase())) { 
-      setDuplicationError("Error! Food already in table. Please adjust the quantity there.");
-      return;
-    }
-    else { 
-      setDuplicationError("");
-     console.log("In the else");
-    }
     if (!query) return;
     setLoading(true);
     setError("");
@@ -107,7 +99,7 @@ export default function SearchFood({ isTableVisible, setIsTableVisible, foods, s
           Search
         </Button>
       </Space.Compact>
-      {duplicationError && <Text type="danger">{duplicationError}</Text>}
+
       {error && <Text type="danger">{error}</Text>}
 
       {foods.map((food) => (
