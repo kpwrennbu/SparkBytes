@@ -1,6 +1,8 @@
 // src/app/layout.tsx
 // import "antd/dist/reset.css";
 import Navigation from './components/Navigation';
+
+// import './global.css';
 import 'leaflet/dist/leaflet.css';
 
 // import './global.css';
