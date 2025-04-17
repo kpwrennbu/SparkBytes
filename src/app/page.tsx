@@ -5,8 +5,12 @@ import supabase from "./api/supabaseClient";
 import FoodCard from "./components/FoodCard";
 import CreateEvent from "./components/CreateEvent";
 import { EventRow } from "@/types";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
 
 const { Option } = Select;
+
 
 function calculateDistance(
   origin: { lat: number; lng: number },
@@ -25,6 +29,8 @@ function calculateDistance(
   return R * c;
 }
 
+
+
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("time");
@@ -33,6 +39,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -64,6 +71,7 @@ export default function Home() {
     };
     fetchEvents();
   }, []);
+
 
   const isValidSearchTerm = (term: string) => /^[a-zA-Z0-9\s]*$/.test(term);
 
@@ -128,42 +136,101 @@ export default function Home() {
   }
 
   return (
-    <div style={styles.page}>
-      <div style={styles.header}>
-        <h1>Welcome to the Home Page</h1>
-        <CreateEvent />
-      </div>
 
-      {fetchError && (
-        <Alert
-          message="Error fetching events"
-          description={fetchError}
-          type="error"
-          showIcon
-          closable
-          style={{ margin: "20px" }}
-        />
-      )}
+    
+    <>
+      <div className={styles.page}>
+        <div>
+          <h1>Welcome to the Home Page</h1>
+          <CreateEvent /> 
+        </div>
 
-      <div style={styles.controlBar}>
-        <Input
-          placeholder="Search by location..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={styles.searchInput}
-        />
+        <div style={{ marginBottom: "8px", textAlign: "center" }}>
+          <input
+            type="text"
+            placeholder="Search by location..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              padding: "10px",
+              width: "300px",
+              borderRadius: "8px",
+              border: "1px solid #ccc",
+              fontSize: "16px"
+            }}
+          />
+        </div>
 
-        <div style={styles.sortControls}>
-          <label htmlFor="sortSelect" style={{ fontWeight: 500 }}>Sort by:</label>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            paddingRight: "40px",
+            gap: "10px",
+            marginBottom: "8px"
+          }}
+        >
+          <label htmlFor="sortSelect" style={{ fontWeight: 500, whiteSpace: "nowrap" }}>
+            Sort by:
+          </label>
+
+          
+          
+          
+          
           <Select
             id="sortSelect"
             value={sortBy}
             onChange={(value) => setSortBy(value)}
+
+            style={{
+              padding: "8px",
+              borderRadius: "6px",
+              border: "1px solid #ccc",
+              fontSize: "16px"
+            }}
+
           >
             <Option value="time">Time</Option>
             <Option value="distance">Distance</Option>
           </Select>
+          
+          
+          
+          
+          
+        </div>
 
+        <div style={{ padding: "5px" }}>
+          <Flex justify="space-around" align="center" wrap="wrap">
+            {filteredData.map((event, index) => (
+              <FoodCard {...event} key={index} />
+            ))}
+          </Flex>
+        </div>
+        
+        <div style={{ height: "500px", width: "100%", marginTop: "2em" }}>
+          <MapContainer
+            center={[42.35, -71.1]} // Boston
+            zoom={13}
+            scrollWheelZoom={true}
+            zoomControl={true}
+            style={{ height: "500px", width: "100%", marginBottom: "1rem" }}
+          >
+            <TileLayer
+              url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/">CARTO</a>'
+            />
+            <Marker position={[42.35, -71.1]}>
+              <Popup>Boston marker</Popup>
+            </Marker>
+          </MapContainer>
+        </div>
+      </div>
+    </>
+
+<!-- 
           <label htmlFor="orderSelect" style={{ fontWeight: 500 }}>Order:</label>
           <Select
             id="orderSelect"
@@ -177,7 +244,8 @@ export default function Home() {
       </div>
 
       <div style={{ padding: "20px" }}>{content}</div>
-    </div>
+    </div> -->
+
   );
 }
 
