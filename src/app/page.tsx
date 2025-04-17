@@ -189,43 +189,6 @@ export default function Home() {
   
         <MainUI />
   
-        <div style={styles.controlBar}>
-          <Input
-            placeholder="Search by location..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={styles.searchInput}
-          />
-  
-          <div style={styles.sortControls}>
-            <label htmlFor="sortSelect" style={{ fontWeight: 500, whiteSpace: "nowrap" }}>
-              Sort by:
-            </label>
-            <Select
-              id="sortSelect"
-              value={sortBy}
-              onChange={(value) => setSortBy(value)}
-              style={{
-                padding: "8px",
-                borderRadius: "6px",
-                border: "1px solid #ccc",
-                fontSize: "16px",
-              }}
-            >
-              <Option value="time">Time</Option>
-              <Option value="distance">Distance</Option>
-            </Select>
-          </div>
-        </div>
-  
-        <div style={{ padding: "5px" }}>
-          <Flex justify="space-around" align="center" wrap="wrap">
-            {filteredData.map((event, index) => (
-              <FoodCard {...event} key={index} />
-            ))}
-          </Flex>
-        </div>
-  
         <div style={{ height: "500px", width: "100%", marginTop: "2em" }}>
           <MapContainer
             center={[42.35, -71.1]} // Boston
