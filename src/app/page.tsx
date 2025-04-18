@@ -5,8 +5,53 @@ import supabase from "./api/supabaseClient";
 import FoodCard from "./components/FoodCard";
 import CreateEvent from "./components/CreateEvent";
 import { EventRow } from "@/types";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+import Image from "next/image";
+
+import MainUI from "./components/Main_UI";
+
 
 const { Option } = Select;
+
+const styles = {
+  page: {
+    maxWidth: "1200px",
+    margin: "0 auto",
+    padding: "32px 16px",
+    fontFamily: "Segoe UI, sans-serif",
+  },
+  header: {
+    display: "flex",
+    flexDirection: "column" as const,
+    alignItems: "center",
+    marginBottom: "32px",
+  },
+  controlBar: {
+    display: "flex",
+    flexWrap: "wrap" as const,
+    justifyContent: "space-between",
+    gap: "16px",
+    marginBottom: "24px",
+    padding: "0 12px",
+  },
+  sortControls: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    flexWrap: "wrap" as const,
+  },
+  searchInput: {
+    padding: "10px",
+    borderRadius: "8px",
+    fontSize: "16px",
+    width: "300px",
+    flex: "1 0 250px",
+  },
+
+
+};
 
 function calculateDistance(
   origin: { lat: number; lng: number },
@@ -25,6 +70,7 @@ function calculateDistance(
   return R * c;
 }
 
+
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("time");
@@ -33,6 +79,8 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+
+
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -50,6 +98,7 @@ export default function Home() {
     }
   }, []);
 
+
   useEffect(() => {
     const fetchEvents = async () => {
       const { data, error } = await supabase.from("Events").select("*");
@@ -65,11 +114,13 @@ export default function Home() {
     fetchEvents();
   }, []);
 
+
   const isValidSearchTerm = (term: string) => /^[a-zA-Z0-9\s]*$/.test(term);
 
   const filteredData = events.filter((event) =>
     event.location.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
 
   const sortedData = [...filteredData];
 
@@ -127,96 +178,75 @@ export default function Home() {
     );
   }
 
+
   return (
-    <div style={styles.page}>
-      <div style={styles.header}>
-        <h1>Welcome to the Home Page</h1>
-        <CreateEvent />
-      </div>
-
-      {fetchError && (
-        <Alert
-          message="Error fetching events"
-          description={fetchError}
-          type="error"
-          showIcon
-          closable
-          style={{ margin: "20px" }}
-        />
-      )}
-
-      <div style={styles.controlBar}>
-        <Input
-          placeholder="Search by location..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={styles.searchInput}
-        />
-
-        <div style={styles.sortControls}>
-          <label htmlFor="sortSelect" style={{ fontWeight: 500 }}>Sort by:</label>
-          <Select
-            id="sortSelect"
-            value={sortBy}
-            onChange={(value) => setSortBy(value)}
+    <>
+      <div style={styles.page}>
+        <div style={styles.header}>
+          <Image src="/Spark.png" alt="SparkBytes Logo" width={350} height={200} />
+          <CreateEvent />
+        </div>
+  
+        <MainUI />
+  
+        <div style={styles.controlBar}>
+          <Input
+            placeholder="Search by location..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={styles.searchInput}
+          />
+  
+          <div style={styles.sortControls}>
+            <label htmlFor="sortSelect" style={{ fontWeight: 500, whiteSpace: "nowrap" }}>
+              Sort by:
+            </label>
+            <Select
+              id="sortSelect"
+              value={sortBy}
+              onChange={(value) => setSortBy(value)}
+              style={{
+                padding: "8px",
+                borderRadius: "6px",
+                border: "1px solid #ccc",
+                fontSize: "16px",
+              }}
+            >
+              <Option value="time">Time</Option>
+              <Option value="distance">Distance</Option>
+            </Select>
+          </div>
+        </div>
+  
+        <div style={{ padding: "5px" }}>
+          <Flex justify="space-around" align="center" wrap="wrap">
+            {filteredData.map((event, index) => (
+              <FoodCard {...event} key={index} />
+            ))}
+          </Flex>
+        </div>
+  
+        <div style={{ height: "500px", width: "100%", marginTop: "2em" }}>
+          <MapContainer
+            center={[42.35, -71.1]} // Boston
+            zoom={13}
+            scrollWheelZoom={true}
+            zoomControl={true}
+            style={{ height: "500px", width: "100%", marginBottom: "1rem" }}
           >
-            <Option value="time">Time</Option>
-            <Option value="distance">Distance</Option>
-          </Select>
-
-          <label htmlFor="orderSelect" style={{ fontWeight: 500 }}>Order:</label>
-          <Select
-            id="orderSelect"
-            value={sortOrder}
-            onChange={(value) => setSortOrder(value)}
-          >
-            <Option value="asc">Ascending</Option>
-            <Option value="desc">Descending</Option>
-          </Select>
+            <TileLayer
+              url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/">CARTO</a>'
+            />
+            <Marker position={[42.35, -71.1]}>
+              <Popup>Boston marker</Popup>
+            </Marker>
+          </MapContainer>
         </div>
       </div>
-
-      <div style={{ padding: "20px" }}>{content}</div>
-    </div>
+    </>
   );
-}
 
-const styles = {
-  page: {
-    maxWidth: "1200px",
-    margin: "0 auto",
-    padding: "32px 16px",
-    fontFamily: "Segoe UI, sans-serif",
-  },
-  header: {
-    display: "flex",
-    flexDirection: "column" as const,
-    alignItems: "center",
-    marginBottom: "32px",
-  },
-  controlBar: {
-    display: "flex",
-    flexWrap: "wrap" as const,
-    justifyContent: "space-between",
-    gap: "16px",
-    marginBottom: "24px",
-    padding: "0 12px",
-  },
-  sortControls: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    flexWrap: "wrap" as const,
-  },
-  searchInput: {
-    padding: "10px",
-    borderRadius: "8px",
-    fontSize: "16px",
-    width: "300px",
-    flex: "1 0 250px",
-  },
-  
 
-  
-  
+
 };
