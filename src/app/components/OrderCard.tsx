@@ -4,7 +4,7 @@ import {Card, Typography, Button, Flex} from "antd";
 export default function OrderCard({ order, deleteOrder, cancelOrder}) {
     const onPickup = () => { 
         console.log("deleted order: ", order)
-        // deleteOrder(order.id)
+        deleteOrder(order.id)
     }
     const onCancellation = () => { 
         cancelOrder(order.id, order.food.id);
