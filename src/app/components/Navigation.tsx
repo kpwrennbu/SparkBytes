@@ -15,9 +15,9 @@ import {
     EditOutlined,
     LogoutOutlined,
     UserOutlined,
-    DownOutlined
+    DownOutlined,
+    PushpinOutlined 
 } from "@ant-design/icons";
-import Image from "next/image";
 
 export default function Navigation() {
     const pathname = usePathname();
@@ -109,10 +109,19 @@ export default function Navigation() {
                             Home
                         </Flex>
                     </Link>
-
+                    <Link
+                        href="/events"
+                        ref={(el) => (tabRefs.current[1] = el)}
+                        style={getLinkStyle(pathname, "/events")}
+                    >
+                        <Flex justify="center" align="center" gap="8px" style={{ position: "relative", zIndex: 1 }}>
+                            <PushpinOutlined style={{ alignSelf: "start", bottom: "2px" }} />
+                            Events
+                        </Flex>
+                    </Link>
                     <Link
                         href="/about"
-                        ref={(el) => (tabRefs.current[1] = el)}
+                        ref={(el) => (tabRefs.current[2] = el)}
                         style={getLinkStyle(pathname, "/about")}
                     >
                         <Flex justify="center" align="center" gap="8px" style={{ zIndex: 1 }}>
@@ -122,7 +131,7 @@ export default function Navigation() {
 
                     <Link
                         href="/contact"
-                        ref={(el) => (tabRefs.current[2] = el)}
+                        ref={(el) => (tabRefs.current[3] = el)}
                         style={getLinkStyle(pathname, "/contact")}
                     >
                         <Flex justify="center" align="center" gap="8px" style={{ zIndex: 1 }}>
@@ -132,7 +141,7 @@ export default function Navigation() {
 
                     <Link
                         href="/orders"
-                        ref={(el) => (tabRefs.current[3] = el)}
+                        ref={(el) => (tabRefs.current[4] = el)}
                         style={getLinkStyle(pathname, "/orders")}
                     >
                         <Flex justify="center" align="center" gap="8px" style={{ zIndex: 1 }}>
@@ -144,7 +153,7 @@ export default function Navigation() {
                         <>
                             <Link
                                 href="/login"
-                                ref={(el) => (tabRefs.current[4] = el)}
+                                ref={(el) => (tabRefs.current[5] = el)}
                                 style={getLinkStyle(pathname, "/login")}
                             >
                                 <Flex justify="center" align="center" gap="8px" style={{ zIndex: 1 }}>
@@ -154,7 +163,7 @@ export default function Navigation() {
 
                             <Link
                                 href="/signup"
-                                ref={(el) => (tabRefs.current[5] = el)}
+                                ref={(el) => (tabRefs.current[6] = el)}
                                 style={getLinkStyle(pathname, "/signup")}
                             >
                                 <Flex justify="center" align="center" gap="8px" style={{ zIndex: 1 }}>
