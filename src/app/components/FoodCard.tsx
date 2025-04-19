@@ -70,7 +70,16 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
     warren: "/WarrenTowers.jpg",
     gsu: "/GSU.jpg",
   };
-
+  const formattedLocations: Record<string, string> = {
+    cds: "Center for Computing and Data Sciences",
+    warren: "Warren Towers",
+    gsu: "George Sherman Union",
+  };
+  const addresses: Record<string, string> = {
+    cds: "665 Commonwealth Ave",
+    warren: "700 Commonwealth Ave",
+    gsu: "775 Commonwealth Ave",
+  };
   const columns = [
     {
       title: "Quantity",
@@ -189,8 +198,8 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
           </div>
         }
       >
-        <h3 style={{ marginBottom: "5px", fontWeight: "bold" }}>{location}</h3>
-        <p style={{ color: "#666", marginBottom: "8px" }}>{name + "Need Description in form"}</p>
+        <h3 style={{ marginBottom: "5px", fontWeight: "bold" }}>{name}</h3>
+        <p style={{ color: "#666", marginBottom: "8px" }}>{formattedLocations[location] + ": " + addresses[location]}</p>
         <p style={timeStyle}>{formatTimeRange(time_start, time_end)}</p>
       </Card>
 
