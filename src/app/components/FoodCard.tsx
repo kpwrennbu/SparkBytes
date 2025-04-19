@@ -211,7 +211,7 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
         style={{ top: 0, padding: 0 }}
         styles={{ body: { height: "100vh", margin: 0, padding: 0 } }}
       >
-        <Card title={`${location} - Food Options`} style={{ height: "100%", width: "100%" }}>
+        <Card title={`${formattedLocations[location]} - Food Options`} style={{ height: "100%", width: "100%" }}>
           <Flex justify="start" align="flex-start">
             <div style={{ width: "30%", height: "500px", position: "relative" }}>
               <Image
