@@ -1,109 +1,68 @@
 "use client";
 
-import { Food } from "@/types";
+import { Card, Typography } from "antd";
+import Image from "next/image";
 import { useState } from "react";
 
-export default function AboutPage(){ 
-  const [query, setQuery] = useState("");
-  const [foods, setFoods] = useState<Food[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  const handleSearch = async () => {
-    if (!query) return;
-    setLoading(true);
-    setError("");
-    setFoods([]);
-
-    try {
-      const res = await fetch(`/api/fooddata?query=${query}`);
-      if (!res.ok) {
-        throw new Error("API call failed");
-      }
-      const data = await res.json();
-      console.log("USDA Data:", data);
-
-      if (data.foods && data.foods.length > 0) {
-        setFoods(data.foods);
-      } else {
-        setError("No foods found");
-      }
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-        console.error("Error:", err);
-      } else {
-        setError("An unexpected error occurred.");
-        console.error("Unknown error:", err);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+export default function AboutPage() {
+  const data = [
+    {
+      name: "Tiffany Chen",
+      description: "Search & Sort Features",
+      email: "qtc@bu.edu",
+      photo: "/tiffany.jpeg"
+    },
+    {
+      name: "Justin Lim",
+      description: "USDA API Call, General UI",
+      email: "jlim@bu.edu",
+      photo: "/justin.jpeg"
+    },
+    {
+      name: "Wellington Oliveria",
+      description: "Sign in & Sign up, DB",
+      email: "wellijo@bu.edu",
+      photo: "/wellington.jpeg"
+    },
+    {
+      name: "Kevin Wrenn",
+      description: "Food Card Logic, Create Events Logic, Orders Logic, DB setup",
+      email: "kpwrenn@bu.edu",
+      photo: "/kevin.jpg"
+    },
+  ];
 
   return (
-    <div style={{ padding: "1em" }}>
-      <h1>About Page</h1>
-      <p>Search the USDA Food Database</p>
+    <div style={{ padding: "40px 24px", textAlign: "center" }}>
+      <h1 style={{ fontSize: "36px", fontWeight: "bold", marginBottom: "40px" }}>
+        About Us
+      </h1>
 
-      <div style={{ marginBottom: "1em" }}>
-        <input
-          type="text"
-          placeholder="e.g. banana"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-        <button onClick={handleSearch} style={{ marginLeft: "1em" }}>
-          Search
-        </button>
+  
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 24, justifyContent: "center" }}>
+        {data.map((person) => (
+          <Card
+            key={person.email}
+            hoverable
+            style={{ width: 280, borderRadius: 12, textAlign: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}
+            cover={
+              <div style={{ width: "100%", height: "250px", position: "relative", backgroundColor: "#fff" }}>
+                <Image
+                  src={person.photo}
+                  alt={person.name}
+                  fill
+                  style={{ objectFit: "cover", borderRadius: "12px 12px 0 0" }}
+                  />
+              </div>
+            }
+          >
+            <h3 style={{ marginBottom: 8 }}>{person.name}</h3>
+            <p style={{ color: "#555", marginBottom: 8 }}>{person.description}</p>
+            <a href={`mailto:${person.email}`}>{person.email}</a>
+          </Card>
+        ))}
       </div>
-
-      {loading && <p>Loading...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      {foods.map((food) => (
-        <div
-          key={food.fdcId}
-          style={{
-            border: "1px solid #ccc",
-            padding: "1em",
-            marginBottom: "1em",
-            borderRadius: "8px",
-          }}
-        >
-          <h2>{food.description}</h2>
-          {food.brandOwner && <p>Brand: {food.brandOwner}</p>}
-          <p>
-            Serving Size: {food.servingSize} {food.servingSizeUnit || "g"}
-          </p>
-
-          <h3>Macros (per 100 g):</h3>
-          <ul>
-            <li><strong>Calories:</strong> {food.caloriesPerServing.toFixed(0)} kcal</li>
-            <li>Carbs: {food.carbsPer100} g</li>
-            <li>Protein: {food.proteinPer100} g</li>
-            <li>Fat: {food.fatPer100} g</li>
-          </ul>
-
-          <h3>Macros (per serving):</h3>
-          <ul>
-            <li>Carbs: {food.carbsPerServing.toFixed(2)} g</li>
-            <li>Protein: {food.proteinPerServing.toFixed(2)} g</li>
-            <li>Fat: {food.fatPerServing.toFixed(2)} g</li>
-          </ul>
-
-          <h3>Common Allergens:</h3>
-          {food.allergens && food.allergens.length > 0 ? (
-            <ul>
-              {food.allergens.map((allergen: string, idx: number) => (
-                <li key={idx}>{allergen}</li>
-              ))}
-            </ul>
-          ) : (
-            <p>No common allergens detected.</p>
-          )}
-        </div>
-      ))}
     </div>
-  )
+  );
+  
 }

@@ -130,18 +130,8 @@ export default function Navigation() {
                     </Link>
 
                     <Link
-                        href="/contact"
-                        ref={(el) => (tabRefs.current[3] = el)}
-                        style={getLinkStyle(pathname, "/contact")}
-                    >
-                        <Flex justify="center" align="center" gap="8px" style={{ zIndex: 1 }}>
-                            <MailOutlined /> Contact
-                        </Flex>
-                    </Link>
-
-                    <Link
                         href="/orders"
-                        ref={(el) => (tabRefs.current[4] = el)}
+                        ref={(el) => (tabRefs.current[3] = el)}
                         style={getLinkStyle(pathname, "/orders")}
                     >
                         <Flex justify="center" align="center" gap="8px" style={{ zIndex: 1 }}>
@@ -153,7 +143,7 @@ export default function Navigation() {
                         <>
                             <Link
                                 href="/login"
-                                ref={(el) => (tabRefs.current[5] = el)}
+                                ref={(el) => (tabRefs.current[4] = el)}
                                 style={getLinkStyle(pathname, "/login")}
                             >
                                 <Flex justify="center" align="center" gap="8px" style={{ zIndex: 1 }}>
@@ -163,7 +153,7 @@ export default function Navigation() {
 
                             <Link
                                 href="/signup"
-                                ref={(el) => (tabRefs.current[6] = el)}
+                                ref={(el) => (tabRefs.current[5] = el)}
                                 style={getLinkStyle(pathname, "/signup")}
                             >
                                 <Flex justify="center" align="center" gap="8px" style={{ zIndex: 1 }}>
