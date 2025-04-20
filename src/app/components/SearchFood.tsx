@@ -61,7 +61,6 @@ export default function SearchFood({
       }
     } finally {
       setLoading(false);
-      setQuery("");
     }
   };
 

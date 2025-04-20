@@ -210,9 +210,8 @@ export default function Home() {
   return (
     <>
       <div style={styles.page}>
-        <Button onClick={() => console.log(events)} />
         <div style={styles.header}>
-\          <CreateEvent />
+          <CreateEvent />
         </div>
     
         <div style={styles.controlBar}>

@@ -15,7 +15,7 @@ export default function AboutPage() {
     {
       name: "Justin Lim",
       description: "USDA API Call, General UI",
-      email: "jlim@bu.edu",
+      email: "geolim@bu.edu",
       photo: "/justin.jpeg"
     },
     {
