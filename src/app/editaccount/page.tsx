@@ -1,20 +1,80 @@
 "use client";
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import supabase from '../api/supabaseClient'
 
 export default function EditAccountPage() {
-    const [firstName, setFirstName] = useState('John')
-    const [lastName, setLastName] = useState('Doe')
-    const [email, setEmail] = useState('john@example.com')
+    const [firstName, setFirstName] = useState('')
+    const [lastName, setLastName] = useState('')
     const [password, setPassword] = useState('')
-    const [clickedField, setClickedField] = useState<'firstName' | 'lastName' | 'email' | 'password' | null>(null)
+    const [clickedField, setClickedField] = useState<'firstName' | 'lastName' | 'password' | null>(null)
     const [isHovered, setIsHovered] = useState(false)
     const [success, setSuccess] = useState('')
+    const [error, setError] = useState('')
+    const [userId, setUserId] = useState<string | null>(null)
 
-    const handleSave = (e: React.FormEvent) => {
+    useEffect(() => {
+        const fetchUserData = async () => {
+            const { data: { user } } = await supabase.auth.getUser()
+
+            if (user) {
+                setUserId(user.id)
+
+                // Fetch user info from the userinfo table
+                const { data, error } = await supabase
+                    .from('userinfo')
+                    .select('first_name, last_name')
+                    .eq('id', user.id)
+                    .single()
+
+                if (data) {
+                    setFirstName(data.first_name || '')
+                    setLastName(data.last_name || '')
+                }
+            }
+        }
+
+        fetchUserData()
+    }, [])
+
+    const handleSave = async (e: React.FormEvent) => {
         e.preventDefault()
-        setSuccess('Account information updated successfully.')
+        setSuccess('')
+        setError('')
+
+        if (!userId) {
+            setError('You must be logged in to update your account')
+            return
+        }
+
+        try {
+            const { error: updateError } = await supabase
+                .from('userinfo')
+                .update({
+                    first_name: firstName,
+                    last_name: lastName
+                })
+                .eq('id', userId)
+
+            if (updateError) throw updateError
+
+            if (password) {
+                const { error: passwordError } = await supabase.auth.updateUser({
+                    password: password
+                })
+
+                if (passwordError) throw passwordError
+            }
+
+            setSuccess('Account information updated successfully.')
+            setPassword('')
+
+            setTimeout(() => {
+                window.location.href = '/'
+            }, 1000)
+        } catch (err: any) {
+            setError(err.message || 'Failed to update account information')
+        }
     }
 
     return (
@@ -29,6 +89,7 @@ export default function EditAccountPage() {
         }}>
             <h2 style={{ marginBottom: '30px' }}>Edit Account Info</h2>
             {success && <p style={{ color: 'green', marginBottom: '30px' }}>{success}</p>}
+            {error && <p style={{ color: 'red', marginBottom: '30px' }}>{error}</p>}
             <form
                 onSubmit={handleSave}
                 style={{
@@ -89,36 +150,6 @@ export default function EditAccountPage() {
                             width: '100%',
                             border: 'none',
                             borderBottom: `1px solid ${clickedField === 'lastName' ? '#52c41a' : 'rgba(0,0,0,0.1)'}`,
-                            padding: '10px 0',
-                            fontSize: '16px',
-                            outline: 'none',
-                            backgroundColor: 'transparent'
-                        }}
-                    />
-                </div>
-
-                <div style={{ width: '100%', position: 'relative', marginBottom: '20px' }}>
-                    <div style={{
-                        position: 'absolute',
-                        top: clickedField === 'email' || email ? '-20px' : '10px',
-                        left: '0',
-                        fontSize: clickedField === 'email' || email ? '12px' : '16px',
-                        color: clickedField === 'email' ? '#52c41a' : 'rgba(0,0,0,0.6)',
-                        transition: 'all 0.3s ease',
-                        pointerEvents: 'none'
-                    }}>
-                        Email
-                    </div>
-                    <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        onFocus={() => setClickedField('email')}
-                        onBlur={() => setClickedField(null)}
-                        style={{
-                            width: '100%',
-                            border: 'none',
-                            borderBottom: `1px solid ${clickedField === 'email' ? '#52c41a' : 'rgba(0,0,0,0.1)'}`,
                             padding: '10px 0',
                             fontSize: '16px',
                             outline: 'none',

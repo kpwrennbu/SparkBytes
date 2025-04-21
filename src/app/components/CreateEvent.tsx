@@ -1,8 +1,8 @@
-// CreateEvent.tsx
 "use client";
 import { useState } from "react";
 import {
-  Modal, Button, Input, Select, DatePicker, TimePicker, Flex, Typography, Form, Table, Switch, Tooltip, Image
+  Modal, Button, Input, Select, DatePicker, TimePicker, Flex, Image, Table, Typography, Form,
+  Tooltip
 } from "antd";
 import type { TableRowSelection } from 'antd/es/table/interface';
 import { PlusCircleOutlined } from '@ant-design/icons';
@@ -10,21 +10,9 @@ import { Food, TableRow } from "@/types";
 import SearchFood from "./SearchFood";
 import supabase from "../api/supabaseClient";
 import { EditableCell } from "./EditableCell";
-import ManuallyInputFood from "./ManuallyInputFood";
 
 const { Option } = Select;
 const format = 'HH:mm a';
-
-const all: Record<string, string> = {
-  "dairy": "/allergyIcons/dairy-free.png",
-  "egg": "/allergyIcons/egg-free.png",
-  "fish": "/allergyIcons/fish-free.png",
-  "gluten": "/allergyIcons/gluten-free.png",
-  "peanut": "/allergyIcons/peanut-free.png",
-  "seafood": "/allergyIcons/seafood-free.png",
-  "soy": "/allergyIcons/soy-free.png",
-  "tree Nut": "/allergyIcons/treeNut-free.png"
-};
 
 export default function CreateEvent() {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -38,21 +26,24 @@ export default function CreateEvent() {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [unit, setUnit] = useState("");
   const [tableForm] = Form.useForm();
-  const [isChecked, setIsChecked] = useState(false);
+
   const [eventName, setEventName] = useState("");
   const [location, setLocation] = useState("");
   const [eventDate, setEventDate] = useState(null);
   const [timeRange, setTimeRange] = useState(null);
-  const [finalEventError, setFinalEventError] = useState("");
-  const handleSwitchChange = (checked: boolean) => {
-    setIsChecked(checked);
+
+  const all: Record<string, string> = {
+    "dairy": "/allergyIcons/dairy-free.png",
+    "egg": "/allergyIcons/egg-free.png",
+    "fish": "/allergyIcons/fish-free.png",
+    "gluten": "/allergyIcons/gluten-free.png",
+    "peanut": "/allergyIcons/peanut-free.png",
+    "seafood": "/allergyIcons/seafood-free.png",
+    "soy": "/allergyIcons/soy-free.png",
+    "tree nut": "/allergyIcons/treeNut-free.png"
   };
 
-  const addInputtedToEventsTable = (newData: TableRow) => {
-    setTableData(tableData => [...tableData, newData])
-  }
-
-  const addFoodToEventsTable = (food: Food) => {
+  const addFoodToEventsTable = () => {
     if (quantity <= 0) {
       setQuantityError(true);
       return;
@@ -61,18 +52,20 @@ export default function CreateEvent() {
 
     const newData: TableRow = {
       key: Date.now() + Math.random(),
-      food: food.description,
+      food: foods[0]["description"],
       quantity: quantity,
-      servingSizeUnit: food.servingSizeUnit,
-      calories: food.caloriesPerServing,
-      proteins: food.proteinPerServing,
-      fats: food.fatPerServing,
-      carbs: food.carbsPerServing,
-      allergies: food.allergens,
+      servingSizeUnit: foods[0]["servingSizeUnit"],
+      calories: foods[0]["caloriesPerServing"],
+      proteins: foods[0]["proteinPerServing"],
+      fats: foods[0]["fatPerServing"],
+      carbs: foods[0]["carbsPerServing"],
+      allergies: foods[0]["allergens"],
     };
     setTableData(tableData => [...tableData, newData]);
     setIsTableVisible(true);
-    if (unit !== 'g') setUnit(food.servingSizeUnit);
+    if (unit !== 'g') { 
+      setUnit(foods[0]["servingSizeUnit"]);
+    }   
     setFoods([]);
     setQuantity(1);
   };
@@ -84,53 +77,93 @@ export default function CreateEvent() {
   };
 
   const addEventToDB = async () => {
-    console.log("tableData: ", tableData)
-   
-    if (!eventDate || !timeRange || !location || !eventName || tableData.length === 0) {
-      setFinalEventError("Error. Please make sure you have entered food and credentials");
+    if (!eventDate || !timeRange) {
+      console.error("Missing date or time range.");
       return;
-    }    
-    const [startTime, endTime] = timeRange;
-    const time_start = eventDate.clone().hour(startTime.hour()).minute(startTime.minute()).second(0).format();
-    const time_end = eventDate.clone().hour(endTime.hour()).minute(endTime.minute()).second(0).format();
+    }
 
-    const { data, error } = await supabase.from('Events').insert([{ name: eventName, location, time_start, time_end, creator_id: 1 }]).select();
-    if (error) return;
+    const [startTime, endTime] = timeRange;
+    const time_start = eventDate.clone().hour(startTime.hour()).minute(startTime.minute()).second(0).toISOString();
+    const time_end = eventDate.clone().hour(endTime.hour()).minute(endTime.minute()).second(0).toISOString();
+
+
+
+
+    const { data, error } = await supabase
+      .from('Events')
+      .insert([
+        {
+          name: eventName,
+          location,
+          time_start,
+          time_end,
+          creator_id: 1,
+        },
+      ])
+      .select();
+
+    if (error) {
+      console.error("Event insert error", error);
+      return;
+    }
+
     const eventId = data?.[0]?.id;
 
     for (const row of tableData) {
-      await supabase.from('Food').insert([{
-        event_id: eventId,
-        total_quantity: row.quantity,
-        quantity_left: row.quantity,
-        name: row.food.charAt(0).toUpperCase() + row.food.slice(1).toLowerCase(),
-        calories: Math.round(row.calories),
-        carbs: Math.round(row.carbs),
-        proteins: Math.round(row.proteins),
-        fats: Math.round(row.fats),
-        allergies: row.allergies,
-        serving_size_unit: unit,
-      }]);
+      const { error: rowError } = await supabase.from('Food').insert([
+        {
+          event_id: eventId,
+          quantity: row.quantity,
+          name: row.food,
+          calories: row.calories,
+          carbs: row.carbs,
+          proteins: row.proteins,
+          fats: row.fats,
+          allergies: row.allergies,
+          serving_size_unit: unit,
+        },
+      ]);
+
+      if (rowError) {
+        console.error('Insert error (Food):', rowError);
+      }
+      setIsModalVisible(false);
     }
-    setIsModalVisible(false);
   };
 
   const isEditing = (record: any) => record.key === editingKey;
+
   const edit = (record: any) => {
     tableForm.setFieldsValue({ quantity: '', ...record });
     setEditingKey(record.key);
   };
-  const cancel = () => setEditingKey('');
+
+  const cancel = () => {
+    setEditingKey('');
+  };
+
   const save = async (key: React.Key) => {
-    const row = await tableForm.validateFields();
-    if (row.quantity <= 0) return;
-    const newData = [...tableData];
-    const index = newData.findIndex(item => key === item.key);
-    if (index > -1) {
-      const item = newData[index];
-      newData.splice(index, 1, { ...item, ...row });
-      setTableData(newData);
-      setEditingKey('');
+    try {
+      const row = await tableForm.validateFields();
+
+      if (row.quantity <= 0) {
+        setQuantityError(true);
+        return;
+      } else {
+        setQuantityError(false);
+      }
+
+      const newData = [...tableData];
+      const index = newData.findIndex(item => key === item.key);
+
+      if (index > -1) {
+        const item = newData[index];
+        newData.splice(index, 1, { ...item, ...row });
+        setTableData(newData);
+        setEditingKey('');
+      }
+    } catch (errInfo) {
+      console.log('Validate Failed:', errInfo);
     }
   };
 
@@ -140,36 +173,41 @@ export default function CreateEvent() {
   };
 
   const columns = [
-    { title: 'Quantity', dataIndex: 'quantity', key: 'quantity', editable: true },
+    {
+      title: 'Quantity',
+      dataIndex: 'quantity',
+      key: 'quantity',
+      editable: true,
+    },
     {
       title: 'Name',
       dataIndex: 'food',
       key: 'food',
-      render: (name: string) => <div>{name[0].toUpperCase() + name.substring(1).toLowerCase()}</div>
+      render: (name: string) => <div>{name[0].toUpperCase() + name.substring(1).toLowerCase()}</div>,
     },
     {
       title: 'Calories',
       dataIndex: 'calories',
       key: 'calories',
-      render: (cal: number) => <div>{Math.round(cal)} kcal</div>
+      render: (cal: number) => <div>{Math.round(cal)} kcal</div>,
     },
     {
       title: 'Protein',
       dataIndex: 'proteins',
       key: 'proteins',
-      render: (val: number) => <div>{Math.round(val) + unit}</div>
+      render: (val: number) => <div>{Math.round(val) + unit}</div>,
     },
     {
       title: 'Carbs',
       dataIndex: 'carbs',
       key: 'carbs',
-      render: (val: number) => <div>{Math.round(val) + unit}</div>
+      render: (val: number) => <div>{Math.round(val) + unit}</div>,
     },
     {
       title: 'Fat',
       dataIndex: 'fats',
       key: 'fats',
-      render: (val: number) => <div>{Math.round(val) + unit}</div>
+      render: (val: number) => <div>{Math.round(val) + unit}</div>,
     },
     {
       title: 'Allergies',
@@ -181,12 +219,12 @@ export default function CreateEvent() {
         ) : (
           <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
             {allergy.map((item, index) => (
-              <Tooltip key={index} title={`${item} allergy`}>
-                <Image width={16} height={16} style={{ position: "relative", bottom: "4px" }} src={all[item]} alt={item} />
+              <Tooltip key={index} title={`${item} allergy`} > 
+                <Image key={index} width={16} height={16} style={{ position: "relative", bottom: "4px" }} src={all[item]} alt={item} />
               </Tooltip>
             ))}
           </div>
-        )
+        ),
     },
     {
       title: 'Action',
@@ -205,79 +243,70 @@ export default function CreateEvent() {
     },
   ];
 
-  const mergedColumns = columns.map(col => ({
-    ...col,
-    onCell: col.editable
-      ? (record: TableRow) => ({ record, inputType: 'number', dataIndex: col.dataIndex, title: col.title, editing: isEditing(record), onPressEnter: () => save(record.key) })
-      : undefined,
-  }));
+  const mergedColumns = columns.map(col => {
+    if (!col.editable) return col;
+    return {
+      ...col,
+      onCell: (record: TableRow) => ({
+        record,
+        inputType: col.dataIndex === 'quantity' ? 'number' : 'text',
+        dataIndex: col.dataIndex,
+        title: col.title,
+        editing: isEditing(record),
+        onPressEnter: () => save(record.key),
+      }),
+    };
+  });
 
   return (
     <>
       <Button icon={<PlusCircleOutlined />} onClick={() => setIsModalVisible(true)} />
-      <Modal open={isModalVisible} onCancel={() => setIsModalVisible(false)} footer={null} width="90vw" style={{ top: 20 }}>
-        <Typography.Title level={2} style={{ textAlign: "center" }}>Create an Event</Typography.Title>
-        <Flex justify="center" align="flex-start" wrap="wrap" gap="48px">
-          <div style={{ width: "300px", display: "flex", flexDirection: "column", gap: "16px", marginTop: "50px"}}>
-          <Typography.Title level={4}>Add Credentials</Typography.Title>
-          <Input placeholder="Event Name" value={eventName} onChange={(e) => setEventName(e.target.value)} />
-            <Select placeholder="Select a location" value={location || "Select a location"} onChange={setLocation} allowClear>
+      <Modal
+        open={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        footer={null}
+        width="100vw"
+        style={{ top: 0 }}
+        styles={{ body: { height: "100vh", padding: 0 } }}
+      >
+        <Typography.Text>Create an Event</Typography.Text>
+        <Flex justify="space-between" align="center" style={{ padding: "2em" }} gap="2em">
+          <div style={{ display: "flex", flexDirection: "column", gap: "1em" }}>
+            <Input placeholder="Event Name" value={eventName} onChange={(e) => setEventName(e.target.value)} />
+            <Select placeholder="Location" value={location} onChange={setLocation} allowClear>
               <Option value="warren">Warren Towers</Option>
               <Option value="cds">Center for Computer and Data Science</Option>
               <Option value="gsu">George Sherman Union</Option>
             </Select>
-            <DatePicker value={eventDate} onChange={setEventDate} style={{ width: "100%" }} />
-            <TimePicker.RangePicker use12Hours format={format} value={timeRange} onChange={setTimeRange} style={{ width: "100%" }} />
-          </div>
-
-          <div style={{ flexGrow: 1, minWidth: "500px" }}>
-            <Typography.Title level={4}>Current Food Items</Typography.Title>
-            <Form form={tableForm} component={false}>
-              <Table
-                dataSource={tableData}
-                columns={mergedColumns}
-                rowSelection={rowSelection}
-                pagination={{ current: currentPage, pageSize: 5, onChange: page => { setCurrentPage(page); cancel(); } }}
-                components={{ body: { cell: (props) => <EditableCell {...props} form={tableForm} /> } }}
-              />
-            </Form>
-          </div>
-        </Flex>
-
-        <div style={{ marginTop: "2rem" }}>
-          <Flex align="center" justify="center" gap="1em">
-            <Typography.Title level={4} style={{ textAlign: "center", margin: 0 }}>Add Food Item</Typography.Title>
-            <Switch checked={isChecked} onChange={handleSwitchChange} style={{ backgroundColor: isChecked ? "#52c41a" : undefined }} />
-          </Flex>
-
-          <div style={{ display: "flex", justifyContent: "center", marginTop: "1em" }}>
-            {isChecked ? (
-              <ManuallyInputFood
-                tableData={tableData}
-                addInputtedToEventsTable={addInputtedToEventsTable}
-              />
-            ) : (
-              <SearchFood
-                isTableVisible={isTableVisible}
-                setIsTableVisible={setIsTableVisible}
-                foods={foods}
-                setFoods={setFoods}
-                quantity={quantity}
-                setQuantity={setQuantity}
-                addFoodToEventsTable={addFoodToEventsTable}
-                tableData={tableData}
-              />
+            <DatePicker value={eventDate} onChange={setEventDate} />
+            <TimePicker.RangePicker use12Hours format={format} value={timeRange} onChange={(val) => setTimeRange(val)} />
+            <SearchFood
+              isTableVisible={isTableVisible}
+              setIsTableVisible={setIsTableVisible}
+              foods={foods}
+              setFoods={setFoods}
+              quantity={quantity}
+              setQuantity={setQuantity}
+              addFoodToEventsTable={addFoodToEventsTable}
+            />
+            {foods && quantityError && <Typography.Text type="danger">Please enter a quantity greater than 0</Typography.Text>}
+            {selectedRowKeys.length !== 0 && (
+              <Button danger onClick={deleteRowsFromFoodTable}>Delete Selected Rows</Button>
             )}
           </div>
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center", flexDirection: "column", justifyContent: "center", marginTop: "32px", gap: "2em"}}>
-          <Button type="primary" size="large" style={{ backgroundColor: "#52c41a", borderColor: "#52c41a" }} onClick={addEventToDB}>
-            Add Event
-          </Button>
-          {finalEventError && <Typography.Text type="danger">{finalEventError}</Typography.Text>}
-        </div>
-        <div>
+          <Form form={tableForm} component={false}>
+            <Table
+              dataSource={tableData}
+              columns={mergedColumns}
+              style={{ alignSelf: "flex-start" }}
+              components={{ body: { cell: (props) => <EditableCell {...props} form={tableForm} /> } }}
+              pagination={{ current: currentPage, pageSize: 5, onChange: (page) => { setCurrentPage(page); cancel(); } }}
+              rowSelection={rowSelection}
+            />
+          </Form>
+        </Flex>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Button onClick={addEventToDB}>Add Event</Button>
         </div>
       </Modal>
     </>
