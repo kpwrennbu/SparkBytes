@@ -3,8 +3,9 @@
 export default function ContactsPage() {
     return (
       <main>
-        <h1>Orders</h1>
-        <p>This is the Orders Page</p>
+        {/* <Navigation /> */}
+        <h1>Contact Us</h1>
+        <p>This is the Contact Page</p>
       </main>
     );
   }
