@@ -134,6 +134,7 @@ export default function Navigation() {
         setDropdownOpen(false);
         setUserFirstName(null);
         setUserId(null);
+        window.location.href = "/"
     };
 
     return (
@@ -154,7 +155,7 @@ export default function Navigation() {
                     ></div>
 
                     <Link
-                        href="/"
+                        href="/home"
                         ref={(el) => (tabRefs.current[0] = el)}
                         style={getLinkStyle(pathname, "/")}
                     >
@@ -193,7 +194,7 @@ export default function Navigation() {
                         </Flex>
                     </Link>
 
-                    {!userFirstName && (
+                    {/* {!userFirstName && (
                         <>
                             <Link
                                 href="/login"
@@ -215,7 +216,7 @@ export default function Navigation() {
                                 </Flex>
                             </Link>
                         </>
-                    )}
+                    )} */}
                 </div>
             </div>
 

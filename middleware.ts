@@ -1,21 +1,24 @@
-// middleware.ts (in root of project)
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-export async function middleware(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const token = request.cookies.get('sb-access-token')?.value
+  const isLoggedIn = !!token
 
-  // If no token and not already on login, redirect to login
-  if (!token && !request.nextUrl.pathname.startsWith('/login')) {
-    return NextResponse.redirect(new URL('/login', request.url))
+  const publicPaths = ['/', '/signup']
+  const isPublic = publicPaths.includes(request.nextUrl.pathname)
+
+  if (!isLoggedIn && !isPublic) {
+    return NextResponse.redirect(new URL('/', request.url)) // redirect to login
   }
 
-  // Allow access to login or if token exists
+  if (isLoggedIn && request.nextUrl.pathname === '/') {
+    return NextResponse.redirect(new URL('/home', request.url)) // if logged in, redirect to real homepage
+  }
+
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|login|signup).*)',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 }

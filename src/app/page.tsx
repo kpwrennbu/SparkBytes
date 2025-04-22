@@ -1,108 +1,184 @@
 "use client";
-import { useState, useEffect } from "react";
-import { Alert, Flex, Input, Select } from "antd";
-import supabase from "./api/supabaseClient";
-import FoodCard from "./components/FoodCard";
-import CreateEvent from "./components/CreateEvent";
-import { EventRow } from "@/types";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import L from "leaflet";
-import Image from "next/image";
 
-import MissionStatement from "./components/MissionStatement";
+import React, { useState, useEffect } from 'react'
+import Link from 'next/link'
+import supabase from './api/supabaseClient'
 
+export default function LoginPage() {
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [error, setError] = useState('')
+    const [isHovered, setIsHovered] = useState(false)
+    const [isLinkHovered, setIsLinkHovered] = useState(false)
+    const [clickedField, setClickedField] = useState<'email' | 'password' | null>(null)
 
-const { Option } = Select;
-
-const styles = {
-  page: {
-    maxWidth: "1200px",
-    margin: "0 auto",
-    padding: "32px 16px",
-    fontFamily: "Segoe UI, sans-serif",
-    display: "flex", 
-    justifyItems: "space-around"
-  },
-  header: {
-    display: "flex",
-    flexDirection: "column" as const,
-    alignItems: "center",
-    marginBottom: "32px",
-  },
-  controlBar: {
-    display: "flex",
-    flexWrap: "wrap" as const,
-    justifyContent: "space-between",
-    gap: "16px",
-    marginBottom: "24px",
-    padding: "0 12px",
-  },
-  sortControls: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    flexWrap: "wrap" as const,
-  },
-  searchInput: {
-    padding: "10px",
-    borderRadius: "8px",
-    fontSize: "16px",
-    width: "300px",
-    flex: "1 0 250px",
-  },
-
-
-};
-
-
-export default function Home() {
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
-
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          });
-        },
-        (error) => {
-          console.error("Error fetching user location:", error);
+    useEffect(() => {
+        const { data: authListener } = supabase.auth.onAuthStateChange(
+            (event, session) => {
+                if (event === 'SIGNED_IN') {
+                    window.location.href = '/'
+                }
+            }
+        )
+        return () => {
+            authListener.subscription.unsubscribe()
         }
-      );
+    }, [])
+
+    const handleLogin = async (e: React.FormEvent) => {
+        e.preventDefault()
+        setError('')
+        try {
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            })
+
+            if (error) throw error
+
+            console.log('Login successful', data)
+            window.location.href = "/home"
+        } catch (error: any) {
+            setError(error.message)
+        }
     }
-  }, []);
 
-  return (
-    <>
-      <div style={styles.page}>
-   
-        <div>
-          <MissionStatement /> 
+    return (
+        <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '50vh',
+            width: '100%',
+            fontFamily: 'Arial, sans-serif'
+        }}>
+            <h2 style={{ textAlign: 'center', marginBottom: '30px' }}>Login</h2>
+            {error && <p style={{color: 'red', marginBottom: '20px'}}>{error}</p>}
+            <form
+                onSubmit={handleLogin}
+                style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    width: '100%',
+                    maxWidth: '300px',
+                    alignItems: 'center',
+                    position: 'relative'
+                }}
+            >
+                <div style={{
+                    width: '100%',
+                    position: 'relative',
+                    marginBottom: '20px'
+                }}>
+                    <div style={{
+                        position: 'absolute',
+                        top: clickedField === 'email' || email ? '-20px' : '10px',
+                        left: '0',
+                        fontSize: clickedField === 'email' || email ? '12px' : '16px',
+                        color: clickedField === 'email' ? '#52c41a' : 'rgba(0,0,0,0.6)',
+                        transition: 'all 0.3s ease',
+                        pointerEvents: 'none'
+                    }}>
+                        Email
+                    </div>
+                    <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        onFocus={() => setClickedField('email')}
+                        onBlur={() => setClickedField(null)}
+                        required
+                        style={{
+                            width: '100%',
+                            border: 'none',
+                            borderBottom: `1px solid ${clickedField === 'email' ? '#52c41a' : 'rgba(0,0,0,0.1)'}`,
+                            padding: '10px 0',
+                            fontSize: '16px',
+                            outline: 'none',
+                            backgroundColor: 'transparent'
+                        }}
+                    />
+                </div>
+
+                <div style={{
+                    width: '100%',
+                    position: 'relative',
+                    marginBottom: '30px'
+                }}>
+                    <div style={{
+                        position: 'absolute',
+                        top: clickedField === 'password' || password ? '-20px' : '10px',
+                        left: '0',
+                        fontSize: clickedField === 'password' || password ? '12px' : '16px',
+                        color: clickedField === 'password' ? '#52c41a' : 'rgba(0,0,0,0.6)',
+                        transition: 'all 0.3s ease',
+                        pointerEvents: 'none'
+                    }}>
+                        Password
+                    </div>
+                    <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        onFocus={() => setClickedField('password')}
+                        onBlur={() => setClickedField(null)}
+                        required
+                        style={{
+                            width: '100%',
+                            border: 'none',
+                            borderBottom: `1px solid ${clickedField === 'password' ? '#52c41a' : 'rgba(0,0,0,0.1)'}`,
+                            padding: '10px 0',
+                            fontSize: '16px',
+                            outline: 'none',
+                            backgroundColor: 'transparent'
+                        }}
+                    />
+                </div>
+
+                <button
+                    type="submit"
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
+                    style={{
+                        padding: '1.3em 3em',
+                        fontSize: '12px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '2.5px',
+                        fontWeight: 500,
+                        color: isHovered ? '#fff' : '#000',
+                        backgroundColor: isHovered ? '#52c41a' : '#fff',
+                        border: 'none',
+                        borderRadius: '45px',
+                        boxShadow: isHovered
+                            ? '0px 15px 20px rgba(82, 196, 26, 0.4)'
+                            : '0px 8px 15px rgba(0, 0, 0, 0.1)',
+                        transition: 'all 0.3s ease 0s',
+                        cursor: 'pointer',
+                        outline: 'none',
+                        width: '100%',
+                        transform: isHovered ? 'translateY(-7px)' : 'translateY(0)',
+                    }}
+                >
+                    Login
+                </button>
+            </form>
+            <p style={{ marginTop: '20px' }}>
+                Don't have an account? <Link
+                href="/signup"
+                onMouseEnter={() => setIsLinkHovered(true)}
+                onMouseLeave={() => setIsLinkHovered(false)}
+                style={{
+                    color: isLinkHovered ? '#52c41a' : 'inherit',
+                    textDecoration: 'underline',
+                    transition: 'color 0.3s ease',
+                    fontSize: '18px',
+                    fontWeight: 'bold'
+                }}
+            >
+                Sign Up
+            </Link>
+            </p>
         </div>
-        <div style={{ height: "500px", width: "100%", marginTop: "2em" }}>
-          <MapContainer
-            center={[42.35, -71.1]} // Boston
-            zoom={13}
-            scrollWheelZoom={true}
-            zoomControl={true}
-            style={{ height: "500px", width: "100%", marginBottom: "1rem" }}
-          >
-            <TileLayer
-              url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/">CARTO</a>'
-            />
-            <Marker position={[42.35, -71.1]}>
-              <Popup>Boston marker</Popup>
-            </Marker>
-          </MapContainer>
-        </div>
-      </div>
-    </>
-  );
-
-
-
-};
+    )
+}
