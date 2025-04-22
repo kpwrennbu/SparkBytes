@@ -24,12 +24,30 @@ export default function Navigation() {
     const [userFirstName, setUserFirstName] = useState<string | null>(null);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
     const tabRefs = useRef<(HTMLAnchorElement | null)[]>([]);
     const indicatorRef = useRef<HTMLDivElement | null>(null);
     const [indicatorStyle, setIndicatorStyle] = useState({});
 
     const [userId, setUserId] = useState<string | null>(null);
+
+    async function downloadImage(path: string) {
+        try {
+            const { data, error } = await supabase.storage
+                .from('avatars')
+                .download(path);
+
+            if (error) {
+                throw error;
+            }
+
+            const url = URL.createObjectURL(data);
+            setAvatarUrl(url);
+        } catch (error: any) {
+            console.log('Error downloading image: ', error.message);
+        }
+    }
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -38,11 +56,14 @@ export default function Navigation() {
                 setUserId(user.id);
                 const { data } = await supabase
                     .from('userinfo')
-                    .select('first_name')
+                    .select('first_name, avatar_url')
                     .eq('id', user.id)
                     .single();
-                if (data && data.first_name) {
-                    setUserFirstName(data.first_name);
+                if (data) {
+                    setUserFirstName(data.first_name || user.email || "User");
+                    if (data.avatar_url) {
+                        downloadImage(data.avatar_url);
+                    }
                 } else {
                     setUserFirstName(user.email || "User");
                 }
@@ -56,17 +77,21 @@ export default function Navigation() {
                     setUserId(session.user.id);
                     const { data } = await supabase
                         .from('userinfo')
-                        .select('first_name')
+                        .select('first_name, avatar_url')
                         .eq('id', session.user.id)
                         .single();
-                    if (data && data.first_name) {
-                        setUserFirstName(data.first_name);
+                    if (data) {
+                        setUserFirstName(data.first_name || session.user.email || "User");
+                        if (data.avatar_url) {
+                            downloadImage(data.avatar_url);
+                        }
                     } else {
                         setUserFirstName(session.user.email || "User");
                     }
                 } else {
                     setUserId(null);
                     setUserFirstName(null);
+                    setAvatarUrl(null);
                 }
             }
         );
@@ -86,8 +111,13 @@ export default function Navigation() {
                     table: 'userinfo',
                     filter: `id=eq.${userId}`
                 }, (payload) => {
-                    if (payload.new && payload.new.first_name) {
-                        setUserFirstName(payload.new.first_name);
+                    if (payload.new) {
+                        if (payload.new.first_name) {
+                            setUserFirstName(payload.new.first_name);
+                        }
+                        if (payload.new.avatar_url) {
+                            downloadImage(payload.new.avatar_url);
+                        }
                     }
                 })
                 .subscribe();
@@ -134,7 +164,7 @@ export default function Navigation() {
         setDropdownOpen(false);
         setUserFirstName(null);
         setUserId(null);
-        window.location.href = "/"
+        setAvatarUrl(null);
     };
 
     return (
@@ -155,7 +185,7 @@ export default function Navigation() {
                     ></div>
 
                     <Link
-                        href="/home"
+                        href="/"
                         ref={(el) => (tabRefs.current[0] = el)}
                         style={getLinkStyle(pathname, "/")}
                     >
@@ -194,7 +224,7 @@ export default function Navigation() {
                         </Flex>
                     </Link>
 
-                    {/* {!userFirstName && (
+                    {!userFirstName && (
                         <>
                             <Link
                                 href="/login"
@@ -216,7 +246,7 @@ export default function Navigation() {
                                 </Flex>
                             </Link>
                         </>
-                    )} */}
+                    )}
                 </div>
             </div>
 
@@ -226,6 +256,19 @@ export default function Navigation() {
                         style={welcomeStyles}
                         onClick={() => setDropdownOpen(!dropdownOpen)}
                     >
+                        {avatarUrl ? (
+                            <div style={avatarContainerStyles}>
+                                <img
+                                    src={avatarUrl}
+                                    alt="Profile"
+                                    style={avatarImageStyles}
+                                />
+                            </div>
+                        ) : (
+                            <div style={avatarPlaceholderStyles}>
+                                <UserOutlined style={{ fontSize: '16px' }} />
+                            </div>
+                        )}
                         Welcome, {userFirstName}
                         <DownOutlined style={{ fontSize: "8px" }} />
                     </div>
@@ -283,6 +326,34 @@ const welcomeStyles = {
     display: "flex",
     alignItems: "center",
     gap: "8px"
+};
+
+const avatarContainerStyles = {
+    width: "30px",
+    height: "30px",
+    borderRadius: "50%",
+    overflow: "hidden",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    border: "1px solid rgba(0,0,0,0.1)",
+};
+
+const avatarImageStyles = {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover"
+};
+
+const avatarPlaceholderStyles = {
+    width: "30px",
+    height: "30px",
+    borderRadius: "50%",
+    backgroundColor: "#f0f0f0",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    border: "1px solid rgba(0,0,0,0.1)",
 };
 
 const dropdownMenuStyles = {

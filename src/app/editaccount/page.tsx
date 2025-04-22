@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import supabase from '../api/supabaseClient'
+import { UserOutlined } from '@ant-design/icons'
 
 export default function EditAccountPage() {
     const [firstName, setFirstName] = useState('')
@@ -12,6 +13,9 @@ export default function EditAccountPage() {
     const [success, setSuccess] = useState('')
     const [error, setError] = useState('')
     const [userId, setUserId] = useState<string | null>(null)
+    const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+    const [uploading, setUploading] = useState(false)
+    const [hoverAvatar, setHoverAvatar] = useState(false)
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -20,22 +24,85 @@ export default function EditAccountPage() {
             if (user) {
                 setUserId(user.id)
 
-                // Fetch user info from the userinfo table
                 const { data, error } = await supabase
                     .from('userinfo')
-                    .select('first_name, last_name')
+                    .select('first_name, last_name, avatar_url')
                     .eq('id', user.id)
                     .single()
 
                 if (data) {
                     setFirstName(data.first_name || '')
                     setLastName(data.last_name || '')
+
+                    if (data.avatar_url) {
+                        downloadImage(data.avatar_url)
+                    }
                 }
             }
         }
 
         fetchUserData()
     }, [])
+
+    async function downloadImage(path: string) {
+        try {
+            const { data, error } = await supabase.storage
+                .from('avatars')
+                .download(path)
+
+            if (error) {
+                throw error
+            }
+
+            const url = URL.createObjectURL(data)
+            setAvatarUrl(url)
+        } catch (error: any) {
+            console.log('Error downloading image: ', error.message)
+        }
+    }
+
+    async function uploadAvatar(event: React.ChangeEvent<HTMLInputElement>) {
+        try {
+            setUploading(true)
+
+            if (!event.target.files || event.target.files.length === 0) {
+                throw new Error('You must select an image to upload.')
+            }
+
+            if (!userId) {
+                throw new Error('You must be logged in to upload an avatar')
+            }
+
+            const file = event.target.files[0]
+            const fileExt = file.name.split('.').pop()
+            const fileName = `${userId}.${fileExt}`
+            const filePath = `${fileName}`
+
+            const { error: uploadError } = await supabase.storage
+                .from('avatars')
+                .upload(filePath, file, { upsert: true })
+
+            if (uploadError) {
+                throw uploadError
+            }
+
+            const { error: updateError } = await supabase
+                .from('userinfo')
+                .update({ avatar_url: filePath })
+                .eq('id', userId)
+
+            if (updateError) {
+                throw updateError
+            }
+
+            downloadImage(filePath)
+            setSuccess('Profile picture updated successfully.')
+        } catch (error: any) {
+            setError(error.message || 'Error uploading avatar')
+        } finally {
+            setUploading(false)
+        }
+    }
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -90,6 +157,85 @@ export default function EditAccountPage() {
             <h2 style={{ marginBottom: '30px' }}>Edit Account Info</h2>
             {success && <p style={{ color: 'green', marginBottom: '30px' }}>{success}</p>}
             {error && <p style={{ color: 'red', marginBottom: '30px' }}>{error}</p>}
+
+            <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                width: '100%',
+                marginBottom: '30px'
+            }}>
+                <div
+                    style={{
+                        width: '120px',
+                        height: '120px',
+                        borderRadius: '60px',
+                        overflow: 'hidden',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        backgroundColor: '#f0f0f0',
+                        marginBottom: '15px',
+                        border: `2px solid ${hoverAvatar ? '#52c41a' : 'rgba(0,0,0,0.1)'}`,
+                        transition: 'all 0.3s ease'
+                    }}
+                    onMouseEnter={() => setHoverAvatar(true)}
+                    onMouseLeave={() => setHoverAvatar(false)}
+                >
+                    {avatarUrl ? (
+                        <img
+                            src={avatarUrl}
+                            alt="Profile"
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover'
+                            }}
+                        />
+                    ) : (
+                        <UserOutlined style={{ fontSize: '50px', color: 'rgba(0,0,0,0.3)' }} />
+                    )}
+                </div>
+
+                <label
+                    htmlFor="profile-upload"
+                    onMouseEnter={() => setHoverAvatar(true)}
+                    onMouseLeave={() => setHoverAvatar(false)}
+                    style={{
+                        padding: '0.8em 1.5em',
+                        fontSize: '12px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '2px',
+                        fontWeight: 500,
+                        color: hoverAvatar ? '#fff' : '#000',
+                        backgroundColor: hoverAvatar ? '#52c41a' : '#fff',
+                        border: 'none',
+                        borderRadius: '25px',
+                        boxShadow: hoverAvatar
+                            ? '0px 8px 15px rgba(82, 196, 26, 0.3)'
+                            : '0px 4px 10px rgba(0, 0, 0, 0.1)',
+                        transition: 'all 0.3s ease 0s',
+                        cursor: 'pointer',
+                        outline: 'none',
+                        transform: hoverAvatar ? 'translateY(-3px)' : 'translateY(0)',
+                    }}
+                >
+                    {uploading ? 'Uploading...' : avatarUrl ? 'Change Photo' : 'Upload Photo'}
+                </label>
+
+                <input
+                    type="file"
+                    id="profile-upload"
+                    accept="image/*"
+                    onChange={uploadAvatar}
+                    disabled={uploading}
+                    style={{
+                        visibility: 'hidden',
+                        position: 'absolute'
+                    }}
+                />
+            </div>
+
             <form
                 onSubmit={handleSave}
                 style={{

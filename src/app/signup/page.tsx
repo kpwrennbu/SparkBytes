@@ -29,17 +29,9 @@ export default function SignupPage() {
     }, [])
 
     const handleSignup = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError('');
-        setSuccess('');
-    
-        // Check for bu.edu domain
-        const buEmailRegex = /^[a-zA-Z0-9._%+-]+@bu\.edu$/;
-        if (!buEmailRegex.test(email)) {
-            setError('You must sign up with a valid BU email address (e.g., name@bu.edu).');
-            return;
-        }
-    
+        e.preventDefault()
+        setError('')
+        setSuccess('')
         try {
             const { error } = await supabase.auth.signUp({
                 email,
@@ -50,16 +42,15 @@ export default function SignupPage() {
                         last_name: lastName
                     }
                 }
-            });
-    
-            if (error) throw error;
-    
-            setSuccess('You have signed up successfully! Check your email to verify your account.');
+            })
+
+            if (error) throw error
+
+            setSuccess('You have signed up successfully! Check your email to verify your account.')
         } catch (error: any) {
-            setError(error.message);
+            setError(error.message)
         }
     }
-    
 
     return (
         <div style={{
@@ -261,7 +252,7 @@ export default function SignupPage() {
             </form>
             <p style={{ marginTop: '20px' }}>
                 Already have an account? <Link
-                href="/"
+                href="/login"
                 onMouseEnter={() => setIsLinkHovered(true)}
                 onMouseLeave={() => setIsLinkHovered(false)}
                 style={{
