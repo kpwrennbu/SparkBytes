@@ -261,7 +261,7 @@ export default function SignupPage() {
             </form>
             <p style={{ marginTop: '20px' }}>
                 Already have an account? <Link
-                href="/login"
+                href="/"
                 onMouseEnter={() => setIsLinkHovered(true)}
                 onMouseLeave={() => setIsLinkHovered(false)}
                 style={{

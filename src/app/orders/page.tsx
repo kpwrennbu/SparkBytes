@@ -62,11 +62,23 @@ export default function ContactsPage() {
   };
   
   const fetchOrders = async () => {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+  
+    if (userError || !user) {
+      console.error("Error fetching user or user not logged in:", userError);
+      setLoading(false);
+      return;
+    }
+    console.log("user is ", user); 
+    
     const { data, error } = await supabase
       .from("Orders")
       .select(`
         id,
-        student_id,
+        grabber_id,
         food:food_id (
           id,
           name,
@@ -85,15 +97,19 @@ export default function ContactsPage() {
             time_end
           )
         )
-      `);
-
+      `)
+      .eq("grabber_id", user.id); // 👈 Filter for the current user only
+  
     if (error) {
       console.error("Error fetching orders:", error.message);
     } else {
       setOrders(data);
+      console.log("orders are ", data)
     }
+  
     setLoading(false);
   };
+  
 
   useEffect(() => {
     fetchOrders();

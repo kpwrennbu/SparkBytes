@@ -20,39 +20,52 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
   };
 
   const onReservation = async () => {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+  
+    if (userError || !user) {
+      console.error("User not logged in or error fetching user:", userError);
+      return;
+    }
+  
+    const userId = user.id; // this is the UUID
+  
     const selectedRows = food.filter(row => selectedRowKeys.includes(row.id));
-
+  
     for (const row of selectedRows) {
       const newQuantityLeft = row.quantity_left - 1;
-
+  
       const { error: orderError } = await supabase
         .from("Orders")
         .insert([
           {
             event_id: id,
-            student_id: 1,
+            grabber_id: userId, // ✅ now a UUID string
             food_id: row.id,
           },
         ]);
-
+  
       if (orderError) {
         console.error(`Error creating order for food id ${row.id}:`, orderError);
         continue;
       }
-
+  
       const { error } = await supabase
         .from("Food")
         .update({ quantity_left: newQuantityLeft })
         .eq("id", row.id);
-
+  
       if (error) {
         console.error(`Error updating quantity_left for food id ${row.id}:`, error);
       }
     }
-
+  
     await fetchFoods();
     setSelectedRowKeys([]);
   };
+  
 
   const allergies: Record<string, string> = {
     dairy: "/allergyIcons/dairy-free.png",
