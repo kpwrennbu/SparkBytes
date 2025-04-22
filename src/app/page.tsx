@@ -1,201 +1,108 @@
 "use client";
-import styles from "./page.module.css";
-import FoodCard from "./components/FoodCard";
-import { Flex } from "antd";
-import { useState } from "react";
-import CreateEvent from "./components/CreateEvent";
+import { useState, useEffect } from "react";
+import { Alert, Flex, Input, Select } from "antd";
 import supabase from "./api/supabaseClient";
-import { useEffect } from "react";
+import FoodCard from "./components/FoodCard";
+import CreateEvent from "./components/CreateEvent";
 import { EventRow } from "@/types";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+import Image from "next/image";
+
+import MissionStatement from "./components/MissionStatement";
+
+
+const { Option } = Select;
+
+const styles = {
+  page: {
+    maxWidth: "1200px",
+    margin: "0 auto",
+    padding: "32px 16px",
+    fontFamily: "Segoe UI, sans-serif",
+    display: "flex", 
+    justifyItems: "space-around"
+  },
+  header: {
+    display: "flex",
+    flexDirection: "column" as const,
+    alignItems: "center",
+    marginBottom: "32px",
+  },
+  controlBar: {
+    display: "flex",
+    flexWrap: "wrap" as const,
+    justifyContent: "space-between",
+    gap: "16px",
+    marginBottom: "24px",
+    padding: "0 12px",
+  },
+  sortControls: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    flexWrap: "wrap" as const,
+  },
+  searchInput: {
+    padding: "10px",
+    borderRadius: "8px",
+    fontSize: "16px",
+    width: "300px",
+    flex: "1 0 250px",
+  },
+
+
+};
+
+
 export default function Home() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState("time");
-  const [events, setEvents] = useState<EventRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  // const data = [
-  //   {
-  //     location: "Warren Towers",
-  //     description: "Freshmen CGS Orientation",
-  //     time: "Thursday, May 4th, 12PM", 
-  //     img: "/WarrenTowers.jpg", 
-  //     food: [
-  //       { 
-  //       key: 1,
-  //       food: "BLT",
-  //       quantity: 2,
-  //       calories: 540,
-  //       protein: 15,
-  //       fat: 20,
-  //       carbs: 5,
-  //       allergies: ["Gluten", "Tree Nut"]
-  //     }, 
-  //     {
-  //       key: 2, 
-  //       food: "Fortnite Sandwich",
-  //       quantity: 5,
-  //       calories: 540,
-  //       protein: 15,
-  //       fat: 20,
-  //       carbs: 5,
-  //       allergies: ["Gluten", "Tree Nut"]
-  //     }
-  //     ]
-  //   },
-  //   {
-  //     location: "CDS",
-  //     description: "Freshmen CGS Orientation",
-  //     time: "Thursday, May 4th, 12PM",
-  //     img: "/CDS.jpg", 
-  //     food: [
-  //       { 
-  //       key: 1,
-  //       food: "BLT",
-  //       quantity: 2,
-  //       calories: 540,
-  //       protein: 15,
-  //       fat: 20,
-  //       carbs: 5,
-  //       allergies: ["Gluten", "Tree Nut"]
-  //     }, 
-  //     {
-  //       key: 2, 
-  //       food: "Fortnite Sandwich",
-  //       quantity: 5,
-  //       calories: 540,
-  //       protein: 15,
-  //       fat: 20,
-  //       carbs: 5,
-  //       allergies: ["Gluten", "Tree Nut"]
-  //     }
-  //     ]
-  //   },
-  //   {
-  //     location: "GSU",
-  //     description: "Freshmen CGS Orientation",
-  //     time: "Thursday, May 4th, 12PM",
-  //     img: "/GSU.jpeg", 
-  //     food: [
-  //       { 
-  //       key: 1,
-  //       food: "BLT",
-  //       quantity: 2,
-  //       calories: 540,
-  //       protein: 15,
-  //       fat: 20,
-  //       carbs: 5,
-  //       allergies: ["Gluten", "Tree Nut"]
-  //     }, 
-  //     {
-  //       key: 2, 
-  //       food: "Fortnite Sandwich",
-  //       quantity: 5,
-  //       calories: 540,
-  //       protein: 15,
-  //       fat: 20,
-  //       carbs: 5,
-  //       allergies: ["Gluten", "Tree Nut"]
-  //     }
-  //     ]
-  //   },
-  // ];
- 
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
 
   useEffect(() => {
-    const fetchEvents = async () => {
-      const { data, error } = await supabase
-        .from('Events')
-        .select('*');
-
-      if (error) {
-        console.error('Error fetching events:', error.message);
-      } else {
-        console.log("got events, they are: ", data)
-        setEvents(data);
-      }
-
-      setLoading(false);
-    };
-    fetchEvents();
-
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+        },
+        (error) => {
+          console.error("Error fetching user location:", error);
+        }
+      );
+    }
   }, []);
 
- 
-  const filteredData = events.filter((event) =>
-    event.location.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // const sortedData = [...filteredData].sort((a, b) => {
-  //   if (sortBy === "time") {
-  //     // assuming event times are sortable strings for now
-  //     return a.time.localeCompare(b.time);
-  //   } else if (sortBy === "distance") {
-  //     // sort by location name as a proxy
-  //     return a.location.localeCompare(b.location);
-  //   }
-  //   return 0;
-  // });
-  // console.log("sortedData: " + sortedData)
-  
   return (
-    <div className={styles.page}>
-      <div>
-        <h1>Welcome to the Home Page</h1>
-        <CreateEvent /> 
+    <>
+      <div style={styles.page}>
+   
+        <div>
+          <MissionStatement /> 
+        </div>
+        <div style={{ height: "500px", width: "100%", marginTop: "2em" }}>
+          <MapContainer
+            center={[42.35, -71.1]} // Boston
+            zoom={13}
+            scrollWheelZoom={true}
+            zoomControl={true}
+            style={{ height: "500px", width: "100%", marginBottom: "1rem" }}
+          >
+            <TileLayer
+              url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/">CARTO</a>'
+            />
+            <Marker position={[42.35, -71.1]}>
+              <Popup>Boston marker</Popup>
+            </Marker>
+          </MapContainer>
+        </div>
       </div>
-      
-
-      <div style={{ marginBottom: "20px", textAlign: "center" }}>
-        <input
-          type="text"
-          placeholder="Search by location..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{
-            padding: "10px",
-            width: "300px",
-            borderRadius: "8px",
-            border: "1px solid #ccc",
-            fontSize: "16px"
-          }}
-        />
-      </div>
-
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          alignItems: "center",
-          paddingRight: "40px",
-          gap: "10px",
-          marginBottom: "20px"
-        }}
-      >
-        <label htmlFor="sortSelect" style={{ fontWeight: 500, whiteSpace: "nowrap" }}>
-          Sort by:
-        </label>
-        <select
-          id="sortSelect"
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-          style={{
-            padding: "8px",
-            borderRadius: "6px",
-            border: "1px solid #ccc",
-            fontSize: "16px"
-          }}
-        >
-          <option value="time">Time</option>
-          <option value="distance">Distance </option>
-        </select>
-      </div>
-
-      <div style={{ padding: "20px" }}>
-        <Flex justify="space-around" align="center" wrap="wrap">
-          {filteredData.map((event, index) => (
-            <FoodCard {...event} key={index} />
-          ))}
-        </Flex>
-      </div>
-    </div>
+    </>
   );
-}
+
+
+
+};

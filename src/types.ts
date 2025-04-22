@@ -2,6 +2,9 @@
 
 // A food item returned from API or used in event creation
 
+
+
+
 export type Food = {
     allergens: string[];
     brandOwner: string;
@@ -43,7 +46,9 @@ export type Food = {
     quantity: number, 
     setQuantity: React.Dispatch<React.SetStateAction<number>>;
     addFoodToEventsTable: AddFoodToEventsTable;
+    tableData: TableRow[];
   };
+
 
 //props passed to the Form of the CreateEvent component
  export type FormValues = {
@@ -59,5 +64,26 @@ export type Food = {
     time_start: string;
     time_end: string;
     creator_id: number;
+    latitude: number;
+    longitude: number;
   };
-  
+  export type Order = { 
+    food: TableRow[]; 
+    id: number;
+    student_id: number;
+  }
+
+  export type ManuallyInputFoodProps = {
+   tableData: TableRow[];
+    addInputtedToEventsTable: (newData: TableRow) => void;
+  };
+  export type ManuallyInputFormValues = {
+    food: string;
+    quantity: number;
+    servingSizeUnit: string;
+    calories: number;
+    proteins: number;
+    fats: number;
+    carbs: number;
+    allergies: string[];
+  };
