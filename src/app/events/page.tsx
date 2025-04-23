@@ -1,10 +1,15 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Alert, Flex, Input, Select, Typography } from "antd";
+import { Alert, Button, Flex, Input, Select } from "antd";
 import supabase from "../api/supabaseClient";
 import FoodCard from "../components/FoodCard";
 import CreateEvent from "../components/CreateEvent";
 import { EventRow } from "@/types";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import Image from "next/image";
+
+import MainUI from "../components/MissionStatement";
 
 
 const { Option } = Select;
@@ -20,7 +25,6 @@ const styles = {
     display: "flex",
     flexDirection: "column" as const,
     alignItems: "center",
-    justifyContent: "center",
     marginBottom: "32px",
   },
   controlBar: {
@@ -96,19 +100,48 @@ export default function Home() {
 
   useEffect(() => {
     const fetchEvents = async () => {
-      const { data, error } = await supabase.from("Events").select("*");
-      if (error) {
-        console.error("Error fetching events:", error.message);
-        setFetchError(error.message);
-      } else {
-        setEvents(data as EventRow[]);
-        setFetchError(null);
+      const now = new Date().toISOString(); // current UTC time
+  
+      const { data: eventsData, error: eventsError } = await supabase
+        .from("Events")
+        .select("*")
+        .gt("time_end", now); // filter out expired events
+  
+      if (eventsError) {
+        console.error("Error fetching events:", eventsError.message);
+        setFetchError(eventsError.message);
+        setLoading(false);
+        return;
       }
+  
+      const filteredEvents: EventRow[] = [];
+  
+      for (const event of eventsData) {
+        const { data: foodItems, error: foodError } = await supabase
+          .from("Food")
+          .select("id")
+          .eq("event_id", event.id)
+          .gt("quantity_left", 0);
+  
+        if (foodError) {
+          console.error(`Error checking food for event ${event.id}:`, foodError.message);
+          continue;
+        }
+  
+        if (foodItems.length > 0) {
+          filteredEvents.push(event);
+        }
+      }
+  
+      setEvents(filteredEvents);
+      setFetchError(null);
       setLoading(false);
     };
+  
     fetchEvents();
   }, []);
-
+  
+  
 
   const isValidSearchTerm = (term: string) => /^[a-zA-Z0-9\s]*$/.test(term);
 
@@ -177,17 +210,11 @@ export default function Home() {
   return (
     <>
       <div style={styles.page}>
-      <Typography.Text
-        level={1}
-        style={{
-          fontWeight: "bold",
-          fontSize: "3.5rem",
-          lineHeight: "1.2",
-          marginBottom: "0.0em",
-        }}
-      >
-        FIND SOME FOOD!<br />
-      </Typography.Text>
+        <Button onClick={() => console.log(events)} />
+        <div style={styles.header}>
+\          <CreateEvent />
+        </div>
+    
         <div style={styles.controlBar}>
           <Input
             placeholder="Search by location..."
@@ -195,9 +222,6 @@ export default function Home() {
             onChange={(e) => setSearchTerm(e.target.value)}
             style={styles.searchInput}
           />
-          <div style={styles.header}>
-          <CreateEvent />
-           </div>
   
           <div style={styles.sortControls}>
             <label htmlFor="sortSelect" style={{ fontWeight: 500, whiteSpace: "nowrap" }}>
