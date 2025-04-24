@@ -11,6 +11,24 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
   const [food, setFood] = useState<TableRow[]>([]);
   const [unit, setUnit] = useState("g");
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+
+      if (error) {
+        console.error("Failed to fetch user:", error.message);
+      } else if (user) {
+        setUserId(user.id); // this is the user's UUID
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   const rowSelection = {
     selectedRowKeys,
@@ -30,7 +48,7 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
         .insert([
           {
             event_id: id,
-            student_id: 1,
+            grabber_id: userId,
             food_id: row.id,
           },
         ]);
