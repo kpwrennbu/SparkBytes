@@ -5,11 +5,8 @@ import supabase from "../api/supabaseClient";
 import FoodCard from "../components/FoodCard";
 import CreateEvent from "../components/CreateEvent";
 import { EventRow } from "@/types";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import Image from "next/image";
 
-import MainUI from "../components/MissionStatement";
 
 
 const { Option } = Select;
@@ -78,8 +75,39 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [fullUser, setFullUser] = useState<any>(null);
 
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      // Step 1: Get currently logged-in user
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
 
+      if (authError || !user) {
+        console.error("Failed to get auth user:", authError);
+        return;
+      }
+
+      // Step 2: Query your Users table by the user's auth ID (uuid)
+      const { data, error: profileError } = await supabase
+        .from("userinfo") // 👈 change this to your actual table name if different
+        .select("*")
+        .eq("id", user.id) // assuming the id field in your table is the auth user ID
+        .single();
+
+      if (profileError) {
+        console.error("Error fetching user profile:", profileError);
+      } else {
+        console.log("data: ", data)
+        setFullUser(data);
+      }
+    };
+
+    fetchUserDetails();
+  }, []);
+  
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -210,9 +238,11 @@ export default function Home() {
   return (
     <>
       <div style={styles.page}>
-        <Button onClick={() => console.log(events)} />
         <div style={styles.header}>
-\          <CreateEvent />
+        {(fullUser?.is_coordinator == 1) && ( 
+           <CreateEvent />
+        )}
+        
         </div>
     
         <div style={styles.controlBar}>
