@@ -27,10 +27,6 @@ const styles = {
     gap: "5em"
   },
 };
-
-
-
-
 export default function Home() {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
 

@@ -16,6 +16,9 @@ export default function RootLayout({
       <body>
         <Navigation />    {/* Global Nav goes here */}
         {children}        {/* Page content goes here */}
+        <footer style={{ marginTop: "2em", padding: "1.5em", textAlign: "center", fontSize: "14px", color: "#888" }}>
+        &copy; {new Date().getFullYear()} SparkBytes. All rights reserved.
+      </footer>
       </body>
     </html>
   );
