@@ -22,7 +22,7 @@ export default function EditAccountPage() {
 
                 // Fetch user info from the userinfo table
                 const { data, error } = await supabase
-                    .from('userinfo')
+                    .from('Users')
                     .select('first_name, last_name')
                     .eq('id', user.id)
                     .single()
@@ -49,7 +49,7 @@ export default function EditAccountPage() {
 
         try {
             const { error: updateError } = await supabase
-                .from('userinfo')
+                .from('Users')
                 .update({
                     first_name: firstName,
                     last_name: lastName

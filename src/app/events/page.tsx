@@ -92,9 +92,9 @@ export default function Home() {
 
       // Step 2: Query your Users table by the user's auth ID (uuid)
       const { data, error: profileError } = await supabase
-        .from("userinfo") // 👈 change this to your actual table name if different
+        .from("Users")
         .select("*")
-        .eq("id", user.id) // assuming the id field in your table is the auth user ID
+        .eq("id", user.id)
         .single();
 
       if (profileError) {
