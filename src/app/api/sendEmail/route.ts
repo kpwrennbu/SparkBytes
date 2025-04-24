@@ -11,7 +11,7 @@ const mg = mailgun.client({
 
 export async function POST(req: Request) {
   const { to, subject, text } = await req.json();
-
+  
   try {
     const result = await mg.messages.create(process.env.MAILGUN_DOMAIN!, {
       from: `Mailgun Sandbox <postmaster@${process.env.MAILGUN_DOMAIN}>`,

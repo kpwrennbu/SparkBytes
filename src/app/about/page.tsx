@@ -2,6 +2,7 @@
 
 import { Card, Typography } from "antd";
 import Image from "next/image";
+import { relative } from "path";
 import { useState } from "react";
 
 export default function AboutPage() {
@@ -33,18 +34,27 @@ export default function AboutPage() {
   ];
 
   return (
-    <div style={{ padding: "40px 24px", textAlign: "center" }}>
-      <h1 style={{ fontSize: "36px", fontWeight: "bold", marginBottom: "40px" }}>
+    <div style={{
+      display: "flex",
+      flexDirection: "column",
+      minHeight: "100vh",
+      padding: "40px 24px"
+    }}>
+      <h1 style={{ fontSize: "36px", fontWeight: "bold", marginBottom: "40px", textAlign: "center" }}>
         About Us
       </h1>
 
-  
       <div style={{ display: "flex", flexWrap: "wrap", gap: 24, justifyContent: "center" }}>
         {data.map((person) => (
           <Card
             key={person.email}
             hoverable
-            style={{ width: 280, borderRadius: 12, textAlign: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}
+            style={{
+              width: 280,
+              borderRadius: 12,
+              textAlign: "center",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.08)"
+            }}
             cover={
               <div style={{ width: "100%", height: "250px", position: "relative", backgroundColor: "#fff" }}>
                 <Image
@@ -52,7 +62,7 @@ export default function AboutPage() {
                   alt={person.name}
                   fill
                   style={{ objectFit: "cover", borderRadius: "12px 12px 0 0" }}
-                  />
+                />
               </div>
             }
           >
@@ -61,6 +71,19 @@ export default function AboutPage() {
             <a href={`mailto:${person.email}`}>{person.email}</a>
           </Card>
         ))}
+      </div>
+
+      <div style={{
+        marginTop: "auto",
+        backgroundColor: "#52c41a",
+        padding: "2em",
+        textAlign: "center",
+        color: "#fff",
+        fontWeight: 500,
+        borderRadius: "12px",
+        marginTop: "40px"
+      }}>
+        Please Contact Us with the emails above if you wish to post your own events.
       </div>
     </div>
   );

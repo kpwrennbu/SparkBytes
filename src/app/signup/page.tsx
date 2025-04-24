@@ -32,6 +32,13 @@ export default function SignupPage() {
         e.preventDefault()
         setError('')
         setSuccess('')
+
+        // ✅ Reject emails not ending in "@bu.edu"
+        if (!email.toLowerCase().endsWith('@bu.edu')) {
+            setError('Only BU email addresses (ending in @bu.edu) are allowed.');
+            return;
+        }
+
         try {
             const { error } = await supabase.auth.signUp({
                 email,
@@ -63,8 +70,8 @@ export default function SignupPage() {
             fontFamily: 'Arial, sans-serif'
         }}>
             <h2 style={{ textAlign: 'center', marginBottom: '30px' }}>Sign Up</h2>
-            {error && <p style={{color: 'red', marginBottom: '20px'}}>{error}</p>}
-            {success && <p style={{color: 'green', marginBottom: '40px'}}>{success}</p>}
+            {error && <p style={{ color: 'red', marginBottom: '20px' }}>{error}</p>}
+            {success && <p style={{ color: 'green', marginBottom: '40px' }}>{success}</p>}
             <form
                 onSubmit={handleSignup}
                 style={{
@@ -82,10 +89,7 @@ export default function SignupPage() {
                     justifyContent: 'space-between',
                     marginBottom: '20px'
                 }}>
-                    <div style={{
-                        width: '48%',
-                        position: 'relative'
-                    }}>
+                    <div style={{ width: '48%', position: 'relative' }}>
                         <div style={{
                             position: 'absolute',
                             top: clickedField === 'firstName' || firstName ? '-20px' : '10px',
@@ -116,10 +120,7 @@ export default function SignupPage() {
                             }}
                         />
                     </div>
-                    <div style={{
-                        width: '48%',
-                        position: 'relative'
-                    }}>
+                    <div style={{ width: '48%', position: 'relative' }}>
                         <div style={{
                             position: 'absolute',
                             top: clickedField === 'lastName' || lastName ? '-20px' : '10px',
@@ -152,11 +153,7 @@ export default function SignupPage() {
                     </div>
                 </div>
 
-                <div style={{
-                    width: '100%',
-                    position: 'relative',
-                    marginBottom: '20px'
-                }}>
+                <div style={{ width: '100%', position: 'relative', marginBottom: '20px' }}>
                     <div style={{
                         position: 'absolute',
                         top: clickedField === 'email' || email ? '-20px' : '10px',
@@ -188,11 +185,7 @@ export default function SignupPage() {
                     />
                 </div>
 
-                <div style={{
-                    width: '100%',
-                    position: 'relative',
-                    marginBottom: '30px'}}>
-
+                <div style={{ width: '100%', position: 'relative', marginBottom: '30px' }}>
                     <div style={{
                         position: 'absolute',
                         top: clickedField === 'password' || password ? '-20px' : '10px',
@@ -252,19 +245,19 @@ export default function SignupPage() {
             </form>
             <p style={{ marginTop: '20px' }}>
                 Already have an account? <Link
-                href="/login"
-                onMouseEnter={() => setIsLinkHovered(true)}
-                onMouseLeave={() => setIsLinkHovered(false)}
-                style={{
-                    color: isLinkHovered ? '#52c41a' : 'inherit',
-                    textDecoration: 'underline',
-                    transition: 'color 0.3s ease',
-                    fontSize: '18px',
-                    fontWeight: 'bold'
-                }}
-            >
-                Login
-            </Link>
+                    href="/login"
+                    onMouseEnter={() => setIsLinkHovered(true)}
+                    onMouseLeave={() => setIsLinkHovered(false)}
+                    style={{
+                        color: isLinkHovered ? '#52c41a' : 'inherit',
+                        textDecoration: 'underline',
+                        transition: 'color 0.3s ease',
+                        fontSize: '18px',
+                        fontWeight: 'bold'
+                    }}
+                >
+                    Login
+                </Link>
             </p>
         </div>
     )

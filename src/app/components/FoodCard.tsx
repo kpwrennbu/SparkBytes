@@ -67,7 +67,16 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
         console.error(`Error updating quantity_left for food id ${row.id}:`, error);
       }
     }
-
+    await fetch("/api/sendEmail", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        to: "kpwrenn@bu.edu",    
+        subject: "Sandbox test 🚀",
+        text: "Im him",
+      }),
+    });
+    
     await fetchFoods();
     setSelectedRowKeys([]);
   };

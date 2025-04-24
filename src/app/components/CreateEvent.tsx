@@ -113,6 +113,50 @@ export default function CreateEvent() {
       }]);
     }
     setIsModalVisible(false);
+    // Fetch all users from Supabase
+const { data: users, error: usersError } = await supabase
+.from('Users') // make sure your user profile table is actually called 'Users'
+.select('email');
+
+if (usersError) {
+console.error("❌ Failed to fetch user emails:", usersError.message);
+return;
+}
+
+const foodList = tableData
+  .map((item) => `🍴 ${item.food[0].toUpperCase() + item.food.slice(1).toLowerCase()}`)
+  .join("\n");
+
+const message = `
+🎉 A new event just dropped!
+
+📍 *${eventName}*  
+🗺️ Location: ${location === "cds" ? "Center for Computing and Data Sciences" : location === "gsu" ? "George Sherman Union" : "Warren Towers"}  
+🕒 Time: ${new Date(time_start).toLocaleString()} - ${new Date(time_end).toLocaleString()}
+
+Here's what’s on the menu:
+
+${foodList}
+
+Tap into the app to grab your favorites before they’re gone! 😋
+`;
+
+
+// Send emails to all users
+for (const user of users) {
+if (user.email.endsWith('@bu.edu')) {
+  await fetch("/api/sendEmail", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      to: user.email,
+      subject: `New Event: ${eventName}`,
+      text: message,
+    }),
+  });
+}
+}
+
   };
 
   const isEditing = (record: any) => record.key === editingKey;
