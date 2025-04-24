@@ -14,7 +14,7 @@ export async function POST(req: Request) {
   
   try {
     const result = await mg.messages.create(process.env.MAILGUN_DOMAIN!, {
-      from: `Mailgun Sandbox <postmaster@${process.env.MAILGUN_DOMAIN}>`,
+      from: `SparkBytes! <postmaster@${process.env.MAILGUN_DOMAIN}>`,
       to,         // must be an authorized recipient in Mailgun
       subject,    // e.g., "Welcome!"
       text,       // or use html: "<p>Welcome!</p>"
