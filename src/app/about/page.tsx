@@ -40,8 +40,8 @@ export default function AboutPage() {
       minHeight: "100vh",
       padding: "40px 24px"
     }}>
-      <h1 style={{ fontSize: "36px", fontWeight: "bold", marginBottom: "40px", textAlign: "center" }}>
-        About Us
+      <h1 style={{ fontSize: "40px", fontWeight: 700, marginBottom: "40px", textAlign: "center", fontFamily: "Georgia, serif", color: "#333" }}>
+        Meet the SparkBytes Team ✨
       </h1>
 
       <div style={{ display: "flex", flexWrap: "wrap", gap: 24, justifyContent: "center" }}>
@@ -85,6 +85,10 @@ export default function AboutPage() {
       }}>
         Please Contact Us with the emails above if you wish to post your own events.
       </div>
+
+      <footer style={{ marginTop: "2em", padding: "1.5em", textAlign: "center", fontSize: "14px", color: "#888" }}>
+        &copy; {new Date().getFullYear()} SparkBytes. All rights reserved.
+      </footer>
     </div>
   );
   
