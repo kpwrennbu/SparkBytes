@@ -43,6 +43,15 @@ export default function AboutPage() {
       <h1 style={{ fontSize: "40px", fontWeight: 700, marginBottom: "40px", textAlign: "center", fontFamily: "Georgia, serif", color: "#333" }}>
         Meet the SparkBytes Team ✨
       </h1>
+        <div
+        style={{
+          width: "23%", // a bit longer
+          height: "4px",
+          backgroundColor: "#67b3ad",
+          margin: "-25px auto 40px", // 8px margin-top, 40px margin-bottom
+          borderRadius: "2px",
+        }}
+      ></div>
 
       <div style={{ display: "flex", flexWrap: "wrap", gap: 24, justifyContent: "center" }}>
         {data.map((person) => (
@@ -74,16 +83,16 @@ export default function AboutPage() {
       </div>
 
       <div style={{
-        marginTop: "auto",
-        backgroundColor: "#52c41a",
-        padding: "2em",
+        marginTop: "40px",
+        padding: "1.5em",
         textAlign: "center",
-        color: "#fff",
+        color: "#000000",
         fontWeight: 500,
-        borderRadius: "12px",
-        marginTop: "40px"
+        borderTop: "2px solid #67b3ad",
+        borderBottom: "2px solid #67b3ad",
+        fontFamily: "Segoe UI, sans-serif"
       }}>
-        Please Contact Us with the emails above if you wish to post your own events.
+        Please Contact One of Us with the Emails Above If You Wish to Post Your Own Events.
       </div>
 
       <footer style={{ marginTop: "2em", padding: "1.5em", textAlign: "center", fontSize: "14px", color: "#888" }}>

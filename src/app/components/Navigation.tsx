@@ -91,7 +91,7 @@ export default function Navigation() {
                         style={{
                             position: "absolute",
                             height: "36px",
-                            backgroundColor: "#52c41a",
+                            backgroundColor: "#66b2ad",
                             borderRadius: "8px",
                             transition: "all 0.3s ease",
                             zIndex: 0,
