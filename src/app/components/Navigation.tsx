@@ -220,9 +220,9 @@ const navLinksStyles = {
 
 const userDropdownContainerStyles = {
     position: "relative" as const,
-    flexShrink: 0, // ✅ prevents it from shrinking when container gets tight
-    minWidth: "fit-content", // ✅ keeps it visible
-    marginLeft: "auto", // ✅ pushes it to the right nicely
+    flexShrink: 0, 
+    minWidth: "fit-content", 
+    marginLeft: "auto", 
 };
 
 const welcomeStyles = {

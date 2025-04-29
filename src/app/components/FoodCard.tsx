@@ -67,15 +67,6 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
         console.error(`Error updating quantity_left for food id ${row.id}:`, error);
       }
     }
-    await fetch("/api/sendEmail", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        to: "kpwrenn@bu.edu",    
-        subject: "Sandbox test 🚀",
-        text: "Im him",
-      }),
-    });
     
     await fetchFoods();
     setSelectedRowKeys([]);
@@ -213,7 +204,12 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
       <Card
         hoverable
         style={cardStyles}
-        onClick={() => setIsModalVisible(true)}
+        onClick={() => {
+          if (userId) { 
+            setIsModalVisible(true)
+          }   
+        }    
+        }
         cover={
           <div style={{ width: "100%", height: "200px", position: "relative" }}>
             <Image
