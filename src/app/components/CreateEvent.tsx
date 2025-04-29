@@ -11,6 +11,7 @@ import SearchFood from "./SearchFood";
 import supabase from "../api/supabaseClient";
 import { EditableCell } from "./EditableCell";
 import ManuallyInputFood from "./ManuallyInputFood";
+import { addNotification } from "@/app/lib/notifications";
 
 const { Option } = Select;
 const format = 'HH:mm a';
@@ -94,7 +95,19 @@ export default function CreateEvent() {
     const time_start = eventDate.clone().hour(startTime.hour()).minute(startTime.minute()).second(0).format();
     const time_end = eventDate.clone().hour(endTime.hour()).minute(endTime.minute()).second(0).format();
 
-    const { data, error } = await supabase.from('Events').insert([{ name: eventName, location, time_start, time_end, creator_id: 1 }]).select();
+    // const { data, error } = await supabase.from('Events').insert([{ name: eventName, location, time_start, time_end, creator_id: 1 }]).select();
+    const {
+      data: { user },
+      error: authError
+    } = await supabase.auth.getUser();
+    if (authError || !user) return console.error(authError);
+    const currentUserId = user.id;
+
+    const { data, error } = await supabase
+      .from('Events')
+      .insert([{ name: eventName, location, time_start, time_end, creator_id: currentUserId }])
+      .select();
+
     if (error) return;
     const eventId = data?.[0]?.id;
 
@@ -116,7 +129,7 @@ export default function CreateEvent() {
     // Fetch all users from Supabase
 const { data: users, error: usersError } = await supabase
 .from('Users') // make sure your user profile table is actually called 'Users'
-.select('email');
+.select('id, email');
 
 if (usersError) {
 console.error("❌ Failed to fetch user emails:", usersError.message);
@@ -154,6 +167,16 @@ if (user.email.endsWith('@bu.edu')) {
       text: message,
     }),
   });
+
+  await addNotification(
+    user.id,
+    "event_created",
+    {
+      title: `New Event: ${eventName}`,
+      url: `/events/${eventId}`,
+
+    }
+  );
 }
 }
 

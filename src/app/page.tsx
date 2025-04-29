@@ -6,11 +6,12 @@ import FoodCard from "./components/FoodCard";
 import CreateEvent from "./components/CreateEvent";
 import { EventRow } from "@/types";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import L from "leaflet";
+// import "leaflet/dist/leaflet.css";
+// import L from "leaflet";
 import Image from "next/image";
 
 import MissionStatement from "./components/MissionStatement";
+
 
 
 const { Option } = Select;

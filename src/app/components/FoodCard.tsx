@@ -1,3 +1,4 @@
+// src/app/components/FoodCard.tsx
 "use client";
 import { useState, useEffect } from "react";
 import { Card, Modal, Flex, Table, Button, Tooltip } from "antd";

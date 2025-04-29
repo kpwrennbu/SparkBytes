@@ -1,3 +1,4 @@
+// src/app/api/sendEmail/route.ts
 import { NextResponse } from "next/server";
 import formData from "form-data";
 import Mailgun from "mailgun.js";

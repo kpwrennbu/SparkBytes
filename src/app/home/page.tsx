@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Alert, Flex, Input, Select } from "antd";
 import { EventRow } from "@/types";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
+// import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import Image from "next/image";
 

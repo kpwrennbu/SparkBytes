@@ -5,7 +5,7 @@ import supabase from "../api/supabaseClient";
 import FoodCard from "../components/FoodCard";
 import CreateEvent from "../components/CreateEvent";
 import { EventRow } from "@/types";
-import "leaflet/dist/leaflet.css";
+// import "leaflet/dist/leaflet.css";
 
 
 
