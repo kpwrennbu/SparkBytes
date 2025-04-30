@@ -8,17 +8,13 @@ import {
   Card,
   Typography,
   Space,
-  message,
   Tag,
 } from "antd";
-import { supabase } from "../lib/supabaseClient";
 import Image from "next/image";
 
 const { Title, Text } = Typography;
 
 export default function SearchFood({
-  isTableVisible,
-  setIsTableVisible,
   foods,
   setFoods,
   quantity,

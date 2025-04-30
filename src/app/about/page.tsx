@@ -1,7 +1,7 @@
 "use client";
 import { Card } from "antd";
 import Image from "next/image";
-import {data, styles} from "./about.utils";
+import {data, styles} from "../utils/about.utils";
 export default function AboutPage() {
   
   return (

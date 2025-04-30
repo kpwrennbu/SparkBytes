@@ -1,54 +1,17 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Alert, Button, Flex, Input, Select } from "antd";
+import { Alert, Flex, Input, Select } from "antd";
 import supabase from "../api/supabaseClient";
 import FoodCard from "../components/FoodCard";
 import CreateEvent from "../components/CreateEvent";
 import { EventRow } from "@/types";
 import "leaflet/dist/leaflet.css";
-
+import {styles } from "../utils/events.utils";
 
 
 const { Option } = Select;
 
-const styles = {
-  page: {
-    maxWidth: "1200px",
-    margin: "0 auto",
-    padding: "32px 16px",
-    fontFamily: "Segoe UI, sans-serif",
-  },
-  header: {
-    display: "flex",
-    flexDirection: "column" as const,
-    alignItems: "center",
-    marginBottom: "32px",
-  },
-  controlBar: {
-    display: "flex",
-    flexWrap: "wrap" as const,
-    justifyContent: "space-between",
-    gap: "16px",
-    marginBottom: "24px",
-    padding: "0 12px",
-  },
-  sortControls: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    flexWrap: "wrap" as const,
-  },
-  searchInput: {
-    padding: "10px",
-    borderRadius: "8px",
-    fontSize: "16px",
-    width: "300px",
-    flex: "1 0 250px",
-  },
-
-
-};
-
+//Tiffany's Function, she can comment it
 function calculateDistance(
   origin: { lat: number; lng: number },
   destination: { lat: number; lng: number }
@@ -68,12 +31,11 @@ function calculateDistance(
 
 
 export default function Home() {
+
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("time");
-  const [sortOrder, setSortOrder] = useState("asc");
+  const sortOrder ="asc";
   const [events, setEvents] = useState<EventRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [fetchError, setFetchError] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [fullUser, setFullUser] = useState<any>(null);
 
@@ -137,8 +99,6 @@ export default function Home() {
   
       if (eventsError) {
         console.error("Error fetching events:", eventsError.message);
-        setFetchError(eventsError.message);
-        setLoading(false);
         return;
       }
   
@@ -162,8 +122,6 @@ export default function Home() {
       }
   
       setEvents(filteredEvents);
-      setFetchError(null);
-      setLoading(false);
     };
   
     fetchEvents();
@@ -180,26 +138,6 @@ export default function Home() {
 
 
   const sortedData = [...filteredData];
-
-  if (sortBy === "time") {
-    sortedData.sort((a, b) => {
-      const dateA = new Date(a.time_start).getTime();
-      const dateB = new Date(b.time_start).getTime();
-      return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
-    });
-  } else if (sortBy === "distance" && userLocation) {
-    sortedData.sort((a, b) => {
-      const distanceA = calculateDistance(userLocation, {
-        lat: Number(a.latitude),
-        lng: Number(a.longitude),
-      });
-      const distanceB = calculateDistance(userLocation, {
-        lat: Number(b.latitude),
-        lng: Number(b.longitude),
-      });
-      return sortOrder === "asc" ? distanceA - distanceB : distanceB - distanceA;
-    });
-  }
 
   let content;
   if (searchTerm !== "" && !isValidSearchTerm(searchTerm)) {
@@ -240,7 +178,7 @@ export default function Home() {
     <>
       <div style={styles.page}>
         <div style={styles.header}>
-        {(fullUser?.is_coordinator == 1) && ( 
+        {fullUser?.is_coordinator && ( 
            <CreateEvent />
         )}
         

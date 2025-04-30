@@ -1,5 +1,7 @@
 // src/types.ts
-
+import type { FormInstance } from "antd";
+import type { ReactNode, HTMLAttributes } from "react";
+import type { Dayjs } from "dayjs";
 // A food item returned from API or used in event creation
 
 export type Food = {
@@ -36,13 +38,12 @@ export type Food = {
   export type AddFoodToEventsTable = (food: Food) => void;
 
   export type SearchFoodProps = {
-    isTableVisible: boolean;
-    setIsTableVisible: React.Dispatch<React.SetStateAction<boolean>>;
     foods: Food[];
     setFoods: React.Dispatch<React.SetStateAction<Food[]>>;
     quantity: number, 
     setQuantity: React.Dispatch<React.SetStateAction<number>>;
     addFoodToEventsTable: AddFoodToEventsTable;
+    tableData: TableRow[];
   };
 
 //props passed to the Form of the CreateEvent component
@@ -87,3 +88,78 @@ export interface FoodNutrient {
     foods: FoodItem[];
   }
   
+
+//Event Form Props
+  export interface EventFormProps {
+  eventName: string;
+  setEventName: React.Dispatch<React.SetStateAction<string>>;
+  location: string;
+  setLocation: React.Dispatch<React.SetStateAction<string>>;
+  eventDate: Dayjs | null;
+  setEventDate: React.Dispatch<React.SetStateAction<Dayjs | null>>;
+  timeRange: [Dayjs, Dayjs] | null;
+  setTimeRange: React.Dispatch<React.SetStateAction<[Dayjs, Dayjs] | null>>;
+}
+
+export interface FoodTableProps { 
+  tableData: TableRow[];
+  setTableData: React.Dispatch<React.SetStateAction<TableRow[]>>;
+  unit: string;
+  selectedRowKeys: React.Key[];
+  setSelectedRowKeys: React.Dispatch<React.SetStateAction<React.Key[]>>;
+}
+
+//Editable TableCell Props
+export interface EditableCellProps extends HTMLAttributes<HTMLElement> {
+    editing: boolean;
+    dataIndex: string;
+    title: string;
+    inputType: "number" | "text";
+    record: any; // you can replace with a specific type like `TableRow`
+    index: number;
+    children: ReactNode;
+    form: FormInstance;
+  }
+  
+export interface FoodSelectorProps {
+  isChecked: boolean;
+  setIsChecked: React.Dispatch<React.SetStateAction<boolean>>;
+
+  tableData: TableRow[];
+  setTableData: React.Dispatch<React.SetStateAction<TableRow[]>>;
+  
+  addInputtedToEventsTable: (row: TableRow) => void;
+
+  foods: Food[];
+  setFoods: React.Dispatch<React.SetStateAction<Food[]>>;
+
+  quantity: number;
+  setQuantity: React.Dispatch<React.SetStateAction<number>>;
+
+  addFoodToEventsTable: (food: Food) => void;
+}
+
+export interface ManuallyInputFormValues {
+  food: string;
+  quantity: number;
+  calories: number;
+  carbs: number;
+  proteins: number;
+  fats: number;
+  allergies: string[];
+  servingSizeUnit: string;
+}
+export interface ManuallyInputFoodProps { 
+  tableData: TableRow[];
+  setTableData: React.Dispatch<React.SetStateAction<TableRow[]>>;
+
+}
+
+export interface EditableCellProps {
+  editing: boolean;
+  dataIndex: string;
+  title: string;
+  inputType: "number" | "text";
+  index: number;
+  children: ReactNode;
+}
