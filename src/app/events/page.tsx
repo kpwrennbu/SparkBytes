@@ -174,7 +174,8 @@ export default function Home() {
   const isValidSearchTerm = (term: string) => /^[a-zA-Z0-9\s]*$/.test(term);
 
   const filteredData = events.filter((event) =>
-    event.location.toLowerCase().includes(searchTerm.toLowerCase())
+    event.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    event.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
 
@@ -247,7 +248,7 @@ export default function Home() {
     
         <div style={styles.controlBar}>
           <Input
-            placeholder="Search by location..."
+            placeholder="Search by location and event..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={styles.searchInput}
