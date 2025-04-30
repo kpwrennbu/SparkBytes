@@ -1,6 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server'; //imports needed for an GET request in Next
+import {USDAApiResponse, FoodItem} from "@/types"; //types for typescript
 
-export async function GET(req: NextRequest) {
+
+export async function GET(req: NextRequest) { //header, for a get request in next
   // 1. Get the search term from the query string (?query=banana)
   const { searchParams } = new URL(req.url);
   const searchTerm = searchParams.get('query');
@@ -23,11 +25,11 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: errorText }, { status: apiRes.status });
     }
 
-    const data = await apiRes.json();
-    const foods = data.foods || [];
+    const data: USDAApiResponse = await apiRes.json();
+    const foods: FoodItem[]  = data.foods || [];
 
     console.log("🔍 Raw USDA API results:");
-    console.log(data.foods?.map((food: any) => ({
+    console.log(data.foods?.map((food: FoodItem) => ({
       description: food.description,
       servingSize: food.servingSize,
       servingSizeUnit: food.servingSizeUnit,
@@ -35,7 +37,7 @@ export async function GET(req: NextRequest) {
     })));
 
     // 4. Find the first item with serving size >= 100g
-    const food = foods.find((item: any) => item.servingSize && item.servingSize >= 5);
+    const food = foods.find((item) => item.servingSize && item.servingSize >= 5);
 
     // 5. Return early if no valid results found
     if (!food) {
@@ -46,7 +48,7 @@ export async function GET(req: NextRequest) {
 
     // 6. Helper to extract nutrient value by name
     function getNutrient(name: string): number {
-      const found = nutrients.find((n: any) => n.nutrientName === name);
+      const found = nutrients.find((n) => n.nutrientName === name);
       return found ? found.value : 0;
     }
 

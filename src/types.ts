@@ -61,3 +61,29 @@ export type Food = {
     creator_id: number;
   };
   
+
+//USDA Types
+
+//Food Nutrient type for USDA API Call
+export interface FoodNutrient {
+    nutrientName: string;
+    value: number;
+  }
+  
+  //Food Item type for USDA API Call
+  export interface FoodItem {
+    fdcId: number;
+    description: string;
+    servingSize?: number;
+    servingSizeUnit?: string;
+    brandOwner?: string;
+    foodNutrients: FoodNutrient[];
+    ingredients?: string;
+  }
+   
+  // USDA API Response type
+
+  export interface USDAApiResponse {
+    foods: FoodItem[];
+  }
+  

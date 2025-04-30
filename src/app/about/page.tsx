@@ -4,14 +4,6 @@ import Image from "next/image";
 import {data, styles} from "./about.utils";
 export default function AboutPage() {
   
-  /*
-  
-  This is a data array that is used to map over the cards below. It contains 
-  - names, descriptions of what people wo
-  
-  
-  */
-
   return (
     <div style={styles.page}>
       <h1 style={styles.header}>Meet the SparkBytes Team ✨</h1>
