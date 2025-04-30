@@ -1,43 +1,24 @@
 "use client";
-import { useState, useEffect } from "react";
-import { Alert, Flex, Input, Select } from "antd";
-import supabase from "../api/supabaseClient";
+import { useState, useEffect } from "react"; //react hooks
+import {Flex, Input, Select } from "antd"; //antd UI
+import supabase from "../api/supabaseClient"; //supabase imports
+
+//imports from custom components
 import FoodCard from "../components/FoodCard";
 import CreateEvent from "../components/CreateEvent";
-import { EventRow } from "@/types";
-import "leaflet/dist/leaflet.css";
-import {styles } from "../utils/events.utils";
+//types import
+import { EventRow, SupabaseUserProfile } from "@/types";
+import { styles } from "../utils/events.utils";
 
 
 const { Option } = Select;
 
-//Tiffany's Function, she can comment it
-function calculateDistance(
-  origin: { lat: number; lng: number },
-  destination: { lat: number; lng: number }
-): number {
-  const R = 6371;
-  const dLat = ((destination.lat - origin.lat) * Math.PI) / 180;
-  const dLng = ((destination.lng - origin.lng) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((origin.lat * Math.PI) / 180) *
-      Math.cos((destination.lat * Math.PI) / 180) *
-      Math.sin(dLng / 2) *
-      Math.sin(dLng / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-}
-
-
-export default function Home() {
+export default function Events() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("time");
-  const sortOrder ="asc";
   const [events, setEvents] = useState<EventRow[]>([]);
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [fullUser, setFullUser] = useState<any>(null);
+  const [fullUser, setFullUser] = useState<SupabaseUserProfile>();
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -71,22 +52,6 @@ export default function Home() {
   }, []);
   
 
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          });
-        },
-        (error) => {
-          console.error("Error fetching user location:", error);
-        }
-      );
-    }
-  }, []);
-
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -104,6 +69,7 @@ export default function Home() {
   
       const filteredEvents: EventRow[] = [];
   
+      //filter events that actually have quantity left
       for (const event of eventsData) {
         const { data: foodItems, error: foodError } = await supabase
           .from("Food")
@@ -129,49 +95,11 @@ export default function Home() {
   
   
 
-  const isValidSearchTerm = (term: string) => /^[a-zA-Z0-9\s]*$/.test(term);
 
   const filteredData = events.filter((event) =>
     event.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
     event.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-
-  const sortedData = [...filteredData];
-
-  let content;
-  if (searchTerm !== "" && !isValidSearchTerm(searchTerm)) {
-    content = (
-      <Alert
-        message="Invalid search input. Please enter valid characters."
-        type="error"
-        showIcon
-        style={{ margin: "20px" }}
-      />
-    );
-  } else if (searchTerm !== "" && sortedData.length === 0) {
-    content = (
-      <Alert
-        message="No events found. Please try a different search term."
-        type="error"
-        showIcon
-        style={{ margin: "20px" }}
-      />
-    );
-  } else {
-    content = (
-      <div style={{
-        display: "flex",
-        flexDirection: "column"
-      }}>
-  {sortedData.map((event) => (
-    <div key={event.id} >
-      <FoodCard {...event} />
-    </div>
-  ))}
-    </div>
-    );
-  }
 
 
   return (
@@ -223,7 +151,5 @@ export default function Home() {
       </div>
     </>
   );
-
-
 
 };

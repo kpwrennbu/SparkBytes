@@ -17,7 +17,7 @@ export default function SignupPage() {
 
     useEffect(() => {
         const { data: authListener } = supabase.auth.onAuthStateChange(
-            (event, session) => {
+            (event) => {
                 if (event === 'SIGNED_IN') {
                     window.location.href = '/'
                 }
@@ -33,7 +33,7 @@ export default function SignupPage() {
         setError('')
         setSuccess('')
 
-        // ✅ Reject emails not ending in "@bu.edu"
+        //  Reject emails not ending in "@bu.edu"
         if (!email.toLowerCase().endsWith('@bu.edu')) {
             setError('Only BU email addresses (ending in @bu.edu) are allowed.');
             return;
@@ -54,9 +54,13 @@ export default function SignupPage() {
             if (error) throw error
 
             setSuccess('You have signed up successfully! Check your email to verify your account.')
-        } catch (error: any) {
-            setError(error.message)
-        }
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+              setError(error.message);
+            } else {
+              setError("An unexpected error occurred");
+            }
+          }          
     }
 
     return (

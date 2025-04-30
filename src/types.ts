@@ -115,7 +115,6 @@ export interface EditableCellProps extends HTMLAttributes<HTMLElement> {
     dataIndex: string;
     title: string;
     inputType: "number" | "text";
-    record: any; // you can replace with a specific type like `TableRow`
     index: number;
     children: ReactNode;
     form: FormInstance;
@@ -163,3 +162,54 @@ export interface EditableCellProps {
   index: number;
   children: ReactNode;
 }
+//FoodItem type for a Reservation Row 
+export type ReservationItem = {
+  id: number;
+  name: string;
+  calories: number;
+  carbs: number;
+  proteins: number;
+  fats: number;
+  allergies: string[];
+  quantity_left: number;
+  total_quantity: number;
+  serving_size_unit: string;
+  event_id: number;
+  created_at: string; // or Date if you plan to convert it
+};
+
+export type SupabaseUserProfile = {
+  id: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  is_coordinator: number; // or boolean if you're coercing it
+  avatar_url: string | null;
+  created_at: string; // ISO timestamp
+};
+
+export type OrderItem = {
+  id: number;
+  grabber_id: string;
+  food: {
+    id: number;
+    name: string;
+    calories: number;
+    carbs: number;
+    proteins: number;
+    fats: number;
+    quantity_left: number;
+    total_quantity: number;
+    allergies: string[];
+    serving_size_unit: string;
+    event_id: number;
+    event: {
+      name: string;
+      location: string;
+      time_end: string;
+    };
+  };
+};
+
+
+

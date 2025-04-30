@@ -165,7 +165,7 @@ export default function FoodCard({ id, name, location, time_start, time_end }: E
     if (id) {
       fetchFoods();
     }
-  }, [id]);
+  });
 
 
   return (

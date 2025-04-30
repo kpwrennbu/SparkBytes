@@ -54,23 +54,6 @@ const styles = {
 
 
 export default function Home() {
-//   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
-
-//   useEffect(() => {
-//     if (navigator.geolocation) {
-//       navigator.geolocation.getCurrentPosition(
-//         (position) => {
-//           setUserLocation({
-//             lat: position.coords.latitude,
-//             lng: position.coords.longitude,
-//           });
-//         },
-//         (error) => {
-//           console.error("Error fetching user location:", error);
-//         }
-//       );
-//     }
-//   }, []);
 
   return (
     <>
