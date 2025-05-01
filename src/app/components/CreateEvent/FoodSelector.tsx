@@ -7,7 +7,7 @@ export default function FoodSelector(props: FoodSelectorProps) {
     <div>
       <Flex align="center" justify="center" gap="1em">
         <Typography.Title level={4} style={{ margin: 0 }}>
-          Add Food Item
+          {props.isChecked ? "Add Custom Food" : "Search Food"}
         </Typography.Title>
         <Switch
           checked={props.isChecked}

@@ -137,7 +137,7 @@ export default function SearchFood({
             type="number"
             min={1}
             step={1}
-            value={quantity === 0 ? "" : quantity}
+            value={quantity < 0 ? "" : quantity}
             onChange={(e) => setQuantity(Number(e.target.value))}
           />
 

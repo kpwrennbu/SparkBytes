@@ -33,42 +33,61 @@ export const data = [
       display: "flex",
       flexDirection: "column",
       minHeight: "100vh",
-      padding: "40px 24px"
+      padding: "40px 24px",
     },
-    header: {
+    title: {
       fontSize: "40px",
       fontWeight: 700,
       marginBottom: "40px",
       textAlign: "center",
       fontFamily: "Georgia, serif",
-      color: "#333"
+      color: "#333",
     },
-    cardsContainer: {
+    divider: {
+      width: "23%",
+      height: "4px",
+      backgroundColor: "#67b3ad",
+      margin: "-25px auto 40px",
+      borderRadius: "2px",
+    },
+    cardGrid: {
       display: "flex",
       flexWrap: "wrap",
       gap: 24,
-      justifyContent: "center"
+      justifyContent: "center",
     },
     card: {
       width: 280,
       borderRadius: 12,
       textAlign: "center",
-      boxShadow: "0 2px 8px rgba(0,0,0,0.08)"
+      boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
     },
-    imageWrapper: {
+    cardImageWrapper: {
       width: "100%",
       height: "250px",
       position: "relative",
-      backgroundColor: "#fff"
+      backgroundColor: "#fff",
+    },
+    cardImage: {
+      objectFit: "cover",
+      borderRadius: "12px 12px 0 0",
+    },
+    cardName: {
+      marginBottom: 8,
+    },
+    cardDescription: {
+      color: "#555",
+      marginBottom: 8,
     },
     footer: {
-      marginTop: "auto",
-      backgroundColor: "#52c41a",
-      padding: "2em",
+      marginTop: "40px",
+      padding: "1.5em",
       textAlign: "center",
-      color: "#fff",
+      color: "#000000",
       fontWeight: 500,
-      borderRadius: "12px",
-    }
+      borderTop: "2px solid #67b3ad",
+      borderBottom: "2px solid #67b3ad",
+      fontFamily: "Segoe UI, sans-serif",
+    },
   };
   

@@ -19,15 +19,15 @@ export function useCreateEvent() {
   const [finalEventError, setFinalEventError] = useState("");
 
   const clearCreateEvent = () => {
-    setEventName(""); 
-    setLocation(""); 
+    setEventName("");
+    setLocation("");
     setEventDate(null);
     setTimeRange(null);
-    setTableData([]); 
-    setFoods([]); 
-    setQuantity(1); 
-    setUnit(""); 
-    setIsChecked(false); 
+    setTableData([]);
+    setFoods([]);
+    setQuantity(1);
+    setUnit("");
+    setIsChecked(false);
     setSelectedRowKeys([]);
     setFinalEventError("");
   };
@@ -134,7 +134,7 @@ export function useCreateEvent() {
       )
       .join("\n");
 
-  //message for the emailm formamted
+    //message for the emails formamted
     const message = `
 🎉 A new event just dropped!
 
@@ -175,7 +175,7 @@ Tap into the app to grab your favorites before they’re gone! 😋
     console.log("done with email logic");
     clearCreateEvent();
   };
-  
+
   //returns all the states
   return {
     isModalVisible,

@@ -2,7 +2,6 @@ import { Table, Form, Tooltip, Image } from "antd";
 import { EditableCell } from "../EditableCell";
 import type { TableRow, FoodTableProps } from "@/types";
 import { useState } from "react";
-import { allergyIcons } from "../../utils/createEvent.utils"
 
 export default function FoodTable({
   tableData,
@@ -15,7 +14,16 @@ export default function FoodTable({
   const [editingKey, setEditingKey] = useState<React.Key>(""); // get editing key
   const isEditing = (record: TableRow) => record.key === editingKey; //function to find the cell that is being edited
 
-
+   const allergyIcons: Record<string, string> = {
+    dairy: "/allergyIcons/dairy-free.png",
+    egg: "/allergyIcons/egg-free.png",
+    fish: "/allergyIcons/fish-free.png",
+    gluten: "/allergyIcons/gluten-free.png",
+    peanut: "/allergyIcons/peanut-free.png",
+    seafood: "/allergyIcons/seafood-free.png",
+    soy: "/allergyIcons/soy-free.png",
+    "tree Nut": "/allergyIcons/treeNut-free.png",
+  };
   //editing function to set the current row selected to the editing row
   const edit = (record: TableRow) => {
     form.setFieldsValue({...record });
