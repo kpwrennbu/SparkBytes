@@ -1,6 +1,6 @@
 // src/app/api/notifications/route.ts
 import { NextResponse } from "next/server";
-import supabase from "@/app/lib/supabaseServerClient";
+import supabase from "../../lib/supabaseServerClient";
 /**
  * GET /api/notifications?user_id=…&limit=…
  * Returns the most recent notifications for a given user.
