@@ -47,24 +47,39 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    // 2) Real-time listener for new notifications
-    let subscription: unknown;
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+  
+    const setupRealtime = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-      subscription = supabase
-        .from(`notifications:user_id=eq.${user.id}`)
-        .on("INSERT", (payload) => {
-          setNotifications((prev) => [payload.new, ...prev]);
-          setUnreadCount((c) => c + 1);
-        })
+  
+      channel = supabase
+        .channel('notifications-channel')
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'notifications',
+            filter: `user_id=eq.${user.id}`,
+          },
+          (payload) => {
+            setNotifications((prev) => [payload.new as Notification, ...prev]);
+            setUnreadCount((c) => c + 1);
+          }
+        )
         .subscribe();
-    });
-
+    };
+  
+    setupRealtime();
+  
     return () => {
-      if (subscription) supabase.removeSubscription(subscription);
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
     };
   }, []);
-
+  
   const markAsRead = async (id: string) => {
     const { error } = await supabase
       .from("notifications")

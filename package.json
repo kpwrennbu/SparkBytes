@@ -28,9 +28,11 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@typescript-eslint/eslint-plugin": "^8.31.1",
+    "@typescript-eslint/parser": "^8.31.1",
     "caniuse-lite": "^1.0.30001716",
-    "eslint": "^9",
-    "eslint-config-next": "15.2.2",
+    "eslint": "^9.25.1",
+    "eslint-config-next": "^15.2.2",
     "postcss": "^8.4.31",
     "postcss-preset-env": "^9.1.0",
     "typescript": "^5"
