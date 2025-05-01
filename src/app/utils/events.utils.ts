@@ -32,6 +32,18 @@ export const styles = {
       width: "300px",
       flex: "1 0 250px",
     },
-  
-  
+    
+    sectionTitle: {
+      fontSize: "32px",
+      fontWeight: 700,
+      color: "#2b2b2b",
+      textAlign: "center",
+      fontFamily: "Georgia, serif",
+      padding: "12px 0",
+      borderBottom: "3px solid #52c41a",
+      width: "fit-content",
+      margin: "0 auto 24px auto",
+      boxShadow: "0 2px 4px rgba(0,0,0,0.06)",
+    },
+    
   };
