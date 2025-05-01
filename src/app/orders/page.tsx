@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"; //react hooks
 import { Flex, Spin, Typography, Empty } from "antd"; //antd sign in
 import supabase from "../api/supabaseClient"; //supabase 
 import OrderCard from "../components/OrderCard"; //external components
-import { OrderItem } from "@/types"
+import { OrderItem, RawOrderItem } from "@/types"
 export default function OrdersPage() {
   //states for orders and loading
   const [orders, setOrders] = useState<OrderItem[]>([]);
@@ -108,9 +108,16 @@ export default function OrdersPage() {
     if (error) {
       console.error("Error fetching orders:", error.message);
     } else {
-      console.log("order data: ", data)
-      setOrders(data) //It works, Idk how to get rid of the red underline. tried for hours
-          }
+      const cleaned = (data as RawOrderItem[]).map((order) => ({
+        ...order,
+        food: {
+          ...order.food[0], // flatten food[]
+          event: Array.isArray(order.food[0].event) ? order.food[0].event[0] : order.food[0].event
+        }
+      })) as OrderItem[];
+      
+      setOrders(cleaned);
+      
 
     setLoading(false);
   };
