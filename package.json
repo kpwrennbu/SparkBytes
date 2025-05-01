@@ -31,8 +31,11 @@
     "caniuse-lite": "^1.0.30001716",
     "eslint": "^9",
     "eslint-config-next": "15.2.2",
-    "postcss": "^8.5.3",
-    "postcss-preset-env": "^10.1.6",
+    "postcss": "^8.4.31",
+    "postcss-preset-env": "^9.1.0",
     "typescript": "^5"
+  },
+  "resolutions": {
+    "caniuse-lite": "1.0.30001716"
   }
 }
