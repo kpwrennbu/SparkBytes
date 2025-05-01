@@ -35,9 +35,6 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 # USDA FoodData Central API for nutrition info (if used in search or input)
 FOOD_DATA_CENTRAL_API_KEY=YOUR_FOODDATA_KEY
 
-# Resend email service (optional backup to Mailgun)
-RESEND_API_KEY=re_LFF3YnJH_QKydFUQcixCAcfgNTPBtgpfP
-
 # Mailgun for sending order or event emails
 MAILGUN_API_KEY=YOUR_MAILGUN_KEY
 MAILGUN_DOMAIN=sandbox5f16cac6c35f4b078011a1fbb34215f7.mailgun.org
