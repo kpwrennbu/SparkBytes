@@ -1,10 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Alert, Flex, Input, Select } from "antd";
-import supabase from "./api/supabaseClient";
-import FoodCard from "./components/FoodCard";
-import CreateEvent from "./components/CreateEvent";
-import { EventRow } from "@/types";
+
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -14,13 +10,11 @@ const customIcon = L.icon({
   iconAnchor: [16, 32],
   popupAnchor: [0, -32],
 });
-import Image from "next/image";
 
 import MissionStatement from "./components/MissionStatement";
 
 
 
-const { Option } = Select;
 
 const styles = {
   page: {
@@ -36,7 +30,7 @@ const styles = {
 };
 export default function Home() {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
-
+  console.log("user location: ", userLocation)
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(

@@ -136,8 +136,8 @@ export default function EditAccountPage() {
             console.log("About to update userinfo", userId, firstName, lastName);
             const { error: updateError } = await supabase
                 .from('userinfo')
-                .update({ avatar_url: "kevin" })
-                // .eq('id', userId)
+                .update({ avatar_url: avatarUrl })
+                .eq('id', userId)
                 .select()
             console.log("after user update")
             if (updateError) throw updateError

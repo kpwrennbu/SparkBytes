@@ -12,9 +12,9 @@ import {
     ShoppingCartOutlined,
     LoginOutlined,
     UserAddOutlined,
-    EditOutlined,
+    // EditOutlined,
     LogoutOutlined,
-    UserOutlined,
+    // UserOutlined,
     DownOutlined,
     PushpinOutlined,
 } from "@ant-design/icons";
@@ -23,15 +23,15 @@ import {
     navLinksStyles,
     userDropdownContainerStyles,
     welcomeStyles,
-    avatarContainerStyles,
-    avatarImageStyles,
-    avatarPlaceholderStyles,
+    // avatarContainerStyles,
+    // avatarImageStyles,
+    // avatarPlaceholderStyles,
     dropdownMenuStyles,
     dropdownItemStyles,
     getLinkStyle,
   } from "../utils/navigation.utils";
   
-import Image from "next/image";
+// import Image from "next/image";
 
 export default function Navigation() {
     const pathname = usePathname(); //get current pathname
@@ -49,11 +49,15 @@ export default function Navigation() {
     //function to download the image
     async function downloadImage(path: string) {
         try {
+            console.log("path: ", path)
+            console.log("download Image SupabaseCall before")
+            console.log(avatarUrl)
             const { data, error } = await supabase.storage
                 .from('avatars')
                 .download(path);
 
             if (error) {
+                console.log("error is", error)
                 throw error;
             }
 
@@ -61,9 +65,11 @@ export default function Navigation() {
             setAvatarUrl(url);
         } catch (error: unknown) {
             if (error instanceof Error) {
-                alert(error.message);
+                // alert(error.message + "I am in download image in Navigation.tsx");
+                console.log(error.message + "I am in download image in Navigation.tsx")
             } else {
-                alert("An unknown error occurred while downloading the image");
+                // alert("An unknown error occurred while downloading the image");
+                console.log("An unknown error occurred while downloading the image")
             }
         }
         
@@ -182,7 +188,9 @@ export default function Navigation() {
     }, [pathname]);
     //function to logout the user
     const handleLogout = async () => {
+        console.log("Pressed");
         await supabase.auth.signOut();
+        window.location.href = "/"
         setDropdownOpen(false);
     };
 
@@ -277,7 +285,7 @@ export default function Navigation() {
                         style={welcomeStyles}
                         onClick={() => setDropdownOpen(!dropdownOpen)}
                     >
-                        {avatarUrl ? (
+                        {/* {avatarUrl ? (
                             <div style={avatarContainerStyles}>
                                 <Image
                                     width={"100"}
@@ -291,15 +299,15 @@ export default function Navigation() {
                             <div style={avatarPlaceholderStyles}>
                                 <UserOutlined style={{ fontSize: '16px' }} />
                             </div>
-                        )}
+                        )} */}
                         Welcome, {userFirstName}
                         <DownOutlined style={{ fontSize: "8px" }} />
                     </div>
                     {dropdownOpen && (
                         <div style={dropdownMenuStyles}>
-                            <Link href="/editaccount" style={dropdownItemStyles}>
+                            {/* <Link href="/editaccount" style={dropdownItemStyles}>
                                 <EditOutlined /> Edit Account
-                            </Link>
+                            </Link> */}
                             <div style={dropdownItemStyles} onClick={handleLogout}>
                                 <LogoutOutlined /> Log Out
                             </div>
