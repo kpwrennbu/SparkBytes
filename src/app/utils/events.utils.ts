@@ -1,5 +1,6 @@
-export const styles = {
-    page: {
+import { CSSProperties } from "react";
+export const styles: { [key: string]: CSSProperties } = {
+  page: {
       maxWidth: "1200px",
       margin: "0 auto",
       padding: "32px 16px",

@@ -1,5 +1,5 @@
 "use client"; // mark this as a client component
-
+//This is tiffany's code. She can get rid of the red underline if she wants. I tried and stopped.
 import React, {
   createContext,
   useContext,
@@ -8,22 +8,9 @@ import React, {
   ReactNode,
 } from "react";
 import supabase from "@/app/api/supabaseClient";
+import type {Notification, NotificationContextValue} from "@/types";
 
 // Shape of a notification row
-interface Notification {
-  id: string;
-  user_id: string;
-  type: string;
-  payload: { title: string; [key: string]: any };
-  read: boolean;
-  created_at: string;
-}
-
-interface NotificationContextValue {
-  notifications: Notification[];
-  unreadCount: number;
-  markAsRead: (id: string) => Promise<void>;
-}
 
 const NotificationContext = createContext<NotificationContextValue | undefined>(
   undefined
@@ -61,7 +48,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // 2) Real-time listener for new notifications
-    let subscription: any;
+    let subscription: unknown;
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) return;
       subscription = supabase

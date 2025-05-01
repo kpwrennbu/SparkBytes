@@ -25,7 +25,7 @@ export default function EditAccountPage() {
             if (user) {
                 setUserId(user.id)
 
-                const { data, error } = await supabase
+                const { data } = await supabase
                     .from('userinfo')
                     .select('first_name, last_name, avatar_url')
                     .eq('id', user.id)
@@ -57,9 +57,14 @@ export default function EditAccountPage() {
 
             const url = URL.createObjectURL(data)
             setAvatarUrl(url)
-        } catch (error: any) {
-            console.log('Error downloading image: ', error.message)
-        }
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+              console.log('Error downloading image:', error.message);
+            } else {
+              console.log('Unknown error:', error);
+            }
+          }
+          
     }
 
     async function uploadAvatar(event: React.ChangeEvent<HTMLInputElement>) {
@@ -98,9 +103,14 @@ export default function EditAccountPage() {
 
             downloadImage(filePath)
             setSuccess('Profile picture updated successfully.')
-        } catch (error: any) {
-            setError(error.message || 'Error uploading avatar')
-        } finally {
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+              setError(error.message);
+            } else {
+              setError('Error uploading avatar');
+            }
+          }
+           finally {
             setUploading(false)
         }
     }
@@ -109,13 +119,14 @@ export default function EditAccountPage() {
         e.preventDefault()
         setSuccess('')
         setError('')
-
+        console.log("button pressed")
         if (!userId) {
             setError('You must be logged in to update your account')
             return
         }
 
         try {
+            console.log("before user update")
             const { error: updateError } = await supabase
                 .from('userinfo')
                 .update({
@@ -123,37 +134,45 @@ export default function EditAccountPage() {
                     last_name: lastName
                 })
                 .eq('id', userId)
-
+            console.log("after user update")
             if (updateError) throw updateError
 
             if (password) {
                 const { error: passwordError } = await supabase.auth.updateUser({
                     password: password
                 })
-
-                if (passwordError) throw passwordError
+                
+                if (passwordError) {
+                    console.log("password error", passwordError)
+                    throw passwordError;
+                
+                }
             }
 
             setSuccess('Account information updated successfully.')
             setPassword('')
 
-            setTimeout(() => {
-                window.location.href = '/'
-            }, 1000)
-        } catch (err: any) {
-            setError(err.message || 'Failed to update account information')
-        }
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+              setError(err.message);
+            } else {
+              setError('Failed to update account information');
+            }
+          }
+          
     }
 
     return (
         <div style={{
             display: 'flex',
             flexDirection: 'column',
-            alignItems: 'flex-start',
+            alignItems: 'center',
+            justifyContent: "center",
             padding: '40px',
             fontFamily: 'Arial, sans-serif',
             width: '100%',
             maxWidth: '400px',
+            margin: "0 auto"
         }}>
             <h2 style={{ marginBottom: '30px' }}>Edit Account Info</h2>
             {success && <p style={{ color: 'green', marginBottom: '30px' }}>{success}</p>}
@@ -184,7 +203,9 @@ export default function EditAccountPage() {
                     onMouseLeave={() => setHoverAvatar(false)}
                 >
                     {avatarUrl ? (
-                        <img
+                        <Image
+                            width={100}
+                            height={100}
                             src={avatarUrl}
                             alt="Profile"
                             style={{

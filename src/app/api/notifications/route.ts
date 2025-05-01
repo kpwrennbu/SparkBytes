@@ -39,7 +39,7 @@ export async function GET(request: Request) {
  * Marks a single notification as read (or use `read: false` to un-read).
  */
 export async function PATCH(request: Request) {
-  let body: any;
+  let body;
   try {
     body = await request.json();
   } catch {

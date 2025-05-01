@@ -24,9 +24,14 @@ export default function Avatar({ url, size, onUpload }: AvatarProps) {
             if (error) throw error
             const url = URL.createObjectURL(data)
             setAvatarUrl(url)
-        } catch (error: any) {
-            console.error('Error downloading image:', error.message)
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                alert(error.message);
+            } else {
+                alert("An unknown error occurred while downloading the image");
+            }
         }
+        
     }
 
     async function uploadAvatar(event: React.ChangeEvent<HTMLInputElement>) {
@@ -45,9 +50,14 @@ export default function Avatar({ url, size, onUpload }: AvatarProps) {
             if (uploadError) throw uploadError
 
             onUpload(event.nativeEvent, filePath)
-        } catch (error: any) {
-            alert(error.message)
-        } finally {
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                alert(error.message);
+            } else {
+                alert("An unknown error occurred");
+            }
+        }
+         finally {
             setUploading(false)
         }
     }
