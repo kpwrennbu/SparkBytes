@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import supabase from '../api/supabaseClient'
 import { UserOutlined } from '@ant-design/icons'
+import Image from 'next/image';
 
 export default function EditAccountPage() {
     const [firstName, setFirstName] = useState('')

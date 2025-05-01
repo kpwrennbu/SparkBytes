@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import supabase from '../api/supabaseClient'
+import Image from 'next/image'
 
 type AvatarProps = {
     url: string | null
@@ -54,7 +55,7 @@ export default function Avatar({ url, size, onUpload }: AvatarProps) {
     return (
         <div>
             {avatarUrl ? (
-                <img
+                <Image
                     src={avatarUrl}
                     alt="Avatar"
                     style={{ height: size, width: size, borderRadius: '50%' }}

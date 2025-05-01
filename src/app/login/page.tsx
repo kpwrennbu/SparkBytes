@@ -1,10 +1,11 @@
 "use client";
-
+//imports
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import supabase from '../api/supabaseClient'
 
 export default function LoginPage() {
+    //states
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
@@ -14,32 +15,37 @@ export default function LoginPage() {
 
     useEffect(() => {
         const { data: authListener } = supabase.auth.onAuthStateChange(
-            (event, session) => {
+            (event ) => {
                 if (event === 'SIGNED_IN') {
-                    window.location.href = '/'
+                    window.location.href = '/' //if the user signs in, redirect to home page
                 }
             }
         )
         return () => {
-            authListener.subscription.unsubscribe()
+            authListener.subscription.unsubscribe() //removes the event listener
         }
     }, [])
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
-        setError('')
+        setError('') //no error
         try {
-            const { data, error } = await supabase.auth.signInWithPassword({
+            const { data, error } = await supabase.auth.signInWithPassword({ //attempt a login
                 email,
                 password,
             })
 
-            if (error) throw error
+            if (error) throw error //if error, throw it
 
-            console.log('Login successful', data)
-        } catch (error: any) {
-            setError(error.message)
-        }
+            console.log('Login successful', data) //else, log successful signin
+        } catch (error: unknown) {
+            if (typeof error === "object" && error !== null && "message" in error) {
+              setError((error as { message: string }).message); //set error
+            } else {
+              setError("An unexpected error occurred."); //else, if that fails. Set general error
+            }
+          }
+          
     }
 
     return (
@@ -163,7 +169,7 @@ export default function LoginPage() {
                 </button>
             </form>
             <p style={{ marginTop: '20px' }}>
-                Don't have an account? <Link
+                Don&apos;t have an account? <Link
                 href="/signup"
                 onMouseEnter={() => setIsLinkHovered(true)}
                 onMouseLeave={() => setIsLinkHovered(false)}

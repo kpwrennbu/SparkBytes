@@ -37,7 +37,7 @@ export default function OrderCard({ order, deleteOrder, cancelOrder}) {
             <strong>Allergies:</strong> {order.food.allergies.join(" ") || "None"}
           </Typography.Paragraph>
           <Typography.Paragraph>
-            <strong>User ID:</strong> {order.student_id}
+            <strong>User ID:</strong> {order.grabber_id}
           </Typography.Paragraph>
           <Flex gap="8px" justify="center" align="center"> 
             <Button onClick={() => onPickup()}>

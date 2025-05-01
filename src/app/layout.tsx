@@ -1,11 +1,6 @@
 // src/app/layout.tsx
-// import "antd/dist/reset.css";
 import Navigation from './components/Navigation';
-
-// import './global.css';
-import 'leaflet/dist/leaflet.css';
-
-// import './global.css';
+import { NotificationProvider } from "./components/NotificationProvider";
 
 export const metadata = {
   title: 'Next.js',
@@ -20,8 +15,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Navigation />
-        {children}
+        <NotificationProvider>
+            <Navigation />
+            {children}
+        </NotificationProvider>
+        <footer style={{ marginTop: "2em", padding: "1.5em", textAlign: "center", fontSize: "14px", color: "#888" }}>
+        &copy; {new Date().getFullYear()} SparkBytes. All rights reserved.
+      </footer>
       </body>
     </html>
   );

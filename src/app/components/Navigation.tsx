@@ -1,14 +1,16 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState, useEffect, useRef } from "react";
-import supabase from '../api/supabaseClient';
-import { Flex } from "antd";
+import Link from "next/link"; //Link from Next.js
+import { usePathname } from "next/navigation"; //get the Link currently selected with this hook
+import { useNotifications } from "./NotificationProvider";
+import { useState, useEffect, useRef } from "react"; //react hook
+import supabase from '../api/supabaseClient'; //supabase import
+import { styles, getLinkStyle } from "../utils/navigation.utils"
+//AntdUI imports
+import { Flex, Badge, Dropdown, List, Button } from "antd";
 import {
     HomeOutlined,
     InfoCircleOutlined,
-    MailOutlined,
     ShoppingCartOutlined,
     LoginOutlined,
     UserAddOutlined,
@@ -16,16 +18,19 @@ import {
     LogoutOutlined,
     UserOutlined,
     DownOutlined,
-    PushpinOutlined
+    PushpinOutlined,
+    BellOutlined
 } from "@ant-design/icons";
 
 export default function Navigation() {
-    const pathname = usePathname();
-    const [userFirstName, setUserFirstName] = useState<string | null>(null);
-    const [dropdownOpen, setDropdownOpen] = useState(false);
-    const dropdownRef = useRef<HTMLDivElement>(null);
+    const pathname = usePathname(); //get current pathname
+    const [userEmail, setUserEmail] = useState<string | null>(null); //path to hold users email
+    const [userFirstName, setUserFirstName] = useState<string | null>(null); //path to hold users email;
+    const [dropdownOpen, setDropdownOpen] = useState(false); //dropdown state
+    const dropdownRef = useRef<HTMLDivElement>(null); // dropdown re state
+    const { notifications, unreadCount, markAsRead } = useNotifications();
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-
+    // Sliding green background state
     const tabRefs = useRef<(HTMLAnchorElement | null)[]>([]);
     const indicatorRef = useRef<HTMLDivElement | null>(null);
     const [indicatorStyle, setIndicatorStyle] = useState({});
@@ -143,7 +148,7 @@ export default function Navigation() {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [dropdownOpen]);
-
+    //Wellington can explain this more
     useEffect(() => {
         const index = tabRefs.current.findIndex((ref) => ref?.pathname === window.location.pathname);
         const currentRef = tabRefs.current[index];
@@ -158,14 +163,50 @@ export default function Navigation() {
             }
         }
     }, [pathname]);
-
+    //function to logout the user
     const handleLogout = async () => {
         await supabase.auth.signOut();
         setDropdownOpen(false);
-        setUserFirstName(null);
-        setUserId(null);
-        setAvatarUrl(null);
     };
+
+  // ← new: build the notification dropdown menu
+  const notificationMenu = (
+    <div style={{ width: 300 }}>
+      <List
+        size="small"
+        dataSource={notifications}
+        renderItem={(item) => (
+          <List.Item
+            style={{
+              background: item.read ? "#fff" : "#e6f7ff",
+              cursor: "pointer",
+            }}
+            onClick={() => markAsRead(item.id)}
+          >
+            <List.Item.Meta
+              title={item.payload.title}
+              description={new Date(item.created_at).toLocaleString()}
+            />
+          </List.Item>
+        )}
+      />
+      {unreadCount > 0 && (
+        <div style={{ textAlign: "center", padding: 8 }}>
+          <Button
+            size="small"
+            onClick={() =>
+              notifications
+                .filter((n) => !n.read)
+                .forEach((n) => markAsRead(n.id))
+            }
+          >
+            Mark all as read
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+
 
     return (
         <div style={headerStyles}>
@@ -249,7 +290,7 @@ export default function Navigation() {
                     )}
                 </div>
             </div>
-
+                    
             {userFirstName && (
                 <div style={userDropdownContainerStyles} ref={dropdownRef}>
                     <div
@@ -282,8 +323,26 @@ export default function Navigation() {
                             </div>
                         </div>
                     )}
+                    <div>
+                    </div>
                 </div>
+                
             )}
+            {/* {userFirstName && ( 
+                  <Dropdown
+                  // overlay={notificationMenu}
+                  trigger={["click"]}
+                  placement="bottomRight"
+              >
+                  <Badge count={unreadCount}>
+                      <Button
+                          type="text"
+                          icon={<BellOutlined style={{ fontSize: 18 }} />}
+                      />
+                  </Badge>
+  
+              </Dropdown>
+            )} */}
         </div>
     );
 }
@@ -316,6 +375,7 @@ const userDropdownContainerStyles = {
     flexShrink: 0,
     minWidth: "fit-content",
     marginLeft: "auto",
+    display: "flex"
 };
 
 const welcomeStyles = {

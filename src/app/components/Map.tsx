@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MapContainer as LeafletMap, TileLayer as LeafletTileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
 import { Card, Button } from "antd";
-import "leaflet/dist/leaflet.css";
+// import "leaflet/dist/leaflet.css";
 
 // Fix missing marker icons in Next.js
 import L from "leaflet";
@@ -37,6 +37,12 @@ function LocationMarker({ onAdd }: { onAdd: (lat: number, lng: number) => void }
 
 export default function InteractiveMap() {
   const [markers, setMarkers] = useState<MarkerData[]>([]);
+
+    // dynamically load Leaflet CSS on the client only
+    useEffect(() => {
+      // @ts-expect-error importing CSS at runtime
+      import("leaflet/dist/leaflet.css");
+    }, []);
 
   const handleAddMarker = (lat: number, lng: number) => {
     const newMarker: MarkerData = {
