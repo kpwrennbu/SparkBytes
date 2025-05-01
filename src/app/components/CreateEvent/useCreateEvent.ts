@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { Food, TableRow } from "@/types";
 import supabase from "@/app/api/supabaseClient";
 import type { Dayjs } from "dayjs";
-
+import { addNotification } from "@/app/lib/notifications";
 export function useCreateEvent() {
   //All of are states are here
   const [isModalVisible, setIsModalVisible] = useState(false); //For the createEvent Popup
@@ -120,7 +120,7 @@ export function useCreateEvent() {
     // Fetch all users from Supabase
     const { data: users, error: usersError } = await supabase
       .from("userinfo") // make sure your user profile table is actually called 'Users'
-      .select("email"); //get all emails
+      .select("id, email"); //get all emails
 
     if (usersError) {
       console.error("❌ Failed to fetch user emails:", usersError.message); //return any errors
@@ -171,10 +171,21 @@ Tap into the app to grab your favorites before they’re gone! 😋
           }),
         });
       }
-    }
+      await addNotification(
+        user.id,
+        "event_created",
+        {
+          title: `New Event: ${eventName}`,
+          url: `/events/${eventId}`,
+    
+        }
+      );
+    };
     console.log("done with email logic");
     clearCreateEvent();
-  };
+    }
+    
+   
 
   //returns all the states
   return {
