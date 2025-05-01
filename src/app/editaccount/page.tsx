@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react'
 import supabase from '../api/supabaseClient'
 import { UserOutlined } from '@ant-design/icons'
-import Image from 'next/image';
 
 export default function EditAccountPage() {
     const [firstName, setFirstName] = useState('')
@@ -25,7 +24,7 @@ export default function EditAccountPage() {
             if (user) {
                 setUserId(user.id)
 
-                const { data } = await supabase
+                const { data, error } = await supabase
                     .from('userinfo')
                     .select('first_name, last_name, avatar_url')
                     .eq('id', user.id)
@@ -49,31 +48,23 @@ export default function EditAccountPage() {
         try {
             const { data, error } = await supabase.storage
                 .from('avatars')
-                .download(`${path}?t=${Date.now()}`)
+                .download(path)
 
             if (error) {
                 throw error
             }
-           
 
             const url = URL.createObjectURL(data)
             setAvatarUrl(url)
-        } catch (error: unknown) {
-            if (error instanceof Error) {
-              console.log('Error downloading image:', error.message);
-            } else {
-              console.log('Unknown error:', error);
-            }
-          }
-          
+        } catch (error: any) {
+            console.log('Error downloading image: ', error.message)
+        }
     }
 
     async function uploadAvatar(event: React.ChangeEvent<HTMLInputElement>) {
         try {
             setUploading(true)
-            if (avatarUrl) {
-                URL.revokeObjectURL(avatarUrl);
-            }
+
             if (!event.target.files || event.target.files.length === 0) {
                 throw new Error('You must select an image to upload.')
             }
@@ -94,29 +85,21 @@ export default function EditAccountPage() {
             if (uploadError) {
                 throw uploadError
             }
-            console.log("before url update");
+
             const { error: updateError } = await supabase
                 .from('userinfo')
                 .update({ avatar_url: filePath })
                 .eq('id', userId)
-                
-            console.log("after url update");
+
             if (updateError) {
                 throw updateError
             }
 
             downloadImage(filePath)
             setSuccess('Profile picture updated successfully.')
-            await new Promise(resolve => setTimeout(resolve, 500)); // CDN delay
-            await downloadImage(`${filePath}?t=${Date.now()}`);     // cache bust
-        } catch (error: unknown) {
-            if (error instanceof Error) {
-              setError(error.message);
-            } else {
-              setError('Error uploading avatar');
-            }
-          }
-           finally {
+        } catch (error: any) {
+            setError(error.message || 'Error uploading avatar')
+        } finally {
             setUploading(false)
         }
     }
@@ -125,60 +108,51 @@ export default function EditAccountPage() {
         e.preventDefault()
         setSuccess('')
         setError('')
-        console.log("button pressed")
+
         if (!userId) {
             setError('You must be logged in to update your account')
             return
         }
 
         try {
-            console.log("before user update")
-            console.log("About to update userinfo", userId, firstName, lastName);
             const { error: updateError } = await supabase
                 .from('userinfo')
-                .update({ avatar_url: avatarUrl })
+                .update({
+                    first_name: firstName,
+                    last_name: lastName
+                })
                 .eq('id', userId)
-                .select()
-            console.log("after user update")
+
             if (updateError) throw updateError
 
             if (password) {
-                console.log("in password call");
                 const { error: passwordError } = await supabase.auth.updateUser({
                     password: password
                 })
-                
-                if (passwordError) {
-                    console.log("password error", passwordError)
-                    throw passwordError;
-                
-                }
+
+                if (passwordError) throw passwordError
             }
 
             setSuccess('Account information updated successfully.')
             setPassword('')
 
-        } catch (err: unknown) {
-            if (err instanceof Error) {
-              setError(err.message);
-            } else {
-              setError('Failed to update account information');
-            }
-          }
-          
+            setTimeout(() => {
+                window.location.href = '/'
+            }, 1000)
+        } catch (err: any) {
+            setError(err.message || 'Failed to update account information')
+        }
     }
 
     return (
         <div style={{
             display: 'flex',
             flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: "center",
+            alignItems: 'flex-start',
             padding: '40px',
             fontFamily: 'Arial, sans-serif',
             width: '100%',
             maxWidth: '400px',
-            margin: "0 auto"
         }}>
             <h2 style={{ marginBottom: '30px' }}>Edit Account Info</h2>
             {success && <p style={{ color: 'green', marginBottom: '30px' }}>{success}</p>}
@@ -209,9 +183,7 @@ export default function EditAccountPage() {
                     onMouseLeave={() => setHoverAvatar(false)}
                 >
                     {avatarUrl ? (
-                        <Image
-                            width={100}
-                            height={100}
+                        <img
                             src={avatarUrl}
                             alt="Profile"
                             style={{
@@ -364,7 +336,6 @@ export default function EditAccountPage() {
 
                 <button
                     type="submit"
-                    onClick={handleSave}
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
                     style={{

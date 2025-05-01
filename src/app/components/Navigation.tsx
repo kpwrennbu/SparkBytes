@@ -1,80 +1,54 @@
 "use client";
 
-import Link from "next/link"; //Link from Next.js
-import { usePathname } from "next/navigation"; //get the Link currently selected with this hook
-import { useState, useEffect, useRef } from "react"; //react hook
-import supabase from '../api/supabaseClient'; //supabase import
-//AntdUI imports
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState, useEffect, useRef } from "react";
+import supabase from '../api/supabaseClient';
 import { Flex } from "antd";
 import {
     HomeOutlined,
     InfoCircleOutlined,
+    MailOutlined,
     ShoppingCartOutlined,
     LoginOutlined,
     UserAddOutlined,
-    // EditOutlined,
+    EditOutlined,
     LogoutOutlined,
-    // UserOutlined,
+    UserOutlined,
     DownOutlined,
-    PushpinOutlined,
+    PushpinOutlined
 } from "@ant-design/icons";
-import {
-    headerStyles,
-    navLinksStyles,
-    userDropdownContainerStyles,
-    welcomeStyles,
-    // avatarContainerStyles,
-    // avatarImageStyles,
-    // avatarPlaceholderStyles,
-    dropdownMenuStyles,
-    dropdownItemStyles,
-    getLinkStyle,
-  } from "../utils/navigation.utils";
-  
-// import Image from "next/image";
 
 export default function Navigation() {
-    const pathname = usePathname(); //get current pathname
-    const [userFirstName, setUserFirstName] = useState<string | null>(null); //path to hold users email;
-    const [dropdownOpen, setDropdownOpen] = useState(false); //dropdown state
-    const dropdownRef = useRef<HTMLDivElement>(null); // dropdown re state
+    const pathname = usePathname();
+    const [userFirstName, setUserFirstName] = useState<string | null>(null);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-    // Sliding green background state
+
     const tabRefs = useRef<(HTMLAnchorElement | null)[]>([]);
     const indicatorRef = useRef<HTMLDivElement | null>(null);
     const [indicatorStyle, setIndicatorStyle] = useState({});
 
     const [userId, setUserId] = useState<string | null>(null);
 
-    //function to download the image
     async function downloadImage(path: string) {
         try {
-            console.log("path: ", path)
-            console.log("download Image SupabaseCall before")
-            console.log(avatarUrl)
             const { data, error } = await supabase.storage
                 .from('avatars')
                 .download(path);
 
             if (error) {
-                console.log("error is", error)
                 throw error;
             }
 
             const url = URL.createObjectURL(data);
             setAvatarUrl(url);
-        } catch (error: unknown) {
-            if (error instanceof Error) {
-                // alert(error.message + "I am in download image in Navigation.tsx");
-                console.log(error.message + "I am in download image in Navigation.tsx")
-            } else {
-                // alert("An unknown error occurred while downloading the image");
-                console.log("An unknown error occurred while downloading the image")
-            }
+        } catch (error: any) {
+            console.log('Error downloading image: ', error.message);
         }
-        
     }
-    //get the user's first name and avatar image
+
     useEffect(() => {
         const fetchUser = async () => {
             const { data: { user } } = await supabase.auth.getUser();
@@ -86,7 +60,6 @@ export default function Navigation() {
                     .eq('id', user.id)
                     .single();
                 if (data) {
-                    console.log("Got DATA: ", data)
                     setUserFirstName(data.first_name || user.email || "User");
                     if (data.avatar_url) {
                         downloadImage(data.avatar_url);
@@ -97,7 +70,6 @@ export default function Navigation() {
             }
         };
         fetchUser();
-
 
         const { data: authListener } = supabase.auth.onAuthStateChange(
             async (event, session) => {
@@ -171,7 +143,7 @@ export default function Navigation() {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [dropdownOpen]);
-    //Wellington can explain this more
+
     useEffect(() => {
         const index = tabRefs.current.findIndex((ref) => ref?.pathname === window.location.pathname);
         const currentRef = tabRefs.current[index];
@@ -186,15 +158,14 @@ export default function Navigation() {
             }
         }
     }, [pathname]);
-    //function to logout the user
+
     const handleLogout = async () => {
-        console.log("Pressed");
         await supabase.auth.signOut();
-        window.location.href = "/"
         setDropdownOpen(false);
+        setUserFirstName(null);
+        setUserId(null);
+        setAvatarUrl(null);
     };
-
-
 
     return (
         <div style={headerStyles}>
@@ -215,7 +186,7 @@ export default function Navigation() {
 
                     <Link
                         href="/"
-                        ref={(el) => {tabRefs.current[0] = el}}
+                        ref={(el) => { tabRefs.current[0] = el }}
                         style={getLinkStyle(pathname, "/")}
                     >
                         <Flex justify="center" align="center" gap="8px" style={{ position: "relative", zIndex: 1 }}>
@@ -225,7 +196,7 @@ export default function Navigation() {
                     </Link>
                     <Link
                         href="/events"
-                        ref={(el) => {tabRefs.current[1] = el}}
+                        ref={(el) => { tabRefs.current[1] = el }}
                         style={getLinkStyle(pathname, "/events")}
                     >
                         <Flex justify="center" align="center" gap="8px" style={{ position: "relative", zIndex: 1 }}>
@@ -235,7 +206,7 @@ export default function Navigation() {
                     </Link>
                     <Link
                         href="/about"
-                        ref={(el) => {tabRefs.current[2] = el}}
+                        ref={(el) => { tabRefs.current[2] = el }}
                         style={getLinkStyle(pathname, "/about")}
                     >
                         <Flex justify="center" align="center" gap="8px" style={{ zIndex: 1 }}>
@@ -245,7 +216,7 @@ export default function Navigation() {
 
                     <Link
                         href="/orders"
-                        ref={(el) => {tabRefs.current[3] = el}}
+                        ref={(el) => { tabRefs.current[3] = el }}
                         style={getLinkStyle(pathname, "/orders")}
                     >
                         <Flex justify="center" align="center" gap="8px" style={{ zIndex: 1 }}>
@@ -257,7 +228,7 @@ export default function Navigation() {
                         <>
                             <Link
                                 href="/login"
-                                ref={(el) => {tabRefs.current[4] = el}}
+                                ref={(el) => { tabRefs.current[4] = el }}
                                 style={getLinkStyle(pathname, "/login")}
                             >
                                 <Flex justify="center" align="center" gap="8px" style={{ zIndex: 1 }}>
@@ -267,7 +238,7 @@ export default function Navigation() {
 
                             <Link
                                 href="/signup"
-                                ref={(el) => {tabRefs.current[5] = el}}
+                                ref={(el) => { tabRefs.current[5] = el }}
                                 style={getLinkStyle(pathname, "/signup")}
                             >
                                 <Flex justify="center" align="center" gap="8px" style={{ zIndex: 1 }}>
@@ -278,46 +249,151 @@ export default function Navigation() {
                     )}
                 </div>
             </div>
-                    
+
             {userFirstName && (
                 <div style={userDropdownContainerStyles} ref={dropdownRef}>
                     <div
                         style={welcomeStyles}
                         onClick={() => setDropdownOpen(!dropdownOpen)}
                     >
-                        {/* {avatarUrl ? (
+                        {avatarUrl ? (
                             <div style={avatarContainerStyles}>
-                                <Image
-                                    width={"100"}
-                                    height={"100"}
+                                <img
                                     src={avatarUrl}
                                     alt="Profile"
-                                    style={avatarImageStyles}
+                                    style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "cover" as "cover"
+                                    }}
                                 />
                             </div>
                         ) : (
                             <div style={avatarPlaceholderStyles}>
                                 <UserOutlined style={{ fontSize: '16px' }} />
                             </div>
-                        )} */}
+                        )}
                         Welcome, {userFirstName}
                         <DownOutlined style={{ fontSize: "8px" }} />
                     </div>
                     {dropdownOpen && (
-                        <div style={dropdownMenuStyles}>
-                            {/* <Link href="/editaccount" style={dropdownItemStyles}>
+                        <div style={{
+                            position: "absolute" as "absolute",
+                            top: "110%",
+                            right: 0,
+                            backgroundColor: "white",
+                            border: "1px solid #e8e8e8",
+                            borderRadius: "8px",
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                            padding: "8px 0",
+                            zIndex: 1000,
+                            minWidth: "180px",
+                            maxWidth: "calc(100vw - 20px)",
+                            overflowX: "auto",
+                            animation: "fadeIn 0.3s ease-in-out"
+                        }}>
+                            <Link href="/editaccount" style={dropdownItemStyles}>
                                 <EditOutlined /> Edit Account
-                            </Link> */}
+                            </Link>
                             <div style={dropdownItemStyles} onClick={handleLogout}>
                                 <LogoutOutlined /> Log Out
                             </div>
                         </div>
                     )}
-                    <div>
-                    </div>
                 </div>
-                
             )}
         </div>
     );
 }
+
+const headerStyles = {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "16px 32px",
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    backdropFilter: "blur(8px)",
+    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+    borderBottom: "1px solid #e0e0e0",
+    position: "sticky" as "sticky",
+    top: 0,
+    zIndex: 999,
+    minWidth: "1000px",
+};
+
+const navLinksStyles = {
+    display: "flex",
+    gap: "28px",
+    flexWrap: "wrap" as "wrap",
+    alignItems: "center",
+    position: "relative" as "relative",
+};
+
+const userDropdownContainerStyles = {
+    position: "relative" as "relative",
+    flexShrink: 0,
+    minWidth: "fit-content",
+    marginLeft: "auto",
+};
+
+const welcomeStyles = {
+    color: "#333",
+    fontSize: "16px",
+    cursor: "pointer",
+    fontWeight: 500,
+    display: "flex",
+    alignItems: "center",
+    gap: "8px"
+};
+
+const avatarContainerStyles = {
+    width: "30px",
+    height: "30px",
+    borderRadius: "50%",
+    overflow: "hidden",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    border: "1px solid rgba(0,0,0,0.1)",
+};
+
+const avatarPlaceholderStyles = {
+    width: "30px",
+    height: "30px",
+    borderRadius: "50%",
+    backgroundColor: "#f0f0f0",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    border: "1px solid rgba(0,0,0,0.1)",
+};
+
+
+const dropdownItemStyles = {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    padding: "10px 20px",
+    color: "#333",
+    textDecoration: "none",
+    fontSize: "15px",
+    cursor: "pointer",
+    transition: "background-color 0.3s",
+    fontWeight: 400,
+};
+
+const getLinkStyle = (pathname: string, href: string) => ({
+    color: pathname === href ? "#fff" : "#444",
+    textDecoration: "none",
+    fontSize: "16px",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    fontWeight: pathname === href ? 600 : 400,
+    zIndex: 1,
+    padding: "0 12px",
+    height: "36px",
+    borderRadius: "8px",
+    position: "relative" as "relative",
+    transition: "color 0.2s ease",
+});
