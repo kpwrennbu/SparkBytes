@@ -10,22 +10,17 @@ import L from "leaflet";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import { MarkerData } from "@/types";
 
-delete (L.Icon.Default.prototype as any)._getIconUrl;
+//icon setup
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: markerIcon2x.src,
   iconUrl: markerIcon.src,
   shadowUrl: markerShadow.src,
 });
 
-type MarkerData = {
-  id: number;
-  lat: number;
-  lng: number;
-  foodTitle: string;
-  description: string;
-};
 
+//Adding pins function
 function LocationMarker({ onAdd }: { onAdd: (lat: number, lng: number) => void }) {
   useMapEvents({
     click(e) {
@@ -44,6 +39,7 @@ export default function InteractiveMap() {
       import("leaflet/dist/leaflet.css");
     }, []);
 
+    //set markers
   const handleAddMarker = (lat: number, lng: number) => {
     const newMarker: MarkerData = {
       id: Date.now(),

@@ -211,5 +211,31 @@ export type OrderItem = {
   };
 };
 
+export type MarkerData = {
+  id: number;
+  lat: number;
+  lng: number;
+  foodTitle: string;
+  description: string;
+};
 
+export interface Notification {
+  id: string;
+  user_id: string;
+  type: string;
+  payload: { title: string; [key: string]: unknown };
+  read: boolean;
+  created_at: string;
+}
 
+export interface NotificationContextValue {
+  notifications: Notification[];
+  unreadCount: number;
+  markAsRead: (id: string) => Promise<void>;
+}
+
+export interface OrderCardProps {
+  order: OrderItem;
+  deleteOrder: (id: number) => void;
+  cancelOrder: (orderId: number, foodId: number) => void;
+}

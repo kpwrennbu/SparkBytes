@@ -2,12 +2,10 @@
 
 import Link from "next/link"; //Link from Next.js
 import { usePathname } from "next/navigation"; //get the Link currently selected with this hook
-import { useNotifications } from "./NotificationProvider";
 import { useState, useEffect, useRef } from "react"; //react hook
 import supabase from '../api/supabaseClient'; //supabase import
-import { styles, getLinkStyle } from "../utils/navigation.utils"
 //AntdUI imports
-import { Flex, Badge, Dropdown, List, Button } from "antd";
+import { Flex } from "antd";
 import {
     HomeOutlined,
     InfoCircleOutlined,
@@ -19,16 +17,27 @@ import {
     UserOutlined,
     DownOutlined,
     PushpinOutlined,
-    BellOutlined
 } from "@ant-design/icons";
+import {
+    headerStyles,
+    navLinksStyles,
+    userDropdownContainerStyles,
+    welcomeStyles,
+    avatarContainerStyles,
+    avatarImageStyles,
+    avatarPlaceholderStyles,
+    dropdownMenuStyles,
+    dropdownItemStyles,
+    getLinkStyle,
+  } from "../utils/navigation.utils";
+  
+import Image from "next/image";
 
 export default function Navigation() {
     const pathname = usePathname(); //get current pathname
-    const [userEmail, setUserEmail] = useState<string | null>(null); //path to hold users email
     const [userFirstName, setUserFirstName] = useState<string | null>(null); //path to hold users email;
     const [dropdownOpen, setDropdownOpen] = useState(false); //dropdown state
     const dropdownRef = useRef<HTMLDivElement>(null); // dropdown re state
-    const { notifications, unreadCount, markAsRead } = useNotifications();
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
     // Sliding green background state
     const tabRefs = useRef<(HTMLAnchorElement | null)[]>([]);
@@ -37,6 +46,7 @@ export default function Navigation() {
 
     const [userId, setUserId] = useState<string | null>(null);
 
+    //function to download the image
     async function downloadImage(path: string) {
         try {
             const { data, error } = await supabase.storage
@@ -49,11 +59,16 @@ export default function Navigation() {
 
             const url = URL.createObjectURL(data);
             setAvatarUrl(url);
-        } catch (error: any) {
-            console.log('Error downloading image: ', error.message);
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                alert(error.message);
+            } else {
+                alert("An unknown error occurred while downloading the image");
+            }
         }
+        
     }
-
+    //get the user's first name and avatar image
     useEffect(() => {
         const fetchUser = async () => {
             const { data: { user } } = await supabase.auth.getUser();
@@ -75,6 +90,7 @@ export default function Navigation() {
             }
         };
         fetchUser();
+
 
         const { data: authListener } = supabase.auth.onAuthStateChange(
             async (event, session) => {
@@ -169,43 +185,6 @@ export default function Navigation() {
         setDropdownOpen(false);
     };
 
-  // ← new: build the notification dropdown menu
-  const notificationMenu = (
-    <div style={{ width: 300 }}>
-      <List
-        size="small"
-        dataSource={notifications}
-        renderItem={(item) => (
-          <List.Item
-            style={{
-              background: item.read ? "#fff" : "#e6f7ff",
-              cursor: "pointer",
-            }}
-            onClick={() => markAsRead(item.id)}
-          >
-            <List.Item.Meta
-              title={item.payload.title}
-              description={new Date(item.created_at).toLocaleString()}
-            />
-          </List.Item>
-        )}
-      />
-      {unreadCount > 0 && (
-        <div style={{ textAlign: "center", padding: 8 }}>
-          <Button
-            size="small"
-            onClick={() =>
-              notifications
-                .filter((n) => !n.read)
-                .forEach((n) => markAsRead(n.id))
-            }
-          >
-            Mark all as read
-          </Button>
-        </div>
-      )}
-    </div>
-  );
 
 
     return (
@@ -227,7 +206,7 @@ export default function Navigation() {
 
                     <Link
                         href="/"
-                        ref={(el) => (tabRefs.current[0] = el)}
+                        ref={(el) => {tabRefs.current[0] = el}}
                         style={getLinkStyle(pathname, "/")}
                     >
                         <Flex justify="center" align="center" gap="8px" style={{ position: "relative", zIndex: 1 }}>
@@ -237,7 +216,7 @@ export default function Navigation() {
                     </Link>
                     <Link
                         href="/events"
-                        ref={(el) => (tabRefs.current[1] = el)}
+                        ref={(el) => {tabRefs.current[1] = el}}
                         style={getLinkStyle(pathname, "/events")}
                     >
                         <Flex justify="center" align="center" gap="8px" style={{ position: "relative", zIndex: 1 }}>
@@ -247,7 +226,7 @@ export default function Navigation() {
                     </Link>
                     <Link
                         href="/about"
-                        ref={(el) => (tabRefs.current[2] = el)}
+                        ref={(el) => {tabRefs.current[2] = el}}
                         style={getLinkStyle(pathname, "/about")}
                     >
                         <Flex justify="center" align="center" gap="8px" style={{ zIndex: 1 }}>
@@ -257,7 +236,7 @@ export default function Navigation() {
 
                     <Link
                         href="/orders"
-                        ref={(el) => (tabRefs.current[3] = el)}
+                        ref={(el) => {tabRefs.current[3] = el}}
                         style={getLinkStyle(pathname, "/orders")}
                     >
                         <Flex justify="center" align="center" gap="8px" style={{ zIndex: 1 }}>
@@ -269,7 +248,7 @@ export default function Navigation() {
                         <>
                             <Link
                                 href="/login"
-                                ref={(el) => (tabRefs.current[4] = el)}
+                                ref={(el) => {tabRefs.current[4] = el}}
                                 style={getLinkStyle(pathname, "/login")}
                             >
                                 <Flex justify="center" align="center" gap="8px" style={{ zIndex: 1 }}>
@@ -279,7 +258,7 @@ export default function Navigation() {
 
                             <Link
                                 href="/signup"
-                                ref={(el) => (tabRefs.current[5] = el)}
+                                ref={(el) => {tabRefs.current[5] = el}}
                                 style={getLinkStyle(pathname, "/signup")}
                             >
                                 <Flex justify="center" align="center" gap="8px" style={{ zIndex: 1 }}>
@@ -299,7 +278,9 @@ export default function Navigation() {
                     >
                         {avatarUrl ? (
                             <div style={avatarContainerStyles}>
-                                <img
+                                <Image
+                                    width={"100"}
+                                    height={"100"}
                                     src={avatarUrl}
                                     alt="Profile"
                                     style={avatarImageStyles}
@@ -328,135 +309,6 @@ export default function Navigation() {
                 </div>
                 
             )}
-            {/* {userFirstName && ( 
-                  <Dropdown
-                  // overlay={notificationMenu}
-                  trigger={["click"]}
-                  placement="bottomRight"
-              >
-                  <Badge count={unreadCount}>
-                      <Button
-                          type="text"
-                          icon={<BellOutlined style={{ fontSize: 18 }} />}
-                      />
-                  </Badge>
-  
-              </Dropdown>
-            )} */}
         </div>
     );
 }
-
-const headerStyles = {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: "16px 32px",
-    backgroundColor: "rgba(255, 255, 255, 0.8)",
-    backdropFilter: "blur(8px)",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-    borderBottom: "1px solid #e0e0e0",
-    position: "sticky" as const,
-    top: 0,
-    zIndex: 999,
-    minWidth: "1000px",
-};
-
-const navLinksStyles = {
-    display: "flex",
-    gap: "28px",
-    flexWrap: "wrap" as const,
-    alignItems: "center",
-    position: "relative" as const,
-};
-
-const userDropdownContainerStyles = {
-    position: "relative" as const,
-    flexShrink: 0,
-    minWidth: "fit-content",
-    marginLeft: "auto",
-    display: "flex"
-};
-
-const welcomeStyles = {
-    color: "#333",
-    fontSize: "16px",
-    cursor: "pointer",
-    fontWeight: 500,
-    display: "flex",
-    alignItems: "center",
-    gap: "8px"
-};
-
-const avatarContainerStyles = {
-    width: "30px",
-    height: "30px",
-    borderRadius: "50%",
-    overflow: "hidden",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    border: "1px solid rgba(0,0,0,0.1)",
-};
-
-const avatarImageStyles = {
-    width: "100%",
-    height: "100%",
-    objectFit: "cover"
-};
-
-const avatarPlaceholderStyles = {
-    width: "30px",
-    height: "30px",
-    borderRadius: "50%",
-    backgroundColor: "#f0f0f0",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    border: "1px solid rgba(0,0,0,0.1)",
-};
-
-const dropdownMenuStyles = {
-    position: "absolute" as const,
-    top: "110%",
-    right: 0,
-    backgroundColor: "white",
-    border: "1px solid #e8e8e8",
-    borderRadius: "8px",
-    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-    padding: "8px 0",
-    zIndex: 1000,
-    minWidth: "180px",
-    maxWidth: "calc(100vw - 20px)",
-    overflowX: "auto",
-    animation: "fadeIn 0.3s ease-in-out",
-};
-
-const dropdownItemStyles = {
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    padding: "10px 20px",
-    color: "#333",
-    textDecoration: "none",
-    fontSize: "15px",
-    cursor: "pointer",
-    transition: "background-color 0.3s",
-    fontWeight: 400,
-};
-
-const getLinkStyle = (pathname: string, href: string) => ({
-    color: pathname === href ? "#fff" : "#444",
-    textDecoration: "none",
-    fontSize: "16px",
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    fontWeight: pathname === href ? 600 : 400,
-    zIndex: 1,
-    padding: "0 12px",
-    height: "36px",
-    borderRadius: "8px",
-    position: "relative" as const,
-    transition: "color 0.2s ease",
-});

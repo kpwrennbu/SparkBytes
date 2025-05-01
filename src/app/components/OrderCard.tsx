@@ -1,7 +1,7 @@
 "use client";
 import {Card, Typography, Button, Flex} from "antd";
-
-export default function OrderCard({ order, deleteOrder, cancelOrder}) {
+import type { OrderCardProps } from "@/types"
+export default function OrderCard({ order, deleteOrder, cancelOrder}: OrderCardProps) {
     const onPickup = () => { 
         console.log("deleted order: ", order)
         deleteOrder(order.id)

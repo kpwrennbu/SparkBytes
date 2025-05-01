@@ -83,7 +83,7 @@ export default function OrdersPage() {
       .from("Orders")
       .select(`
         id,
-        student_id,
+        grabber_id,
         food:food_id (
           id,
           name,
@@ -109,7 +109,7 @@ export default function OrdersPage() {
       console.error("Error fetching orders:", error.message);
     } else {
       console.log("order data: ", data)
-      setOrders(data)
+      setOrders(data) //It works, Idk how to get rid of the red underline. tried for hours
           }
 
     setLoading(false);

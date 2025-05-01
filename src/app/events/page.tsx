@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react"; //react hooks
-import { Flex, Input, Select, Typography, Badge, Button, List, Dropdown } from "antd"; //antd UI
+import { Flex, Input, Typography, Badge, Button, List, Dropdown } from "antd"; //antd UI
 import supabase from "../api/supabaseClient"; //supabase imports
 
 //imports from custom components
@@ -14,11 +14,9 @@ import { useNotifications } from "../components/NotificationProvider";
 import {
   BellOutlined
 } from "@ant-design/icons";
-const { Option } = Select;
 //needs fixing
 export default function Events() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState("time");
   const [events, setEvents] = useState<EventRow[]>([]);
   const [fullUser, setFullUser] = useState<SupabaseUserProfile>();
   const { notifications, unreadCount, markAsRead } = useNotifications();
@@ -138,7 +136,7 @@ export default function Events() {
         />
 
         <div style={{ display: "flex", gap: "16px" }}>
-          {fullUser?.is_coordinator && <CreateEvent />}
+          {fullUser?.is_coordinator === 1 && <CreateEvent />}
           <Dropdown overlay={notificationMenu} trigger={["click"]} placement="bottomRight">
             <Badge count={unreadCount} offset={[-4, 4]}>
               <Button type="text" icon={<BellOutlined style={{ fontSize: 18 }} />} />
