@@ -1,6 +1,6 @@
 // src/app/lib/notifications.ts
 
-import supabase from "@/app/api/supabaseClient";
+import supabase from "./supabaseServerClient"; // ✅ NOT the browser version
 
 /**
  * Fire off a new notification row in Supabase.
