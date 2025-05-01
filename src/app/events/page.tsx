@@ -15,14 +15,13 @@ import {
   BellOutlined
 } from "@ant-design/icons";
 const { Option } = Select;
-
+//needs fixing
 export default function Events() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("time");
   const [events, setEvents] = useState<EventRow[]>([]);
   const [fullUser, setFullUser] = useState<SupabaseUserProfile>();
   const { notifications, unreadCount, markAsRead } = useNotifications();
-
   useEffect(() => {
     const fetchUserDetails = async () => {
       const {
