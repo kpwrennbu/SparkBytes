@@ -80,6 +80,7 @@ export default function Navigation() {
                     .eq('id', user.id)
                     .single();
                 if (data) {
+                    console.log("Got DATA: ", data)
                     setUserFirstName(data.first_name || user.email || "User");
                     if (data.avatar_url) {
                         downloadImage(data.avatar_url);

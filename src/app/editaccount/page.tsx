@@ -49,11 +49,12 @@ export default function EditAccountPage() {
         try {
             const { data, error } = await supabase.storage
                 .from('avatars')
-                .download(path)
+                .download(`${path}?t=${Date.now()}`)
 
             if (error) {
                 throw error
             }
+           
 
             const url = URL.createObjectURL(data)
             setAvatarUrl(url)
@@ -70,7 +71,9 @@ export default function EditAccountPage() {
     async function uploadAvatar(event: React.ChangeEvent<HTMLInputElement>) {
         try {
             setUploading(true)
-
+            if (avatarUrl) {
+                URL.revokeObjectURL(avatarUrl);
+            }
             if (!event.target.files || event.target.files.length === 0) {
                 throw new Error('You must select an image to upload.')
             }
@@ -91,18 +94,21 @@ export default function EditAccountPage() {
             if (uploadError) {
                 throw uploadError
             }
-
+            console.log("before url update");
             const { error: updateError } = await supabase
                 .from('userinfo')
                 .update({ avatar_url: filePath })
                 .eq('id', userId)
-
+                
+            console.log("after url update");
             if (updateError) {
                 throw updateError
             }
 
             downloadImage(filePath)
             setSuccess('Profile picture updated successfully.')
+            await new Promise(resolve => setTimeout(resolve, 500)); // CDN delay
+            await downloadImage(`${filePath}?t=${Date.now()}`);     // cache bust
         } catch (error: unknown) {
             if (error instanceof Error) {
               setError(error.message);
@@ -127,17 +133,17 @@ export default function EditAccountPage() {
 
         try {
             console.log("before user update")
+            console.log("About to update userinfo", userId, firstName, lastName);
             const { error: updateError } = await supabase
                 .from('userinfo')
-                .update({
-                    first_name: firstName,
-                    last_name: lastName
-                })
-                .eq('id', userId)
+                .update({ avatar_url: "kevin" })
+                // .eq('id', userId)
+                .select()
             console.log("after user update")
             if (updateError) throw updateError
 
             if (password) {
+                console.log("in password call");
                 const { error: passwordError } = await supabase.auth.updateUser({
                     password: password
                 })
@@ -358,6 +364,7 @@ export default function EditAccountPage() {
 
                 <button
                     type="submit"
+                    onClick={handleSave}
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
                     style={{
