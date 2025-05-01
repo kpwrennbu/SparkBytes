@@ -32,7 +32,7 @@
     "@typescript-eslint/parser": "^8.31.1",
     "caniuse-lite": "^1.0.30001716",
     "eslint": "^9.25.1",
-    "eslint-config-next": "^15.2.2",
+    "eslint-config-next": "^15.3.1",
     "postcss": "^8.4.31",
     "postcss-preset-env": "^9.1.0",
     "typescript": "^5"
