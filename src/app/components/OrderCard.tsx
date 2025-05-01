@@ -1,44 +1,46 @@
 "use client";
 import {Card, Typography, Button, Flex} from "antd";
 import type { OrderCardProps } from "@/types"
-export default function OrderCard({ order, deleteOrder, cancelOrder}: OrderCardProps) {
-  console.log("order, ", order)
+export default function OrderCard({ id, food, deleteOrder, cancelOrder, grabber_id, event}: OrderCardProps) {
+  console.log("order id, for order card", id)
+  console.log("food, on order card: ", food);
+  console.log()
     const onPickup = () => { 
-        console.log("deleted order: ", order)
-        deleteOrder(order.id)
+        console.log("deleted order: ", id)
+        deleteOrder(id)
     }
     const onCancellation = () => { 
-        cancelOrder(order.id, order.food.id);
+        cancelOrder(id, food.id);
     }
     return (
     <Card
-          key={order.id}
-          title={order.food.name}
+          key={id}
+          title={food.name}
           style={{ width: 300 }}
         >
           <Typography.Paragraph>
-            <strong>Event:</strong> {order.food.event?.name || "Unknown"}
+            <strong>Event:</strong> {event.name || "Unknown"}
           </Typography.Paragraph>
           <Typography.Paragraph>
-            <strong>Location:</strong> {order.food.event?.location || "Unknown"}
+            <strong>Location:</strong> {event.location || "Unknown"}
           </Typography.Paragraph>
           <Typography.Paragraph>
-            <strong>Calories:</strong> {order.food.calories} kcal
+            <strong>Calories:</strong> {food.calories} kcal
           </Typography.Paragraph>
           <Typography.Paragraph>
-            <strong>Carbs:</strong> {order.food.carbs}g
+            <strong>Carbs:</strong> {food.carbs}g
           </Typography.Paragraph>
           <Typography.Paragraph>
-            <strong>Proteins:</strong> {order.food.proteins}g
+            <strong>Proteins:</strong> {food.proteins}g
           </Typography.Paragraph>
           <Typography.Paragraph>
-            <strong>Fats:</strong> {order.food.fats}g
+            <strong>Fats:</strong> {food.fats}g
           </Typography.Paragraph> 
           <Typography.Paragraph>
-            <strong>Allergies:</strong> {order.food.allergies.join(" ") || "None"}
+            <strong>Allergies:</strong> {food.allergies.join(" ") || "None"}
           </Typography.Paragraph>
           <Typography.Paragraph>
-            <strong>User ID:</strong> {order.grabber_id}
+            <strong>User ID:</strong> {grabber_id}
           </Typography.Paragraph>
           <Flex gap="8px" justify="center" align="center"> 
             <Button onClick={() => onPickup()}>

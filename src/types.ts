@@ -235,31 +235,47 @@ export interface NotificationContextValue {
 }
 
 export interface OrderCardProps {
-  order: OrderItem;
+  id: number;
+  food: FoodOrder;
+  grabber_id: string;
   deleteOrder: (id: number) => void;
   cancelOrder: (orderId: number, foodId: number) => void;
+  event:  {
+    name: string;
+    location: string;
+    time_end: string;
+  };
 }
-export type RawOrderItem = {
-  id: number;
-  grabber_id: string;
-  food: [
-    {
-      id: number;
+export interface FoodOrder {
+    id: number;
+    name: string;
+    calories: number;
+    carbs: number;
+    proteins: number;
+    fats: number;
+    quantity_left: number;
+    total_quantity: number;
+    allergies: string[];
+    serving_size_unit: string;
+    event_id: number;
+    event: {
       name: string;
-      calories: number;
-      carbs: number;
-      proteins: number;
-      fats: number;
-      quantity_left: number;
-      total_quantity: number;
-      allergies: string[];
-      serving_size_unit: string;
-      event_id: number;
-      event: {
-        name: string;
-        location: string;
-        time_end: string;
-      };
-    }
-  ]; // ✅ array of one food item
-};
+      location: string;
+      time_end: string;
+    }[];
+  }
+  export interface Orders { 
+    food: FoodOrder;
+    id: number;
+    grabber_id: string;
+    event:  {
+      name: string;
+      location: string;
+      time_end: string;
+    };
+  }
+  export interface EventForOrder { 
+    name: string; 
+    location: string; 
+    time_end: string;
+  }
