@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Flex, Spin, Typography, Empty } from "antd";
 import supabase from "../api/supabaseClient";
 import OrderCard from "../components/OrderCard";
-import type { FoodOrder, Orders } from "@/types";
+import type { Orders } from "@/types";
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Orders[]>([]);
   const [loading, setLoading] = useState(true);
@@ -12,25 +12,30 @@ export default function OrdersPage() {
     fetchOrders();
   }, []);
 
-  const handleOrders = (food: FoodOrder, id: number, grabber_id: string) => {
-    console.log("food in handleOrders", food);
-   console.log("id", id);
-   console.log("grabber_id", id)
-   console.log("food.event: ", food.event)
-    const newData = {
-      food,
-      id, 
-      grabber_id, 
-      event: {
-        name: food.event[0].name,
-        location: food.event[0].location,
-        time_end: food.event[0].time_end
-      }
-    }
-    setOrders(prev => [...prev, newData])
-  }
+  // const handleOrders = async (food: FoodOrder, id: number, grabber_id: string) => {
+  //   console.log("food in handleOrders", food);
+  //  console.log("id", id);
+  //  console.log("grabber_id", id)
+  //  console.log("food.event: ", food.event)
+  //   const { data } = await supabase
+  //     .from("Events")
+  //     .select("*")
+  //     .eq("id", food.event_id)
+  //     .single(); // or .limit(1) if you prefer
+  
+  //  const newData = {
+  //     food,
+  //     id, 
+  //     grabber_id, 
+  //     event_name: data.name, 
+  //     event_location: data.location
+  //   }
+  //   setOrders(prev => [...prev, newData])
+  // }
   const deleteOrder = async (id: number) => {
+    console.log("I am deleting an order")
     const { error } = await supabase.from("Orders").delete().eq("id", id);
+    console.log("I am done deleting an order")
     if (error) {
       console.error(`Error deleting order with id ${id}:`, error);
     } else {
@@ -120,8 +125,21 @@ export default function OrdersPage() {
       console.error("Error fetching orders:", error.message);
     } else {
       console.log("data[0].food is ", data[0].food)
-      const food = Array.isArray(data[0].food) ? data[0].food[0] : data[0].food;
-      handleOrders(food as FoodOrder, data[0].id, data[0].grabber_id);
+      if (data && Array.isArray(data)) {
+        const newOrders: Orders[] = data.map((order) => {
+          const food = Array.isArray(order.food) ? order.food[0] : order.food;
+      
+          return {
+            food,
+            id: order.id,
+            grabber_id: order.grabber_id,
+            event_name: food.event[0]?.name ?? "Unknown",
+            event_location: food.event[0]?.location ?? "Unknown",
+          };
+        });
+      
+        setOrders(newOrders);
+      }
      }
 
     setLoading(false);
@@ -138,7 +156,7 @@ export default function OrdersPage() {
   return orders.length > 0 ? (
     <Flex wrap="wrap" gap="large" justify="center" style={{ padding: "40px 24px" }}>
       {orders.map((order) => (
-        <OrderCard key={order.id} id={order.id} food={order.food} deleteOrder={deleteOrder} cancelOrder={cancelOrder} grabber_id={order.grabber_id} event={order.event} />
+        <OrderCard key={order.id} id={order.id} food={order.food} deleteOrder={deleteOrder} cancelOrder={cancelOrder} grabber_id={order.grabber_id} name={order.event_name} location={order.event_location} />
       ))}
       <p>LOL</p>
     </Flex>

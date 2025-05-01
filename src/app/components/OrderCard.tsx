@@ -1,10 +1,10 @@
 "use client";
 import {Card, Typography, Button, Flex} from "antd";
 import type { OrderCardProps } from "@/types"
-export default function OrderCard({ id, food, deleteOrder, cancelOrder, grabber_id, event}: OrderCardProps) {
+export default function OrderCard({ id, food, deleteOrder, cancelOrder, grabber_id, name, location}: OrderCardProps) {
   console.log("order id, for order card", id)
   console.log("food, on order card: ", food);
-  console.log()
+  console.log("event: ", event)
     const onPickup = () => { 
         console.log("deleted order: ", id)
         deleteOrder(id)
@@ -19,10 +19,10 @@ export default function OrderCard({ id, food, deleteOrder, cancelOrder, grabber_
           style={{ width: 300 }}
         >
           <Typography.Paragraph>
-            <strong>Event:</strong> {event.name || "Unknown"}
+            <strong>Event:</strong> {name || "Unknown"}
           </Typography.Paragraph>
           <Typography.Paragraph>
-            <strong>Location:</strong> {event.location || "Unknown"}
+            <strong>Location:</strong> {location || "Unknown"}
           </Typography.Paragraph>
           <Typography.Paragraph>
             <strong>Calories:</strong> {food.calories} kcal

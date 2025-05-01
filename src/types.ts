@@ -240,11 +240,8 @@ export interface OrderCardProps {
   grabber_id: string;
   deleteOrder: (id: number) => void;
   cancelOrder: (orderId: number, foodId: number) => void;
-  event:  {
-    name: string;
-    location: string;
-    time_end: string;
-  };
+  name: string;
+  location: string;
 }
 export interface FoodOrder {
     id: number;
@@ -268,11 +265,8 @@ export interface FoodOrder {
     food: FoodOrder;
     id: number;
     grabber_id: string;
-    event:  {
-      name: string;
-      location: string;
-      time_end: string;
-    };
+    event_name: string;
+    event_location: string;
   }
   export interface EventForOrder { 
     name: string; 
