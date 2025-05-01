@@ -10,7 +10,7 @@ const mailgun = new Mailgun(formData); //make Mailgun off of the CreateEvents Fo
 //Make a mailgun client
 const mg = mailgun.client({
   username: "api", 
-  key: process.env.MAILGUN_API_KEY!, // from .env.local
+  key: "6242c993fdf05fcf72ae73ae7371b846-10b6f382-20794cd0", // from .env.local
 });
 
 export async function POST(req: Request) { //Post request format functiopn

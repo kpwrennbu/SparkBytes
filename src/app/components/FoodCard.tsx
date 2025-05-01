@@ -56,7 +56,7 @@ export default function FoodCard({ id, name, location, time_start, time_end }: E
     for (const row of selectedRows) {
       console.log("row: ", row)
       const newQuantityLeft = row.quantity_left - 1;
-
+      console.log("in orders logic")
       const { error: orderError } = await supabase
         .from("Orders")
         .insert([

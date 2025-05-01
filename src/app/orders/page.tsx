@@ -1,40 +1,34 @@
 "use client";
-import { useState } from "react"; //react hooks
-import { Flex, Spin, Typography, Empty } from "antd"; //antd sign in
-import supabase from "../api/supabaseClient"; //supabase 
-import OrderCard from "../components/OrderCard"; //external components
-import { OrderItem, RawOrderItem } from "@/types"
+import { useEffect, useState } from "react";
+import { Flex, Spin, Typography, Empty } from "antd";
+import supabase from "../api/supabaseClient";
+import OrderCard from "../components/OrderCard";
+
 export default function OrdersPage() {
-  //states for orders and loading
-  const [orders, setOrders] = useState<OrderItem[]>([]);
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  //deleting an order can is synonomous with saying you placed an order
   const deleteOrder = async (id: number) => {
-    const { error } = await supabase.from("Orders").delete().eq("id", id); //delete an order with id id
-    if (error) { //catch error
+    const { error } = await supabase.from("Orders").delete().eq("id", id);
+    if (error) {
       console.error(`Error deleting order with id ${id}:`, error);
     } else {
-      console.log(`Successfully deleted order with id ${id}`); //log success
+      console.log(`Successfully deleted order with id ${id}`);
     }
-    fetchOrders(); //re-fetch orders
+    fetchOrders();
   };
 
-  //cancel order logic, synonomous with saying you canceled an order
   const cancelOrder = async (orderId: number, foodId: number) => {
-    //delete order
-    const { error: deleteError } = await supabase 
+    const { error: deleteError } = await supabase
       .from("Orders")
       .delete()
       .eq("id", orderId);
 
-      //if there is an error, log it
     if (deleteError) {
       console.error("Error deleting order:", deleteError);
       return;
     }
-    
-    //gets the quantity left of that food
+
     const { data, error: fetchError } = await supabase
       .from("Food")
       .select("quantity_left")
@@ -45,40 +39,36 @@ export default function OrdersPage() {
       console.error("Error fetching food:", fetchError);
       return;
     }
-    //updated quantity
+
     const updatedQuantity = data.quantity_left + 1;
 
-    //updates the old quantity with the new quantity
     const { error: updateError } = await supabase
       .from("Food")
       .update({ quantity_left: updatedQuantity })
       .eq("id", foodId);
 
-    if (updateError) { //logs error
+    if (updateError) {
       console.error("Error updating food quantity:", updateError);
-    } else { //logs success
+    } else {
       console.log(`Successfully incremented quantity_left to ${updatedQuantity}`);
     }
-    //fetches orders after finish
+
     fetchOrders();
   };
 
-  //fetch orders function 
   const fetchOrders = async () => {
-    //get current user to make orders
     const {
       data: { user },
       error: authError,
     } = await supabase.auth.getUser();
-    //if we did not get a user, handle it here
+
     if (authError || !user) {
-      console.error("Failed to get current user:", authError);
+      console.error("❌ Failed to get current user:", authError);
       setOrders([]);
       setLoading(false);
       return;
     }
 
-    //get the current order info at that specific user id
     const { data, error } = await supabase
       .from("Orders")
       .select(`
@@ -102,26 +92,21 @@ export default function OrdersPage() {
             time_end
           )
         )
-      `)      
+      `)
       .eq("grabber_id", user.id);
-    //if error, log it accordingly, else set the orders
+
     if (error) {
       console.error("Error fetching orders:", error.message);
     } else {
-      const cleaned = (data as RawOrderItem[]).map((order) => ({
-        ...order,
-        food: {
-          ...order.food[0], // flatten food[]
-          event: Array.isArray(order.food[0].event) ? order.food[0].event[0] : order.food[0].event
-        }
-      })) as OrderItem[];
-      
-      setOrders(cleaned);
-      
+      setOrders(data);
+    }
 
     setLoading(false);
   };
 
+  useEffect(() => {
+    fetchOrders();
+  }, []);
 
   if (loading) {
     return (
@@ -146,5 +131,4 @@ export default function OrdersPage() {
       } />
     </Flex>
   );
-}
 }

@@ -242,22 +242,24 @@ export interface OrderCardProps {
 export type RawOrderItem = {
   id: number;
   grabber_id: string;
-  food: {
-    id: number;
-    name: string;
-    calories: number;
-    carbs: number;
-    proteins: number;
-    fats: number;
-    quantity_left: number;
-    total_quantity: number;
-    allergies: string[];
-    serving_size_unit: string;
-    event_id: number;
-    event: {
+  food: [
+    {
+      id: number;
       name: string;
-      location: string;
-      time_end: string;
-    }[];
-  }[]; // ← THIS is the real shape now
+      calories: number;
+      carbs: number;
+      proteins: number;
+      fats: number;
+      quantity_left: number;
+      total_quantity: number;
+      allergies: string[];
+      serving_size_unit: string;
+      event_id: number;
+      event: {
+        name: string;
+        location: string;
+        time_end: string;
+      };
+    }
+  ]; // ✅ array of one food item
 };

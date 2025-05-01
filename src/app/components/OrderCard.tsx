@@ -2,6 +2,7 @@
 import {Card, Typography, Button, Flex} from "antd";
 import type { OrderCardProps } from "@/types"
 export default function OrderCard({ order, deleteOrder, cancelOrder}: OrderCardProps) {
+  console.log("order, ", order)
     const onPickup = () => { 
         console.log("deleted order: ", order)
         deleteOrder(order.id)
