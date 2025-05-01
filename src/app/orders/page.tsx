@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react"; //react hooks
+import { useState } from "react"; //react hooks
 import { Flex, Spin, Typography, Empty } from "antd"; //antd sign in
 import supabase from "../api/supabaseClient"; //supabase 
 import OrderCard from "../components/OrderCard"; //external components
@@ -122,9 +122,6 @@ export default function OrdersPage() {
     setLoading(false);
   };
 
-  useEffect(() => {
-    fetchOrders();
-  }, []);
 
   if (loading) {
     return (
@@ -149,4 +146,5 @@ export default function OrdersPage() {
       } />
     </Flex>
   );
+}
 }
