@@ -1,25 +1,34 @@
 // src/app/components/FoodCard.tsx
 "use client";
-import { useState, useEffect } from "react";
-import { Card, Modal, Flex, Table, Button, Tooltip } from "antd";
-import Image from "next/image";
-import { EventRow, TableRow } from "@/types";
-import supabase from "../api/supabaseClient";
+import { useState, useEffect } from "react"; //react hooks
+import { Card, Modal, Flex, Table, Button, Tooltip } from "antd"; //antd UI imports
+import Image from "next/image"; //next image component
+import { EventRow, ReservationItem} from "@/types"; //type imports
+import supabase from "../api/supabaseClient"; //supabase imports
+import {
+  allergies,
+  imgs,
+  formattedLocations,
+  addresses,
+  formatTimeRange,
+  styles
+} from "../utils/foodCard.utils";
 
-export default function FoodCard({ id, name, location, time_start, time_end, creator_id }: EventRow) {
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [food, setFood] = useState<TableRow[]>([]);
-  const [unit, setUnit] = useState("g");
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  const [userId, setUserId] = useState<string | null>(null);
+export default function FoodCard({ id, name, location, time_start, time_end }: EventRow) {
+  //states
+  const [isModalVisible, setIsModalVisible] = useState(false); //used to expand the foodCard
+  const [loading, setLoading] = useState(false); //used to signal if food items are loading
+  const [food, setFood] = useState<ReservationItem[]>([]); //used to get food from the db call
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]); //used to know the selected row to place a user's orders
+  const [userId, setUserId] = useState<string | null>(null); //get user id state so we can make the order for that specific user
 
   useEffect(() => {
+    //fetch user
     const fetchUser = async () => {
       const {
         data: { user },
         error,
-      } = await supabase.auth.getUser();
+      } = await supabase.auth.getUser(); //supabase call to get the user
 
       if (error) {
         console.error("Failed to fetch user:", error.message);
@@ -31,6 +40,7 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
     fetchUser();
   }, []);
 
+  //param for the FoodTable for each food card. Just holds the selected rows and onChange, which fires the setSelectedRowKeys when a new key gets selected / deselected
   const rowSelection = {
     selectedRowKeys,
     onChange: (newSelectedRowKeys: React.Key[]) => {
@@ -38,10 +48,13 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
     },
   };
 
+  //reserving our order logic
   const onReservation = async () => {
-    const selectedRows = food.filter(row => selectedRowKeys.includes(row.id));
+    const selectedRows = food.filter(row => selectedRowKeys.includes(row.id)); ///first, get all the selected rows by IDs
 
+    //for each of these selected rows, we must decrement the quantity, and the insert the order into the order table (event_id, grabber_id (the student), and the food id)
     for (const row of selectedRows) {
+      console.log("row: ", row)
       const newQuantityLeft = row.quantity_left - 1;
 
       const { error: orderError } = await supabase
@@ -59,6 +72,7 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
         continue;
       }
 
+      //then, we must update the quantity left with the decremented quantity
       const { error } = await supabase
         .from("Food")
         .update({ quantity_left: newQuantityLeft })
@@ -68,46 +82,13 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
         console.error(`Error updating quantity_left for food id ${row.id}:`, error);
       }
     }
-    await fetch("/api/sendEmail", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        to: "kpwrenn@bu.edu",    
-        subject: "Sandbox test 🚀",
-        text: "Im him",
-      }),
-    });
     
-    await fetchFoods();
-    setSelectedRowKeys([]);
+    await fetchFoods(); //fetch the new foods
+    setSelectedRowKeys([]); //set the selected keys to nothing
+    setIsModalVisible(false); //close the modal after order
   };
 
-  const allergies: Record<string, string> = {
-    dairy: "/allergyIcons/dairy-free.png",
-    egg: "/allergyIcons/egg-free.png",
-    fish: "/allergyIcons/fish-free.png",
-    gluten: "/allergyIcons/gluten-free.png",
-    peanut: "/allergyIcons/peanut-free.png",
-    seafood: "/allergyIcons/seafood-free.png",
-    soy: "/allergyIcons/soy-free.png",
-    "tree Nut": "/allergyIcons/treeNut-free.png",
-  };
-
-  const imgs: Record<string, string> = {
-    cds: "/CDS.jpg",
-    warren: "/WarrenTowers.jpg",
-    gsu: "/GSU.jpg",
-  };
-  const formattedLocations: Record<string, string> = {
-    cds: "Center for Computing and Data Sciences",
-    warren: "Warren Towers",
-    gsu: "George Sherman Union",
-  };
-  const addresses: Record<string, string> = {
-    cds: "665 Commonwealth Ave",
-    warren: "700 Commonwealth Ave",
-    gsu: "775 Commonwealth Ave",
-  };
+  //columns for the table, hardcoded for simplicity
   const columns = [
     {
       title: "Quantity",
@@ -130,25 +111,25 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
       title: "Protein",
       dataIndex: "proteins",
       key: "proteins",
-      render: (val: number) => <div>{Math.round(val) + unit}</div>,
+      render: (val: number) => <div>{Math.round(val) + "g"}</div>,
     },
     {
       title: "Carbs",
       dataIndex: "carbs",
       key: "carbs",
-      render: (val: number) => <div>{Math.round(val) + unit}</div>,
+      render: (val: number) => <div>{Math.round(val) + "g"}</div>,
     },
     {
       title: "Fat",
       dataIndex: "fats",
       key: "fats",
-      render: (val: number) => <div>{Math.round(val) + unit}</div>,
+      render: (val: number) => <div>{Math.round(val) + "g"}</div>,
     },
     {
       title: "Allergies",
       dataIndex: "allergies",
       key: "allergies",
-      render: (allergy: string[]) =>
+      render: (allergy: string[]) => //maps the allergies to their icons if applicable
         allergy.length === 0 ? (
           <div style={{ textAlign: "center" }}>N/A</div>
         ) : (
@@ -163,6 +144,7 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
     },
   ];
 
+  //this is to fetch foods for the Table for the FoodCard. here we see we just do A DB call to the food table, grab all the foods with the same event id, and with quantity left (quantity left that is greater than 0)
   const fetchFoods = async () => {
     const { data, error } = await supabase
       .from("Food")
@@ -171,125 +153,91 @@ export default function FoodCard({ id, name, location, time_start, time_end, cre
       .gt("quantity_left", 0);
 
     if (error) {
-      console.error("Error fetching food:", error.message);
+      console.error("Error fetching food:", error.message); //log error if any
     } else {
-      setFood(data);
+      setFood(data); //set Food to data given back
     }
 
-    setLoading(false);
+    setLoading(false); //signal that we are done loading
   };
 
+  //use effect to continously call it per user
   useEffect(() => {
     if (id) {
       fetchFoods();
     }
-  }, [id]);
+  });
 
-  const formatTimeRange = (start: string, end: string) => {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    const sameDay = startDate.toDateString() === endDate.toDateString();
-
-    const dateOptions: Intl.DateTimeFormatOptions = {
-      month: "short",
-      day: "numeric",
-    };
-
-    const timeOptions: Intl.DateTimeFormatOptions = {
-      hour: "numeric",
-      minute: "2-digit",
-    };
-
-    const formattedDate = startDate.toLocaleDateString(undefined, dateOptions);
-    const startTime = startDate.toLocaleTimeString(undefined, timeOptions);
-    const endTime = endDate.toLocaleTimeString(undefined, timeOptions);
-
-    return sameDay
-      ? `${formattedDate}, ${startTime} - ${endTime}`
-      : `${formattedDate} ${startTime} - ${endDate.toLocaleDateString(undefined, dateOptions)} ${endTime}`;
-  };
 
   return (
     <>
       <Card
-        hoverable
-        style={cardStyles}
-        onClick={() => setIsModalVisible(true)}
-        cover={
-          <div style={{ width: "100%", height: "200px", position: "relative" }}>
-            <Image
-              src={imgs[location]}
-              alt={location}
-              fill
-              style={{ objectFit: "cover", borderRadius: "10px" }}
-            />
-          </div>
-        }
-      >
-        <h3 style={{ marginBottom: "5px", fontWeight: "bold" }}>{name}</h3>
-        <p style={{ color: "#666", marginBottom: "8px" }}>{formattedLocations[location] + ": " + addresses[location]}</p>
-        <p style={timeStyle}>{formatTimeRange(time_start, time_end)}</p>
-      </Card>
+  hoverable
+  style={styles.card}
+  onClick={() => userId && setIsModalVisible(true)}
+  cover={
+    <div style={styles.imageCover}>
+      <Image
+        src={imgs[location]}
+        alt={location}
+        fill
+        style={{ objectFit: "cover", borderRadius: "10px" }}
+      />
+    </div>
+  }
+>
+  <h3 style={styles.eventName}>{name}</h3>
+  <p style={styles.locationText}>
+    {formattedLocations[location] + ": " + addresses[location]}
+  </p>
+  <p style={styles.time}>{formatTimeRange(time_start, time_end)}</p>
+</Card>
 
-      <Modal
-        open={isModalVisible}
-        onCancel={() => setIsModalVisible(false)}
-        footer={null}
-        width="100vw"
-        style={{ top: 0, padding: 0 }}
-        styles={{ body: { height: "100vh", margin: 0, padding: 0 } }}
-      >
-        <Card title={`${formattedLocations[location]} - Food Options`} style={{ height: "100%", width: "100%" }}>
-          <Flex justify="start" align="flex-start">
-            <div style={{ width: "30%", height: "500px", position: "relative" }}>
-              <Image
-                src={imgs[location]}
-                alt={location}
-                fill
-                style={{ objectFit: "cover", borderRadius: "10px" }}
+<Modal
+  open={isModalVisible}
+  onCancel={() => setIsModalVisible(false)}
+  footer={null}
+  width="100vw"
+  style={{ top: 0, padding: 0 }}
+  styles={{ body: styles.modalBody }}
+>
+  <Card title={`${formattedLocations[location]} - Food Options`} style={{ height: "100%", width: "100%" }}>
+    <Flex justify="start" align="flex-start">
+      <div style={styles.modalImage}>
+        <Image
+          src={imgs[location]}
+          alt={location}
+          fill
+          style={{ objectFit: "cover", borderRadius: "10px" }}
+        />
+      </div>
+
+      <div style={styles.modalContent}>
+        <h1 style={{ textAlign: "center" }}>Food Available</h1>
+        <div style={styles.tableWrapper}>
+          {loading ? (
+            <p>loading...</p>
+          ) : (
+            <>
+              <Table
+                dataSource={food}
+                columns={columns}
+                style={styles.table}
+                rowKey="id"
+                rowSelection={rowSelection}
               />
-            </div>
-
-            <div style={{ width: "70%", height: "500px", position: "relative" }}>
-              <h1 style={{ textAlign: "center" }}>Food Available</h1>
-              <div style={{ display: "flex", justifyContent: "center", flexDirection: "column", alignItems: "center" }}>
-                {loading ? (
-                  <p>loading...</p>
-                ) : (
-                  <>
-                    <Table
-                      dataSource={food}
-                      columns={columns}
-                      style={{ width: "75%" }}
-                      rowKey="id"
-                      rowSelection={rowSelection}
-                    />
-                    <div style={{ gap: "8px" }}>
-                      <Button onClick={onReservation}>Reserve Item</Button>
-                      <Button onClick={() => setSelectedRowKeys([])}>Clear All</Button>
-                    </div>
-                  </>
-                )}
+              <div style={styles.buttonGroup}>
+                <Button onClick={onReservation}>Reserve Item</Button>
+                <Button onClick={() => setSelectedRowKeys([])}>Clear All</Button>
               </div>
-            </div>
-          </Flex>
-        </Card>
-      </Modal>
+            </>
+          )}
+        </div>
+      </div>
+    </Flex>
+  </Card>
+</Modal>
+
     </>
   );
 }
-
-const cardStyles = {
-  borderRadius: "10px",
-  boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-  width: "100%",
-  maxWidth: "350px",
-  padding: "0.5em",
-};
-
-const timeStyle = {
-  fontWeight: "500",
-  fontSize: "14px",
-  color: "#444",
-  marginTop: "10px",
-};

@@ -1,15 +1,14 @@
 import { Input, InputNumber, Form } from 'antd';
+import type { EditableCellProps } from '@/types';
 
 export const EditableCell = ({
   editing,
   dataIndex,
   title,
   inputType,
-  record,
-  index,
   children,
   ...restProps
-}: any) => {
+}: EditableCellProps & React.TdHTMLAttributes<HTMLTableCellElement>) => {
   const inputNode = inputType === 'number' ? <InputNumber min={1} /> : <Input />;
 
   return (

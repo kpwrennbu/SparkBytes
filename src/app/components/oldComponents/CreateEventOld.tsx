@@ -128,8 +128,8 @@ export default function CreateEvent() {
     setIsModalVisible(false);
     // Fetch all users from Supabase
 const { data: users, error: usersError } = await supabase
-.from('Users') // make sure your user profile table is actually called 'Users'
-.select('id, email');
+.from('userinfo') // make sure your user profile table is actually called 'Users'
+.select('email');
 
 if (usersError) {
 console.error("❌ Failed to fetch user emails:", usersError.message);
@@ -155,6 +155,7 @@ Tap into the app to grab your favorites before they’re gone! 😋
 `;
 
 
+console.log("starting with email logic");
 // Send emails to all users
 for (const user of users) {
 if (user.email.endsWith('@bu.edu')) {
@@ -179,7 +180,7 @@ if (user.email.endsWith('@bu.edu')) {
   );
 }
 }
-
+console.log("done with email logic");
   };
 
   const isEditing = (record: any) => record.key === editingKey;

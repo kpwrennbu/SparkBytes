@@ -21,7 +21,7 @@ export default function EditAccountPage() {
                 setUserId(user.id)
 
                 // Fetch user info from the userinfo table
-                const { data, error } = await supabase
+                const { data } = await supabase
                     .from('Users')
                     .select('first_name, last_name')
                     .eq('id', user.id)
@@ -72,8 +72,12 @@ export default function EditAccountPage() {
             setTimeout(() => {
                 window.location.href = '/'
             }, 1000)
-        } catch (err: any) {
-            setError(err.message || 'Failed to update account information')
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                setError(err.message);
+            } else {
+                setError("Failed to update account information");
+            }        
         }
     }
 

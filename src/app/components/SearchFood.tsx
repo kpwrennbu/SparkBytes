@@ -8,17 +8,13 @@ import {
   Card,
   Typography,
   Space,
-  message,
   Tag,
 } from "antd";
-import { supabase } from "../lib/supabaseClient";
 import Image from "next/image";
 
 const { Title, Text } = Typography;
 
 export default function SearchFood({
-  isTableVisible,
-  setIsTableVisible,
   foods,
   setFoods,
   quantity,
@@ -141,7 +137,7 @@ export default function SearchFood({
             type="number"
             min={1}
             step={1}
-            value={quantity === 0 ? "" : quantity}
+            value={quantity < 0 ? "" : quantity}
             onChange={(e) => setQuantity(Number(e.target.value))}
           />
 
