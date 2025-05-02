@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) { //header, for a get request in nex
       fdcId: food.fdcId
     })));
 
-    // 4. Find the first item with serving size >= 100g
+    // 4. Find the first item with serving size >= 5g
     const food = foods.find((item) => item.servingSize && item.servingSize >= 5);
 
     // 5. Return early if no valid results found
