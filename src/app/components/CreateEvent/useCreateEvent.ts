@@ -96,7 +96,7 @@ export function useCreateEvent() {
     if (error) return;
     //gets the event ID
     const eventId = data?.[0]?.id;
-
+    console.log("before supabase call")
     //now, for each food in the Table, put it to the DB and link it with the event_id from the previous DB call
     for (const row of tableData) {
       await supabase.from("Food").insert([
@@ -116,7 +116,7 @@ export function useCreateEvent() {
       ]);
     }
     setIsModalVisible(false); //close the popup
-
+    console.log("after supabase call")
     // Fetch all users from Supabase
     const { data: users, error: usersError } = await supabase
       .from("userinfo") // make sure your user profile table is actually called 'Users'
@@ -158,29 +158,28 @@ Tap into the app to grab your favorites before they’re gone! 😋
 `;
 
     console.log("starting with email logic"); //email logic debug
+    console.log(users)
     // Send emails to all users
-    for (const user of users) {
-      if (user.email.endsWith("@bu.edu")) {
-        await fetch("/api/sendEmail", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            to: user.email,
-            subject: `New Event: ${eventName}`,
-            text: message,
+    await Promise.allSettled(
+      users.map((user) =>
+        Promise.all([
+          fetch("/api/sendEmail", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              to: user.email,
+              subject: `New Event: ${eventName}`,
+              text: message,
+            }),
           }),
-        });
-      }
-      await addNotification(
-        user.id,
-        "event_created",
-        {
-          title: `New Event: ${eventName}`,
-          url: `/events/${eventId}`,
+          addNotification(user.id, "event_created", {
+            title: `New Event: ${eventName}`,
+            url: `/events/${eventId}`,
+          }),
+        ])
+      )
+    );
     
-        }
-      );
-    };
     console.log("done with email logic");
     clearCreateEvent();
     }

@@ -5,6 +5,9 @@ export default function OrderCard({ id, food, deleteOrder, cancelOrder, grabber_
   console.log("order id, for order card", id)
   console.log("food, on order card: ", food);
   console.log("event: ", event)
+  console.log("name: ", name); 
+  console.log("location: ", location)
+  console.log("grabber id: ", grabber_id)
     const onPickup = () => { 
         console.log("deleted order: ", id)
         deleteOrder(id)
@@ -18,12 +21,12 @@ export default function OrderCard({ id, food, deleteOrder, cancelOrder, grabber_
           title={food.name}
           style={{ width: 300 }}
         >
-          <Typography.Paragraph>
+          {/* <Typography.Paragraph>
             <strong>Event:</strong> {name || "Unknown"}
           </Typography.Paragraph>
           <Typography.Paragraph>
             <strong>Location:</strong> {location || "Unknown"}
-          </Typography.Paragraph>
+          </Typography.Paragraph> */}
           <Typography.Paragraph>
             <strong>Calories:</strong> {food.calories} kcal
           </Typography.Paragraph>
@@ -39,9 +42,9 @@ export default function OrderCard({ id, food, deleteOrder, cancelOrder, grabber_
           <Typography.Paragraph>
             <strong>Allergies:</strong> {food.allergies.join(" ") || "None"}
           </Typography.Paragraph>
-          <Typography.Paragraph>
+          {/* <Typography.Paragraph>
             <strong>User ID:</strong> {grabber_id}
-          </Typography.Paragraph>
+          </Typography.Paragraph> */}
           <Flex gap="8px" justify="center" align="center"> 
             <Button onClick={() => onPickup()}>
                 Picked Up!

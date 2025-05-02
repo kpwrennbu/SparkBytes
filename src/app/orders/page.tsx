@@ -124,7 +124,7 @@ export default function OrdersPage() {
     if (error) {
       console.error("Error fetching orders:", error.message);
     } else {
-      console.log("data[0].food is ", data[0].food)
+      console.log("data[0].food is ", data[0]?.food)
       if (data && Array.isArray(data)) {
         const newOrders: Orders[] = data.map((order) => {
           const food = Array.isArray(order.food) ? order.food[0] : order.food;
