@@ -136,7 +136,7 @@ export default function Events() {
         />
 
         <div style={{ display: "flex", gap: "16px" }}>
-          {fullUser?.is_coordinator === 1 && <CreateEvent />}
+          {(fullUser?.is_coordinator === 1  || true)&& <CreateEvent />} 
           <Dropdown overlay={notificationMenu} trigger={["click"]} placement="bottomRight">
             <Badge count={unreadCount} offset={[-4, 4]}>
               <Button type="text" icon={<BellOutlined style={{ fontSize: 18 }} />} />

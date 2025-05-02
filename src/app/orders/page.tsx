@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Flex, Spin, Typography, Empty } from "antd";
+import { Flex, Typography, Empty } from "antd";
 import supabase from "../api/supabaseClient";
 import OrderCard from "../components/OrderCard";
 import type { Orders } from "@/types";
@@ -147,9 +147,11 @@ export default function OrdersPage() {
 
   if (loading) {
     return (
-      <Flex align="center" justify="center" style={{ height: "100vh" }}>
-        <Spin size="large" />
-      </Flex>
+      <Empty description={
+        <Typography.Text type="secondary" style={{ fontSize: "16px" }}>
+          No orders found. Please sign in and place an order to view it here.
+        </Typography.Text>
+      } />
     );
   }
 
@@ -158,7 +160,6 @@ export default function OrdersPage() {
       {orders.map((order) => (
         <OrderCard key={order.id} id={order.id} food={order.food} deleteOrder={deleteOrder} cancelOrder={cancelOrder} grabber_id={order.grabber_id} name={order.event_name} location={order.event_location} />
       ))}
-      <p>LOL</p>
     </Flex>
   ) : (
     <Flex align="center" justify="center" style={{ height: "80vh", flexDirection: "column" }}>
